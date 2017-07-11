@@ -1,0 +1,27 @@
+{
+  "name": "service-profile",
+  "version": "1.0.0",
+  "description": "Interactive mock server for profiling user scenarios",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/micburks/service-profile.git"
+  },
+  "keywords": [
+    "mock",
+    "server",
+    "interactive",
+    "express",
+    "services",
+    "repl"
+  ],
+  "author": "Mickey Burks",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/micburks/service-profile/issues"
+  },
+  "homepage": "https://github.com/micburks/service-profile#readme"
+}
