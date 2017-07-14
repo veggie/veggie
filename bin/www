@@ -1,0 +1,12 @@
+#!/usr/bin/env node
+
+const app = require('express')()
+const port = process.env.PORT || 1337
+const routes = require('../services')
+
+routes(app)
+
+app.listen(port, function() {
+  console.log(`serving mock data from localhost:${port}`)
+})
+
