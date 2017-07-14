@@ -1,14 +1,32 @@
 #!/usr/bin/env node
 
-const replUtils = require('../src/replUtils')
+const addr = require('../src/replUtils').addr
+const meow = require('meow');
+const cli = meow(`
+      Usage
+        $ mock-client
+
+      Options
+        -v, --version  Output mock-client version and exit
+
+      Examples
+        $ mock-client
+        connected to repl at ${addr}
+  `, {
+    alias: {
+      v: 'version'
+    }
+  })
+
 const net = require('net')
-const sock = net.connect(replUtils.addr)
+const sock = net.connect(addr)
 
 sock.setEncoding('utf8')
 process.stdin.pipe(sock)
 sock.pipe(process.stdout)
 
 sock.on('connect', function () {
+  console.log(`connected to repl at ${addr}`)
   process.stdin.resume()
   process.stdin.setRawMode(true)
 })
