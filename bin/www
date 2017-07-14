@@ -1,12 +1,38 @@
 #!/usr/bin/env node
 
-const app = require('express')()
-const port = process.env.PORT || 1337
-const routes = require('../services')
+const meow = require('meow');
+const cli = meow(`
+      Usage
+        $ mock-server -d <mocks path> -p <port>
 
-routes(app)
+      Options
+        -d, --dir  Directory containing mock data files
+        -p, --port  Port to serve mocks from
+        -v, --version  Output mock-server version and exit
+
+      Examples
+        $ mock-server -d services -p 9999
+        serving mock data from localhost:9999
+  `, {
+    string: 'dir',
+    number: 'port',
+    default: {
+      dir: process.cwd(),
+      port: 1337
+    },
+    alias: {
+      d: 'dir',
+      p: 'port',
+      v: 'version'
+    }
+  })
+
+const { port, dir } = cli.flags
+const app = require('express')()
+
+const routes = require('../src')
+routes(app, dir)
 
 app.listen(port, function() {
   console.log(`serving mock data from localhost:${port}`)
 })
-
