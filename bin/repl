@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const replUtils = require('../services/replUtils')
+const replUtils = require('../src/replUtils')
 const net = require('net')
 const sock = net.connect(replUtils.addr)
 

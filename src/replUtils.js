@@ -1,8 +1,9 @@
-const addr = 1999
+// todo: find available port
+const addr = 1999 // hardcoded to be able to connect
 let allBlocked = false
 let blockedServices = {}
 
-function blockMiddleware (req, res, next) {
+function profileMiddleware (req, res, next) {
   const path = req.url.split('?')[0]
   const blocked = Object.keys(blockedServices)
     .find(key => {
@@ -51,7 +52,7 @@ function show () {
 
 module.exports = {
   addr,
-  blockMiddleware,
+  profileMiddleware,
   methods: {
     block,
     blockAll,
