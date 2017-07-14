@@ -4,17 +4,17 @@ const net = require('net')
 const repl = require('repl')
 const replUtils = require('./replUtils')
 
-const servicesMap = fs.readdirSync(__dirname)
-  .filter(name => /^[^\.]*$/.test(name)) // Directories -- files that don't contain '.'
-  .reduce((acc, name) => {
-    const services = require(`${__dirname}/${name}/index.js`)
-    acc = Object.assign(acc, services)
-    return acc
-  }, {})
-
 // Export function that takes the express app
 function mockRoutes (app) {
   app.use(bodyParser.json())
+
+  const servicesMap = fs.readdirSync(__dirname)
+    .filter(name => /^[^\.]*$/.test(name)) // Directories -- files that don't contain '.'
+    .reduce((acc, name) => {
+      const services = require(`${__dirname}/${name}/index.js`)
+      acc = Object.assign(acc, services)
+      return acc
+    }, {})
 
   Object.keys(servicesMap).forEach(url => {
     let delay = Math.floor(Math.random() * 1000)
@@ -95,12 +95,8 @@ function startRepl () {
   replServer.listen(replUtils.addr)
 }
 
-module.exports = function (app) {
-  const interactive = true
-
-  if (interactive) {
-    app.use(replUtils.blockMiddleware)
-    startRepl()
-  }
-  mockRoutes(app)
+module.exports = function (app, dir) {
+  app.use(replUtils.profileMiddleware)
+  startRepl()
+  mockRoutes(app, dir)
 }
