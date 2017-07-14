@@ -1,23 +1,23 @@
 const bodyParser = require('body-parser')
 const fs = require('fs')
+const glob = require('glob')
 const net = require('net')
+const path = require('path')
 const repl = require('repl')
 const replUtils = require('./replUtils')
 
+// TODO:
+// support max_delay options
+// support other HTTP methods
+
+const MAX_DELAY = 1000
+
 // Export function that takes the express app
-function mockRoutes (app) {
+function mockRoutes (app, routes) {
   app.use(bodyParser.json())
 
-  const servicesMap = fs.readdirSync(__dirname)
-    .filter(name => /^[^\.]*$/.test(name)) // Directories -- files that don't contain '.'
-    .reduce((acc, name) => {
-      const services = require(`${__dirname}/${name}/index.js`)
-      acc = Object.assign(acc, services)
-      return acc
-    }, {})
-
-  Object.keys(servicesMap).forEach(url => {
-    let delay = Math.floor(Math.random() * 1000)
+  Object.keys(routes).forEach(url => {
+    let delay = Math.floor(Math.random() * MAX_DELAY)
     let handler
 
     if (typeof servicesMap[url] === 'function') {
@@ -58,7 +58,7 @@ function startRepl () {
   const replServer = net.createServer(socket => {
     console.log('Mocket session: Connected')
     const session = repl.start({
-      prompt: 'mock-socket (aka mocket)> ',
+      prompt: 'mock-client > ',
       input: socket,
       output: socket,
       terminal: true
@@ -103,8 +103,23 @@ function startRepl () {
   replServer.listen(replUtils.addr)
 }
 
-module.exports = function (app, dir) {
+function dir (app, dir) {
+  let routes = dir
+  glob(dir, (err, files) => {
+    routes = files
+      .reduce((acc, file) => {
+        const services = require(file)
+        acc = Object.assign(acc, services)
+        return acc
+      }, {})
+    routes(app, routes)
+  })
+}
+
+function routes (app, routes) {
   app.use(replUtils.profileMiddleware)
   startRepl()
-  mockRoutes(app, dir)
+  mockRoutes(app, routes)
 }
+
+module.exports = { dir, routes }
