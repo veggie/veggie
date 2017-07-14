@@ -12,25 +12,25 @@ const replUtils = require('./replUtils')
 let MAX_DELAY = 1000
 
 // Export function that takes the express app
-function mockRoutes (app, routes) {
+function addRoutes (app, routes) {
   app.use(bodyParser.json())
 
   Object.keys(routes).forEach(url => {
     let delay = Math.floor(Math.random() * MAX_DELAY)
     let handler
 
-    if (typeof servicesMap[url] === 'function') {
+    if (typeof routes[url] === 'function') {
       // express route
-      handler = servicesMap[url]
+      handler = routes[url]
     } else {
       let response
 
-      if (typeof serviceMap[url] === 'string') {
+      if (typeof routes[url] === 'string') {
         // path to json file
-        response = require(servicesMap[url])
+        response = require(routes[url])
       } else {
         // json object
-        response = servicesMap[url]
+        response = routes[url]
       }
 
       handler = (req, res) => {
@@ -102,25 +102,26 @@ function startRepl () {
   replServer.listen(replUtils.addr)
 }
 
-function serve ({ app, glob: pattern, delay }) {
+function serveFromGlob ({ app, glob: pattern, delay }) {
   if (delay) {
     MAX_DELAY = delay
   }
   glob(pattern, (err, files) => {
+    console.log(files)
     routes = files
       .reduce((acc, file) => {
         const services = require(file)
         acc = Object.assign(acc, services)
         return acc
       }, {})
-    routes(app, routes)
+    mockRoutes(app, routes)
   })
 }
 
-function routes (app, routes) {
+function mockRoutes (app, routes) {
   app.use(replUtils.profileMiddleware)
   startRepl()
-  mockRoutes(app, routes)
+  addRoutes(app, routes)
 }
 
-module.exports = { serve, routes }
+module.exports = { serveFromGlob, mockRoutes }
