@@ -7,10 +7,9 @@ const repl = require('repl')
 const replUtils = require('./replUtils')
 
 // TODO:
-// support max_delay options
 // support other HTTP methods
 
-const MAX_DELAY = 1000
+let MAX_DELAY = 1000
 
 // Export function that takes the express app
 function mockRoutes (app, routes) {
@@ -103,9 +102,11 @@ function startRepl () {
   replServer.listen(replUtils.addr)
 }
 
-function dir (app, dir) {
-  let routes = dir
-  glob(dir, (err, files) => {
+function serve ({ app, glob: pattern, delay }) {
+  if (delay) {
+    MAX_DELAY = delay
+  }
+  glob(pattern, (err, files) => {
     routes = files
       .reduce((acc, file) => {
         const services = require(file)
@@ -122,4 +123,4 @@ function routes (app, routes) {
   mockRoutes(app, routes)
 }
 
-module.exports = { dir, routes }
+module.exports = { serve, routes }
