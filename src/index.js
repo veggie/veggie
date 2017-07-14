@@ -107,7 +107,6 @@ function serveFromGlob ({ app, glob: pattern, delay }) {
     MAX_DELAY = delay
   }
   glob(pattern, (err, files) => {
-    console.log(files)
     routes = files
       .reduce((acc, file) => {
         const services = require(file)
