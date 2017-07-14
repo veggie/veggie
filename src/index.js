@@ -21,12 +21,20 @@ function mockRoutes (app) {
     let handler
 
     if (typeof servicesMap[url] === 'function') {
+      // express route
       handler = servicesMap[url]
-    }
-    else {
-      handler = (req, res) => {
-        const response = servicesMap[url]
+    } else {
+      let response
 
+      if (typeof serviceMap[url] === 'string') {
+        // path to json file
+        response = require(servicesMap[url])
+      } else {
+        // json object
+        response = servicesMap[url]
+      }
+
+      handler = (req, res) => {
         if (response) {
           res.json(response)
         }
