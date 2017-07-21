@@ -3,18 +3,20 @@ const addr = 1999 // hardcoded to be able to connect
 let allBlocked = false
 let blockedServices = {}
 
-function profileMiddleware (req, res, next) {
-  const { path } = req
-  const blocked = Object.keys(blockedServices)
-    .find(key => {
-      const val = blockedServices[key]
-      return val.regex.test(path)
-    })
-  if (blocked) {
-    console.log('Service is blocked')
-    return res.status(404).json({})
+function profileMiddleware (profile) {
+  return (req, res, next) => {
+    const { path } = req
+    const blocked = Object.keys(blockedServices)
+      .find(key => {
+        const val = blockedServices[key]
+        return val.regex.test(path)
+      })
+    if (blocked) {
+      console.log('Service is blocked')
+      return res.status(404).json({})
+    }
+    next()
   }
-  next()
 }
 
 function block (serviceName, statusCode = 404) {
