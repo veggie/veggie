@@ -4,7 +4,7 @@ let allBlocked = false
 let blockedServices = {}
 
 function profileMiddleware (req, res, next) {
-  const path = req.url.split('?')[0]
+  const { path } = req
   const blocked = Object.keys(blockedServices)
     .find(key => {
       const val = blockedServices[key]
@@ -18,6 +18,8 @@ function profileMiddleware (req, res, next) {
 }
 
 function block (serviceName, statusCode = 404) {
+  // TODO: regexp: search through services and add to output JSON
+  // TODO: string: add directly to output JSON
   console.log(`Blocking ${serviceName} service`)
   const meta = {
     regex: serviceName instanceof RegExp ? serviceName : new RegExp(serviceName),
