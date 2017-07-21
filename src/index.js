@@ -1,13 +1,14 @@
 const bodyParser = require('body-parser')
 const express = require('express')
 const fs = require('fs')
+const glob = require('glob')
 const net = require('net')
 const path = require('path')
 const repl = require('repl')
 const replUtils = require('./replUtils')
+const profileMiddleware = replUtils.profileMiddleware
 const util = require('util')
 
-const glob = util.promisifiy(require('glob'))
 const MAX_DELAY = 1000
 
 /**
@@ -79,7 +80,7 @@ function server (config) {
  * @param {object} - configuration object
  * @returns void
  */
-async function mockData ({ app, dir, time = MAX_DELAY, profile = null }) {
+function mockData ({ app, dir, time = MAX_DELAY, profile = null }) {
   // Apply middleware
   app.use(bodyParser.json())
   app.use(profileMiddleware(profile))
@@ -87,7 +88,7 @@ async function mockData ({ app, dir, time = MAX_DELAY, profile = null }) {
   // Find files matching glob
   let files
   try {
-    files = await glob(dir)
+    files = glob.sync(dir)
   } catch (e) {
     throw new Error('service-profile: error reading `dir` glob')
   }
@@ -140,16 +141,21 @@ function getRouteHandler (response) {
     return response
   }
 
-  let data
   if (typeof response === 'string') {
     // Path to json file
-    data = cachelessRequire(response)
-  } else {
-    // Json object
-    data = response
+    return (req, res) => {
+      const data = cachelessRequire(response)
+      if (data) {
+        res.json(data)
+      }
+      else {
+        res.status(404).json({})
+      }
+    }
   }
 
-  // Return handler
+  // Json object
+  const data = response
   return (req, res) => {
     if (data) {
       res.json(data)
@@ -165,10 +171,9 @@ function getRouteHandler (response) {
  * @returns {module} - required file
  */
 function cachelessRequire (filePath) {
-  // TODO: filePath must be absolute
-  console.log(filePath)
+  const data = require(filePath)
   delete require.cache[filePath]
-  return require(filePath)
+  return data
 }
 
 module.exports = { server, mockData }
