@@ -3,37 +3,34 @@
 const meow = require('meow');
 const cli = meow(`
       Usage
-        $ mock-server -d <mocks glob> -p <port>
+        $ mock-server -d <dir> -p <port> -t <time>
 
       Options
-        -g, --glob  Glob matching files containing mock services
+        -d, --dir  Glob matching files containing mock services
         -p, --port  Port to serve mocks from
-        -d, --delay  Max delay to wait before returning service response
+        -t, --time  Max delay (in milliseconds) to wait before returning service response
         -v, --version  Output mock-server version and exit
 
       Examples
-        $ mock-server -d services -p 9999
-        serving mock data from localhost:9999
+        $ mock-server -g services/**/index.js -p 9999 -d 1000
+        Serving mock data from localhost:9999
   `, {
-    string: 'glob',
-    number: [ 'port', 'delay' ],
+    string: 'dir',
+    number: [ 'port', 'time' ],
     default: {
       port: 1337,
-      delay: 1000
+      maxDelay: 1000
     },
     alias: {
-      g: 'glob',
+      d: 'dir',
       p: 'port',
+      t: 'time',
       v: 'version'
     }
   })
 
-const { port, glob, delay } = cli.flags
-const app = require('express')()
-
-const { serveFromGlob } = require('../src')
-serveFromGlob({ app, glob, delay })
-
-app.listen(port, function() {
-  console.log(`serving mock data from localhost:${port}`)
+const { port } = cli.flags
+const server = require('../src')
+server(cli.flags).listen(port, () => {
+  console.log(`Serving mock data from localhost:${port}`)
 })
