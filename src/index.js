@@ -1,58 +1,19 @@
 const bodyParser = require('body-parser')
+const express = require('express')
 const fs = require('fs')
-const glob = require('glob')
 const net = require('net')
 const path = require('path')
 const repl = require('repl')
 const replUtils = require('./replUtils')
+const util = require('util')
 
-// TODO:
-// support other HTTP methods
+const glob = util.promisifiy(require('glob'))
+const MAX_DELAY = 1000
 
-let MAX_DELAY = 1000
-
-// Export function that takes the express app
-function addRoutes (app, routes) {
-  app.use(bodyParser.json())
-
-  Object.keys(routes).forEach(url => {
-    let delay = Math.floor(Math.random() * MAX_DELAY)
-    let handler
-
-    if (typeof routes[url] === 'function') {
-      // express route
-      handler = routes[url]
-    } else {
-      let response
-
-      if (typeof routes[url] === 'string') {
-        // path to json file
-        response = require(routes[url])
-      } else {
-        // json object
-        response = routes[url]
-      }
-
-      handler = (req, res) => {
-        if (response) {
-          res.json(response)
-        }
-        else {
-          res.status(404).json({})
-        }
-      }
-    }
-
-    // Add the route to the app
-    app.all(url, (...args) => {
-      setTimeout(() => {
-        handler(...args)
-      }, delay)
-    })
-  })
-}
-
-function startRepl () {
+/**
+ * @returns void
+ */
+function startReplServer () {
   // Open net connection for repl
   const replServer = net.createServer(socket => {
     console.log('Mocket session: Connected')
@@ -102,25 +63,112 @@ function startRepl () {
   replServer.listen(replUtils.addr)
 }
 
-function serveFromGlob ({ app, glob: pattern, delay }) {
-  if (delay) {
-    MAX_DELAY = delay
+/**
+ * Entry point for server
+ *
+ * @param {object} config
+ * @returns {Express app}
+ */
+function server (config) {
+  config.app = express()
+  mockData(config)
+  return config.app
+}
+
+/**
+ * @param {object} - configuration object
+ * @returns void
+ */
+async function mockData ({ app, dir, time = MAX_DELAY, profile = null }) {
+  // Apply middleware
+  app.use(bodyParser.json())
+  app.use(profileMiddleware(profile))
+
+  // Find files matching glob
+  let files
+  try {
+    files = await glob(dir)
+  } catch (e) {
+    throw new Error('service-profile: error reading `dir` glob')
   }
-  glob(pattern, (err, files) => {
-    routes = files
-      .reduce((acc, file) => {
-        const services = require(file)
-        acc = Object.assign(acc, services)
-        return acc
-      }, {})
-    mockRoutes(app, routes)
+
+  // Build master route config object
+  const routeConfig = files
+    .reduce((acc, file) => {
+      const services = require(file)
+      acc = Object.assign(acc, services)
+      return acc
+    }, {})
+
+  // Apply all routes
+  mockRoutes(app, routeConfig, time)
+
+  // Start interactive server
+  startReplServer()
+}
+
+/**
+ * @param {Express app} app
+ * @param {object} routes - route config object
+ * @param {number} time - max delay before completing response
+ * @returns void
+ */
+function mockRoutes (app, routes, time) {
+  Object.keys(routes).forEach(url => {
+    const delay = Math.floor(Math.random() * time)
+    const handler = getRouteHandler(routes[url])
+
+    // Add the route to the app
+    app.all(url, (...args) => {
+      setTimeout(() => {
+        handler(...args)
+      }, delay)
+    })
   })
 }
 
-function mockRoutes (app, routes) {
-  app.use(replUtils.profileMiddleware)
-  startRepl()
-  addRoutes(app, routes)
+/**
+ * Returns an express route handler for the given service
+ *
+ * @param {function|object|string} response - The service response
+ * @returns {(req: Express Request, res: Express Response) => void}
+ * @private
+ */
+function getRouteHandler (response) {
+  if (typeof response === 'function') {
+    // Express route
+    return response
+  }
+
+  let data
+  if (typeof response === 'string') {
+    // Path to json file
+    data = cachelessRequire(response)
+  } else {
+    // Json object
+    data = response
+  }
+
+  // Return handler
+  return (req, res) => {
+    if (data) {
+      res.json(data)
+    }
+    else {
+      res.status(404).json({})
+    }
+  }
 }
 
-module.exports = { serveFromGlob, mockRoutes }
+/**
+ * @param {string} filePath - absolute file path to load
+ * @returns {module} - required file
+ */
+function cachelessRequire (filePath) {
+  // TODO: filePath must be absolute
+  console.log(filePath)
+  delete require.cache[filePath]
+  return require(filePath)
+}
+
+module.exports = { server, mockData }
