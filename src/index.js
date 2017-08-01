@@ -16,18 +16,20 @@ const MAX_DELAY = 1000
  */
 function server (config) {
   config.app = express()
-  mockData(config)
+  app.use(router(config))
   return config.app
 }
 
 /**
  * @param {object} - configuration object
- * @returns void
+ * @returns {Express router}
  */
-function mockData ({ app, dir, time = MAX_DELAY, profile = null }) {
+function router ({ dir, time = MAX_DELAY, profile = null }) {
+  const router = express.Router()
+
   // Apply middleware
-  app.use(bodyParser.json({ limit: '50mb' }))
-  app.use(profileMiddleware(profile))
+  router.use(bodyParser.json({ limit: '50mb' }))
+  router.use(profileMiddleware(profile))
 
   // Find files matching glob
   let files
@@ -46,10 +48,26 @@ function mockData ({ app, dir, time = MAX_DELAY, profile = null }) {
     }, {})
 
   // Apply all routes
-  mockRoutes(app, routeConfig, time)
+  for (let { url, handler } in routes(routeConfig)) {
+    router.all(url, (...args) => {
+      setTimeout(() => {
+        handler(...args)
+      }, randomDelay(time))
+    })
+  }
 
   // Start interactive server
-  startReplServer()
+  replServer()
+
+  return router
+}
+
+/**
+ * @param {number} time - max delay
+ * @returns {number}
+ */
+function randomDelay (time) {
+  return Math.floor(Math.random() * time)
 }
 
 /**
@@ -58,17 +76,10 @@ function mockData ({ app, dir, time = MAX_DELAY, profile = null }) {
  * @param {number} time - max delay before completing response
  * @returns void
  */
-function mockRoutes (app, routes, time) {
+function *routes (app, routes, time) {
   Object.keys(routes).forEach(url => {
-    const delay = Math.floor(Math.random() * time)
     const handler = getRouteHandler(routes[url])
-
-    // Add the route to the app
-    app.all(url, (...args) => {
-      setTimeout(() => {
-        handler(...args)
-      }, delay)
-    })
+    yield { url, handler }
   })
 }
 
@@ -120,4 +131,4 @@ function cachelessRequire (filePath) {
   return data
 }
 
-module.exports = { server, mockData }
+module.exports = { server, router }
