@@ -7,7 +7,7 @@ Interactive mock server for profiling user scenarios
 ### Installation
 
 ```
-npm i -D service-proxy
+npm i -D service-profile
 ```
 
 
