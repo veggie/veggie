@@ -1,6 +1,6 @@
-#!/usr/bin/env node
+import meow from 'meow'
+import { server } from '../src'
 
-const meow = require('meow');
 const cli = meow(`
       Usage
         $ mock-server -d <dir> -p <port> -t <time>
@@ -30,7 +30,6 @@ const cli = meow(`
   })
 
 const { port } = cli.flags
-const server = require('../src')
 server(cli.flags).listen(port, () => {
   console.log(`Serving mock data from localhost:${port}`)
 })
