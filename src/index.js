@@ -82,7 +82,7 @@ function server (config) {
  */
 function mockData ({ app, dir, time = MAX_DELAY, profile = null }) {
   // Apply middleware
-  app.use(bodyParser.json())
+  app.use(bodyParser.json({ limit: '50mb' }))
   app.use(profileMiddleware(profile))
 
   // Find files matching glob
