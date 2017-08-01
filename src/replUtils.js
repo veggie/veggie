@@ -54,15 +54,17 @@ function show () {
   return Object.keys(blockedServices)
 }
 
-module.exports = {
+const methods = {
+  block,
+  blockAll,
+  reset,
+  resetAll,
+  show,
+  showVerbose
+}
+
+export {
   addr,
   profileMiddleware,
-  methods: {
-    block,
-    blockAll,
-    reset,
-    resetAll,
-    show,
-    showVerbose
-  }
+  methods
 }

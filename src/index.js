@@ -1,11 +1,9 @@
-const bodyParser = require('body-parser')
-const express = require('express')
-const glob = require('glob')
-const path = require('path')
-const replServer = require('./repl')
-const replUtils = require('./replUtils')
+import bodyParser from 'body-parser'
+import express from 'express'
+import glob from 'glob'
+import replServer from './repl'
+import { profileMiddleware } from './replUtils'
 
-const profileMiddleware = replUtils.profileMiddleware
 const MAX_DELAY = 1000
 
 /**
@@ -48,7 +46,7 @@ function router ({ dir, time = MAX_DELAY, profile = null }) {
     }, {})
 
   // Apply all routes
-  for (let { url, handler } in routes(routeConfig)) {
+  for (let { url, handler } of routes(routeConfig)) {
     router.all(url, (...args) => {
       setTimeout(() => {
         handler(...args)
@@ -76,11 +74,12 @@ function randomDelay (time) {
  * @param {number} time - max delay before completing response
  * @returns void
  */
-function *routes (app, routes, time) {
-  Object.keys(routes).forEach(url => {
+function *routes (routes) {
+  const urls = Object.keys(routes)
+  for (let url of urls) {
     const handler = getRouteHandler(routes[url])
     yield { url, handler }
-  })
+  }
 }
 
 /**
@@ -131,4 +130,4 @@ function cachelessRequire (filePath) {
   return data
 }
 
-module.exports = { server, router }
+export { server, router }
