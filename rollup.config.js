@@ -14,6 +14,7 @@ export default {
     'body-parser',
     'express',
     'glob',
+    'path',
     'fs',
     'net',
     'repl'
