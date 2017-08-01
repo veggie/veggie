@@ -1,6 +1,6 @@
 {
   "name": "service-profile",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Interactive mock server for profiling user scenarios",
   "main": "dist/service-profile.js",
   "module": "dist/service-profile.es.js",
@@ -39,7 +39,7 @@
   "devDependencies": {
     "rollup": "^0.45.2"
   },
-  files: [
+  "files": [
     "bin",
     "dist"
   ]
