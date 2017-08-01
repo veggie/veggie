@@ -8,6 +8,7 @@ export default {
     'express',
     'glob',
     'fs',
+    'path',
     'net',
     'repl',
     'meow'
