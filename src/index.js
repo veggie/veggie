@@ -14,7 +14,7 @@ const MAX_DELAY = 1000
  */
 function server (config) {
   config.app = express()
-  app.use(router(config))
+  config.app.use(router(config))
   return config.app
 }
 
