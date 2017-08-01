@@ -2,12 +2,14 @@
   "name": "service-profile",
   "version": "0.0.2",
   "description": "Interactive mock server for profiling user scenarios",
-  "main": "src/index.js",
+  "main": "dist/service-profile.js",
+  "module": "dist/service-profile.es.js",
   "bin": {
     "mock-server": "bin/www",
     "mock-client": "bin/repl"
   },
   "scripts": {
+    "build": "rollup -c && rollup -c rollup.config.www.js && rollup -c rollup.config.repl.js",
     "test": "mocha"
   },
   "repository": {
@@ -33,5 +35,12 @@
     "express": "^4.15.3",
     "glob": "^7.1.2",
     "meow": "^3.7.0"
-  }
+  },
+  "devDependencies": {
+    "rollup": "^0.45.2"
+  },
+  files: [
+    "bin",
+    "dist"
+  ]
 }
