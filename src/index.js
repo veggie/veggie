@@ -1,7 +1,6 @@
 import bodyParser from 'body-parser'
 import express from 'express'
 import glob from 'glob'
-import path from 'path'
 import replServer from './repl'
 import { profileMiddleware } from './replUtils'
 
@@ -33,7 +32,7 @@ function router ({ dir, time = MAX_DELAY, profile = null }) {
   // Find files matching glob
   let files
   try {
-    files = glob.sync(path.join(process.cwd(), dir))
+    files = glob.sync(dir)
   } catch (e) {
     throw new Error('service-profile: error reading `dir` glob')
   }
