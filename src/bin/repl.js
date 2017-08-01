@@ -1,7 +1,7 @@
-#!/usr/bin/env node
+import meow from 'meow'
+import net from 'net'
+import { addr } from '../replUtils'
 
-const addr = require('../src/replUtils').addr
-const meow = require('meow');
 const cli = meow(`
       Usage
         $ mock-client
@@ -18,7 +18,6 @@ const cli = meow(`
     }
   })
 
-const net = require('net')
 const sock = net.connect(addr)
 
 sock.setEncoding('utf8')

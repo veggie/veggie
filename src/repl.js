@@ -1,12 +1,12 @@
-const fs = require('fs')
-const net = require('net')
-const repl = require('repl')
-const replUtils = require('./replUtils')
+import fs from 'fs'
+import net from 'net'
+import repl from 'repl'
+import { addr, methods } from './replUtils'
 
 /**
  * @returns void
  */
-module.export = function replServer () {
+export default function replServer () {
   // Open net connection for repl
   const replServer = net.createServer(socket => {
     console.log('Mocket session: Connected')
@@ -20,7 +20,7 @@ module.export = function replServer () {
       help: 'Save session to file',
       action (name) {
         const history = this.history.reverse().filter(line => !(/^\./).test(line))
-        const requires = `const { ${Object.keys(replUtils.methods).join(', ')} } ` +
+        const requires = `const { ${Object.keys(methods).join(', ')} } ` +
           `= require('service-profile/services/replUtils').methods`
         const file = `${process.cwd()}/${name}`
         fs.writeFileSync(file, [ requires, ...history ].join('\n'))
@@ -42,7 +42,7 @@ module.export = function replServer () {
       // socket.destroy()
       socket.end()
     })
-    session.context = Object.assign(session.context, replUtils.methods)
+    session.context = Object.assign(session.context, methods)
   })
   replServer.on('error', (e) => {
     if (e.code === 'EADDRINUSE') {
@@ -53,6 +53,6 @@ module.export = function replServer () {
   replServer.on('close', () => {
     console.log('Repl server: Closing')
   })
-  replServer.listen(replUtils.addr)
+  replServer.listen(addr)
 }
 

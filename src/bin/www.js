@@ -1,5 +1,5 @@
 import meow from 'meow'
-import { server } from '../src'
+import { server } from '../index'
 
 const cli = meow(`
       Usage
