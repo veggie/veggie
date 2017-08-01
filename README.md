@@ -4,16 +4,16 @@
 Interactive mock server for profiling user scenarios
 
 
-## Installation
+### Installation
 
 ```
 npm i -D service-proxy
 ```
 
 
-# Add mock data routes to existing Express server
+## Add mock data routes to existing Express server
 
-## Create routes
+### Create routes
 
 Export an object that keys your service url to either:
 
@@ -26,7 +26,7 @@ url is reached. This allows you to edit your JSON file and have it sent without
 restarting your development server.
 
 
-## Add express routes to webpack-dev-server
+### Add express routes to webpack-dev-server
 
 ```javascript
 // webpack.config.js
@@ -41,7 +41,9 @@ const serviceProfile = require('service-profile')
 ```
 
 
-## Run the server
+## Run stand alone server
+
+### Run the server
 
 A binary is installed to `node_modules/.bin/mock-server`
 
@@ -52,7 +54,7 @@ mock-server -d services/**/*.js -p 1337 -t 1000
 to serve from port 9999
 
 
-## Add proxies to webpack-dev-server
+### Add proxies to webpack-dev-server
 
 ```javascript
 // webpack.config.js
@@ -66,17 +68,17 @@ to serve from port 9999
 ```
 
 
-# Use a REPL to access your live services
+## Use a REPL to access your live services
 
 TODO
 
 
-# Save profiles
+## Save profiles
 
 TODO
 
 
-# Use in tests
+## Use in tests
 
 TODO
 
