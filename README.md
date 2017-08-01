@@ -11,31 +11,6 @@ npm i -D service-proxy
 ```
 
 
-## Run the server
-
-A binary is installed to `node_modules/.bin/mock-server`
-
-```bash
-mock-server -d services/**/*.js -p 9999 -t 1000
-```
-
-to serve from port 9999
-
-
-## Add proxies to webpack-dev-server
-
-```javascript
-// webpack.config.js
-// ...
-  devServer: {
-    proxy: {
-      '/services': 'http://localhost:1337'
-    }
-  }
-// ...
-```
-
-
 # Add mock data routes to existing Express server
 
 ## Create routes
@@ -55,15 +30,41 @@ restarting your development server.
 
 ```javascript
 // webpack.config.js
-const mockData = require('service-profile')
+const serviceProfile = require('service-profile')
 // ...
   devServer: {
     setup(app) {
-      mockData({ app, dir: 'services/**/*.js' })
+      app.use(serviceProfile.router({ dir: 'services/**/*.js' }))
     }
   }
 // ...
 ```
+
+
+## Run the server
+
+A binary is installed to `node_modules/.bin/mock-server`
+
+```bash
+mock-server -d services/**/*.js -p 1337 -t 1000
+```
+
+to serve from port 9999
+
+
+## Add proxies to webpack-dev-server
+
+```javascript
+// webpack.config.js
+// ...
+  devServer: {
+    proxy: {
+      '/services': 'http://localhost:1337'
+    }
+  }
+// ...
+```
+
 
 # Use a REPL to access your live services
 
