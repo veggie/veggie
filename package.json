@@ -10,7 +10,8 @@
   },
   "scripts": {
     "build": "rollup -c && rollup -c rollup.config.www.js && rollup -c rollup.config.repl.js",
-    "preversion": "npm run test",
+    "preversion": "npm test",
+    "version": "npm run build",
     "postversion": "git push && git push --tags",
     "test": "nyc mocha"
   },
