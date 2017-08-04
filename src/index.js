@@ -133,7 +133,7 @@ function *routesFromDir (dir) {
 
   const urls = Object.keys(routeConfig)
   for (let url of urls) {
-    const handler = getRouteHandler(routes[url])
+    const handler = getRouteHandler(routeConfig[url])
     yield { url, handler }
   }
 }
