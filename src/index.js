@@ -6,9 +6,64 @@ import { profileMiddleware } from './replUtils'
 
 const MAX_DELAY = 1000
 
+const middlewareApiPath = /\/api\/profile\/(.*)/
+const profileMethods = {}
+
+/**
+ * Middleware for intercepting service request
+ * @param {object} config
+ * @returns {Express middleware}
+ */
+function interceptMiddleware ({ dir, time = MAX_DELAY, profile = null }) {
+  // Get routes
+  const routes = {}
+  for (let { url, handler } of routesFromDir(dir)) {
+    routes[url] = handler
+    /*
+    (...args) => {
+      setTimeout(() => {
+        handler(...args)
+      }, randomDelay(time))
+    }
+    */
+  }
+
+  const dummyResponse = {
+    send (response) {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.write(JSON.stringify(response))
+      res.end()
+    },
+    json (response) {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.write(JSON.stringify(response))
+      res.end()
+    }
+  }
+
+  return function(req, res, next) {
+    // check for profile method request
+    const match = middlewareApiPath.match(req.url)
+    if (match) {
+      const method = match[0]
+      console.log(`middleware: got profile method ${method}`)
+      if (profileMethods[method]) {
+        // perform profile method
+        console.log('middleware: found profile method')
+        profileMethods[method]()
+      }
+    }
+
+    if (routes[req.url]) {
+      routes[req.url](req, dummyResponse)
+    } else {
+      next()
+    }
+  }
+}
+
 /**
  * Entry point for server
- *
  * @param {object} config
  * @returns {Express app}
  */
@@ -19,6 +74,7 @@ function server (config) {
 }
 
 /**
+ * Router containing all mock data routes
  * @param {object} - configuration object
  * @returns {Express router}
  */
@@ -29,6 +85,36 @@ function router ({ dir, time = MAX_DELAY, profile = null }) {
   router.use(bodyParser.json({ limit: '50mb' }))
   router.use(profileMiddleware(profile))
 
+  // Apply all routes
+  for (let { url, handler } of routesFromDir(dir)) {
+    router.all(url, (...args) => {
+      setTimeout(() => {
+        handler(...args)
+      }, randomDelay(time))
+    })
+  }
+
+  // Start interactive server
+  replServer()
+
+  return router
+}
+
+/**
+ * Return random delay from 0 to time, exclusive
+ * @param {number} time - max delay
+ * @returns {number}
+ */
+function randomDelay (time) {
+  return Math.floor(Math.random() * time)
+}
+
+/**
+ * Reads files matching supplied glob and yields url and handler of routes found
+ * @param {glob} dir
+ * @returns void
+ */
+function *routesFromDir (dir) {
   // Find files matching glob
   let files
   try {
@@ -45,37 +131,7 @@ function router ({ dir, time = MAX_DELAY, profile = null }) {
       return acc
     }, {})
 
-  // Apply all routes
-  for (let { url, handler } of routes(routeConfig)) {
-    router.all(url, (...args) => {
-      setTimeout(() => {
-        handler(...args)
-      }, randomDelay(time))
-    })
-  }
-
-  // Start interactive server
-  replServer()
-
-  return router
-}
-
-/**
- * @param {number} time - max delay
- * @returns {number}
- */
-function randomDelay (time) {
-  return Math.floor(Math.random() * time)
-}
-
-/**
- * @param {Express app} app
- * @param {object} routes - route config object
- * @param {number} time - max delay before completing response
- * @returns void
- */
-function *routes (routes) {
-  const urls = Object.keys(routes)
+  const urls = Object.keys(routeConfig)
   for (let url of urls) {
     const handler = getRouteHandler(routes[url])
     yield { url, handler }
@@ -130,4 +186,4 @@ function cachelessRequire (filePath) {
   return data
 }
 
-export { server, router }
+export { interceptMiddleware as middleware, router, server }

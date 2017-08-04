@@ -13,7 +13,7 @@
     "preversion": "npm test",
     "version": "npm run build",
     "postversion": "git push && git push --tags",
-    "test": "nyc mocha"
+    "test": "npm run build && nyc mocha"
   },
   "repository": {
     "type": "git",
