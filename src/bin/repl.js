@@ -1,6 +1,6 @@
 import meow from 'meow'
 import net from 'net'
-import { addr } from '../replUtils'
+import { addr } from '../profile'
 
 const cli = meow(`
       Usage
