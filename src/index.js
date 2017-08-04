@@ -28,7 +28,7 @@ function interceptMiddleware ({ dir, time = MAX_DELAY, profile = null }) {
     */
   }
 
-  const dummyResponse = {
+  const dummyResponse = (res) => ({
     send (response) {
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.write(JSON.stringify(response))
@@ -39,7 +39,7 @@ function interceptMiddleware ({ dir, time = MAX_DELAY, profile = null }) {
       res.write(JSON.stringify(response))
       res.end()
     }
-  }
+  })
 
   return function(req, res, next) {
     // check for profile method request
@@ -55,7 +55,7 @@ function interceptMiddleware ({ dir, time = MAX_DELAY, profile = null }) {
     }
 
     if (routes[req.url]) {
-      routes[req.url](req, dummyResponse)
+      routes[req.url](req, dummyResponse(res))
     } else {
       next()
     }
