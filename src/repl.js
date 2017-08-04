@@ -1,7 +1,7 @@
 import fs from 'fs'
 import net from 'net'
 import repl from 'repl'
-import { addr, methods } from './replUtils'
+import { addr, profileServer } from './profile'
 
 /**
  * @returns void
@@ -20,7 +20,7 @@ export default function replServer () {
       help: 'Save session to file',
       action (name) {
         const history = this.history.reverse().filter(line => !(/^\./).test(line))
-        const requires = `const { ${Object.keys(methods).join(', ')} } ` +
+        const requires = `const { ${Object.keys(profileServer).join(', ')} } ` +
           `= require('service-profile/services/replUtils').methods`
         const file = `${process.cwd()}/${name}`
         fs.writeFileSync(file, [ requires, ...history ].join('\n'))
@@ -42,7 +42,7 @@ export default function replServer () {
       // socket.destroy()
       socket.end()
     })
-    session.context = Object.assign(session.context, methods)
+    session.context = Object.assign(session.context, profileServer)
   })
   replServer.on('error', (e) => {
     if (e.code === 'EADDRINUSE') {

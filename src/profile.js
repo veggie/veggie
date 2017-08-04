@@ -6,17 +6,29 @@ let blockedServices = {}
 function profileMiddleware (profile) {
   return (req, res, next) => {
     const { path } = req
-    const blocked = Object.keys(blockedServices)
-      .find(key => {
-        const val = blockedServices[key]
-        return val.regex.test(path)
-      })
-    if (blocked) {
+    const blockedHandler = getBlockedHandler(path)
+    if (blockedHandler) {
       console.log('Service is blocked')
-      return res.status(404).json({})
+      blockedHandler(req, res, next)
     }
     next()
   }
+}
+
+function getBlockedHandler (path) {
+  let blocked = Object
+    .keys(blockedServices)
+    .find(key => {
+      const val = blockedServices[key]
+      return val.regex.test(path)
+    })
+  if (blocked) {
+    // TODO: get actual handler here
+    blocked = (req, res, next) => {
+      res.status(404).json({})
+    }
+  }
+  return blocked
 }
 
 function block (serviceName, statusCode = 404) {
@@ -54,7 +66,22 @@ function show () {
   return Object.keys(blockedServices)
 }
 
-const methods = {
+function api (method) {
+  return () => {
+    console.log('calling api')
+    return fetch(`/api/profile/${method}`)
+  }
+}
+
+// Not really necessary. Just complicates everything
+const profileClient = {
+  block: api('block'),
+  blockAll: api('blockAll'),
+  reset: api('reset'),
+  resetAll: api('resetAll')
+}
+
+const profileServer = {
   block,
   blockAll,
   reset,
@@ -65,6 +92,8 @@ const methods = {
 
 export {
   addr,
+  getBlockedHandler,
+  profileClient,
   profileMiddleware,
-  methods
+  profileServer
 }
