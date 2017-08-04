@@ -70,6 +70,9 @@ to serve from port 9999
 
 ## Use a REPL to access your live services
 
+When using the mock router, you may want to change service responses without
+restarting the dev server.
+
 TODO
 
 
@@ -80,6 +83,20 @@ TODO
 
 ## Use in tests
 
+```javascript
+// karma.conf.js
+const mockMiddleware = require('service-profile').middleware
+// ...
+  middleware: [ 'serviceProfile' ],
+  plugins: [
+    'karma-*',
+    { 'middleware:serviceProfile': [ 'factory', mockMiddleware ] }
+  ]
+// ...
+```
+
+
+## Changing profiles intests
+
+If you want to change profiles during tests, you will need to include
 TODO
-
-
