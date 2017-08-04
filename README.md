@@ -51,7 +51,7 @@ A binary is installed to `node_modules/.bin/mock-server`
 mock-server -d services/**/*.js -p 1337 -t 1000
 ```
 
-to serve from port 9999
+to serve from port 1337
 
 
 ### Add proxies to webpack-dev-server
