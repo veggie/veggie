@@ -2,11 +2,12 @@ import bodyParser from 'body-parser'
 import express from 'express'
 import glob from 'glob'
 import replServer from './repl'
-import { profileMiddleware } from './replUtils'
+import url from 'url'
+import { getBlockedHandler, profileMiddleware, profileServer } from './profile'
 
 const MAX_DELAY = 1000
 
-const middlewareApiPath = /\/api\/profile\/(.*)/
+const middlewareApiPath = /\/api\/profile\/(.*)(\/.*)?/
 const profileMethods = {}
 
 /**
@@ -14,18 +15,12 @@ const profileMethods = {}
  * @param {object} config
  * @returns {Express middleware}
  */
-function interceptMiddleware ({ dir, time = MAX_DELAY, profile = null }) {
+function interceptMiddleware ({ dir, time = MAX_DELAY, profile = null, transform = null }) {
   // Get routes
   const routes = {}
   for (let { url, handler } of routesFromDir(dir)) {
+    // not using a delay
     routes[url] = handler
-    /*
-    (...args) => {
-      setTimeout(() => {
-        handler(...args)
-      }, randomDelay(time))
-    }
-    */
   }
 
   const dummyResponse = (res) => ({
@@ -38,28 +33,70 @@ function interceptMiddleware ({ dir, time = MAX_DELAY, profile = null }) {
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.write(JSON.stringify(response))
       res.end()
+    },
+    status (code) {
+      res.statusCode = code
+      return dummyResponse(res)
     }
   })
 
   return function(req, res, next) {
+    // Give req some express-like properties
+    req = normalize(req)
+
     // check for profile method request
     const match = middlewareApiPath.exec(req.url)
     if (match) {
-      const method = match[0]
+      const method = match[1]
       console.log(`middleware: got profile method ${method}`)
-      if (profileMethods[method]) {
+      if (profileServer[method]) {
         // perform profile method
         console.log('middleware: found profile method')
-        profileMethods[method]()
+        if (match[2]) {
+          profileServer[method](arg)
+        } else {
+          profileServer[method]()
+        }
+        return res.end()
       }
     }
 
-    if (routes[req.url]) {
-      routes[req.url](req, dummyResponse(res))
+    const blockedHandler = getBlockedHandler(req.url)
+    if (blockedHandler) {
+      return blockedHandler(req, dummyResponse(res))
+    }
+
+    // path transform
+    // i.e. `User(userCtx='dynamicContent')` => `User*`
+    let { url } = req
+    if (transform) {
+      url = transform(url)
+    }
+
+    if (routes[url]) {
+      routes[url](req, dummyResponse(res))
     } else {
       next()
     }
   }
+}
+
+/**
+ * Add express-like accessors to http request object
+ * @param {Request} req
+ * @returns {Request}
+ */
+function normalize (req) {
+  const parsed = url.parse(req.url)
+  req.path = parsed.pathname
+  const searchParams = new url.URLSearchParams(parsed.search)
+  if (searchParams) {
+    req.query = {}
+    for (let [key, value] of searchParams.entries()) {
+      req.query[key] = value
+    }
+  }
+  return req
 }
 
 /**

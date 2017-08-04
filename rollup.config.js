@@ -17,7 +17,8 @@ export default {
     'path',
     'fs',
     'net',
-    'repl'
+    'repl',
+    'url'
   ],
   onwarn (message) {
     if (!/eval/.test(message)) {
