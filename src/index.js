@@ -43,7 +43,7 @@ function interceptMiddleware ({ dir, time = MAX_DELAY, profile = null }) {
 
   return function(req, res, next) {
     // check for profile method request
-    const match = middlewareApiPath.match(req.url)
+    const match = middlewareApiPath.exec(req.url)
     if (match) {
       const method = match[0]
       console.log(`middleware: got profile method ${method}`)
