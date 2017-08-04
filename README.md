@@ -86,14 +86,24 @@ TODO
 ```javascript
 // karma.conf.js
 const mockMiddleware = require('service-profile').middleware
+const bodyParser = require('body-parser')
 // ...
-  middleware: [ 'serviceProfile' ],
+  middleware: ['bodyParser', 'serviceProfile'],
   plugins: [
     'karma-*',
-    { 'middleware:serviceProfile': [ 'factory', mockMiddleware ] }
+    {
+      'middleware:bodyParser': [ 'factory', function () {
+        return bodyParser.json({ limit: '50mb' })
+      }],
+      'middleware:serviceProfile': [ 'factory', mockMiddleware ]
+    }
   ]
 // ...
 ```
+
+If your routes need body-parser or any other express middleware, you must
+include it in your karma config as above. Unfortunately, there is no way for
+middleware to define additional dependent middleware.
 
 
 ## Changing profiles intests
