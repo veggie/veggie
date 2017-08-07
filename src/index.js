@@ -3,7 +3,7 @@ import express from 'express'
 import glob from 'glob'
 import replServer from './repl'
 import url from 'url'
-import { getBlockedHandler, profileMiddleware, profileServer } from './profile'
+import { getBlockedHandler, profileMiddleware, profileServer, setAvailableServices } from './profile'
 
 const MAX_DELAY = 1000
 
@@ -168,11 +168,15 @@ function *routesFromDir (dir) {
       return acc
     }, {})
 
+  const services = {}
   const urls = Object.keys(routeConfig)
   for (let url of urls) {
     const handler = getRouteHandler(routeConfig[url])
+    services[url] = handler
     yield { url, handler }
   }
+
+  setAvailableServices(services)
 }
 
 /**
