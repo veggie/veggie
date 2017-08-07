@@ -2,6 +2,7 @@
 const addr = 1999 // hardcoded to be able to connect
 let allBlocked = false
 let blockedServices = {}
+let services = {}
 
 function profileMiddleware (profile) {
   return (req, res, next) => {
@@ -16,30 +17,37 @@ function profileMiddleware (profile) {
 }
 
 function getBlockedHandler (path) {
-  let blocked = Object
-    .keys(blockedServices)
-    .find(key => {
-      const val = blockedServices[key]
-      return val.regex.test(path)
-    })
+  let blocked = blockedServices[path]
   if (blocked) {
-    // TODO: get actual handler here
+    const { status, response } = blocked
     blocked = (req, res, next) => {
-      res.status(404).json({})
+      res.status(status).json(response)
     }
   }
   return blocked
 }
 
-function block (serviceName, statusCode = 404) {
-  // TODO: regexp: search through services and add to output JSON
-  // TODO: string: add directly to output JSON
-  console.log(`Blocking ${serviceName} service`)
-  const meta = {
-    regex: serviceName instanceof RegExp ? serviceName : new RegExp(serviceName),
-    status: statusCode
-  }
-  blockedServices[serviceName.toString()] = meta
+function matchServices (services, serviceName, cb) {
+  const isRegex = serviceName instanceof RegExp
+  return Object
+    .keys(services)
+    .filter(url => {
+      if (isRegex) {
+        return serviceName.test(url)
+      } else {
+        return url === serviceName
+      }
+    })
+    .forEach(url => {
+      cb(url, services[url])
+    })
+}
+
+function block (serviceName, statusCode = 404, altResponse = {}) {
+  matchServices(services, serviceName, url => {
+    console.log(`Blocking ${url} service with ${statusCode} status`)
+    blockedServices[url] = { statusCode, altResponse }
+  })
 }
 
 function blockAll () {
@@ -48,8 +56,11 @@ function blockAll () {
 }
 
 function reset (serviceName) {
-  console.log(`Reseting ${serviceName} service`)
-  delete blockedServices[serviceName.toString()]
+  matchServices(blockedServices, serviceName, url => {
+    console.log(`Reseting ${url} service`)
+    delete blockedServices[url]
+  })
+  allBlocked = false
 }
 
 function resetAll () {
@@ -66,19 +77,8 @@ function show () {
   return Object.keys(blockedServices)
 }
 
-function api (method) {
-  return () => {
-    console.log('calling api')
-    return fetch(`/api/profile/${method}`)
-  }
-}
-
-// Not really necessary. Just complicates everything
-const profileClient = {
-  block: api('block'),
-  blockAll: api('blockAll'),
-  reset: api('reset'),
-  resetAll: api('resetAll')
+function setAvailableServices (serviceMap) {
+  services = serviceMap
 }
 
 const profileServer = {
@@ -95,5 +95,6 @@ export {
   getBlockedHandler,
   profileClient,
   profileMiddleware,
-  profileServer
+  profileServer,
+  setAvailableServices
 }
