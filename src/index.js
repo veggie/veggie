@@ -4,6 +4,7 @@ import glob from 'glob'
 import replServer from './repl'
 import url from 'url'
 import { getBlockedHandler, profileMiddleware, profileServer, setAvailableServices } from './profile'
+import { getRouteHandler } from './utils'
 
 const MAX_DELAY = 1000
 
@@ -177,54 +178,6 @@ function *routesFromDir (dir) {
   }
 
   setAvailableServices(services)
-}
-
-/**
- * Returns an express route handler for the given service
- *
- * @param {function|object|string} response - The service response
- * @returns {(req: Express Request, res: Express Response) => void}
- * @private
- */
-function getRouteHandler (response) {
-  if (typeof response === 'function') {
-    // Express route
-    return response
-  }
-
-  if (typeof response === 'string') {
-    // Path to json file
-    return (req, res) => {
-      const data = cachelessRequire(response)
-      if (data) {
-        res.json(data)
-      }
-      else {
-        res.status(404).json({})
-      }
-    }
-  }
-
-  // Json object
-  const data = response
-  return (req, res) => {
-    if (data) {
-      res.json(data)
-    }
-    else {
-      res.status(404).json({})
-    }
-  }
-}
-
-/**
- * @param {string} filePath - absolute file path to load
- * @returns {module} - required file
- */
-function cachelessRequire (filePath) {
-  const data = require(filePath)
-  delete require.cache[filePath]
-  return data
 }
 
 export { interceptMiddleware as middleware, router, server }
