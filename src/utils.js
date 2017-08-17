@@ -51,7 +51,7 @@ export function matchKeyToQueryParam (queryKey, responses) {
         return regex.test(queryValue)
       })
     const callback = getRouteHandler(responses[responseKey])
-    callback(res)
+    callback(req, res)
   }
 }
 
