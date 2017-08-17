@@ -4,7 +4,7 @@ import glob from 'glob'
 import replServer from './repl'
 import url from 'url'
 import { getBlockedHandler, profileMiddleware, profileServer, setAvailableServices } from './profile'
-import { getRouteHandler } from './utils'
+import * as helpers from './utils'
 
 const MAX_DELAY = 1000
 
@@ -172,7 +172,7 @@ function *routesFromDir (dir) {
   const services = {}
   const urls = Object.keys(routeConfig)
   for (let url of urls) {
-    const handler = getRouteHandler(routeConfig[url])
+    const handler = helpers.getRouteHandler(routeConfig[url])
     services[url] = handler
     yield { url, handler }
   }
@@ -180,4 +180,4 @@ function *routesFromDir (dir) {
   setAvailableServices(services)
 }
 
-export { interceptMiddleware as middleware, router, server }
+export { interceptMiddleware as middleware, router, server, helpers }
