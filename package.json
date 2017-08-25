@@ -4,6 +4,7 @@
   "description": "Interactive mock server for profiling user scenarios",
   "main": "dist/service-profile.js",
   "module": "dist/service-profile.es.js",
+  "browser": "dist/service-profile.api.js",
   "bin": {
     "mock-server": "bin/www",
     "mock-client": "bin/repl"
