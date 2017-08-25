@@ -6,12 +6,8 @@
 export function mapQueryParamToKey (data, queryKey) {
   return function (req, res) {
     const queryValue = req.query[queryKey]
-    send(res, data[queryValue])
+    res.send(data[queryValue])
   }
-}
-
-export function send (res, data) {
-  res.send(data)
 }
 
 export function wrap (key, data) {
@@ -34,7 +30,7 @@ export function mirrorBody (req, res) {
       acc[current] = req.body[current]
       return acc
     }, {})
-  send(res, dWrap(response))
+  res.send(dWrap(response))
 }
 
 /**
