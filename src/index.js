@@ -8,7 +8,7 @@ import * as helpers from './utils'
 
 const MAX_DELAY = 1000
 
-const middlewareApiPath = /\/api\/profile\/(.*)(\/.*)?/
+const middlewareApiPath = /\/service-profile\/api\/(.*)(\/.*)?/
 const profileMethods = {}
 
 /**
@@ -54,6 +54,7 @@ function interceptMiddleware ({ dir, time = MAX_DELAY, profile = null, transform
         // perform profile method
         console.log('middleware: found profile method')
         if (match[2]) {
+          const arg = match[2]
           profileServer[method](arg)
         } else {
           profileServer[method]()

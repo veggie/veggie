@@ -10,7 +10,7 @@
     "mock-client": "bin/repl"
   },
   "scripts": {
-    "build": "rollup -c && rollup -c rollup.config.www.js && rollup -c rollup.config.repl.js",
+    "build": "rollup -c && rollup -c rollup.config.api.js && rollup -c rollup.config.www.js && rollup -c rollup.config.repl.js",
     "preversion": "npm test",
     "version": "npm run build",
     "postversion": "git push && git push --tags",
@@ -36,9 +36,11 @@
   "homepage": "https://github.com/micburks/service-profile#readme",
   "dependencies": {
     "body-parser": "^1.17.2",
+    "es6-promise": "^4.1.1",
     "express": "^4.15.3",
     "glob": "^7.1.2",
-    "meow": "^3.7.0"
+    "meow": "^3.7.0",
+    "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {
     "mocha": "^3.5.0",
