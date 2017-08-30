@@ -10,7 +10,6 @@ import { getApiHandler, getProfileOverrideHandler, profileMethods, profileMiddle
 import * as helpers from './utils'
 
 const MAX_DELAY = 1000
-const NOT_MOCKED = 'NOT_MOCKED'
 const middlewareApiRegex = pathToRegexp('/service-profile/api/:method/:arg?')
 
 /**
@@ -33,18 +32,13 @@ function middleware ({ dir, time = MAX_DELAY, profile = null }) {
   return (req, res, next) => {
     const parsedUrl = url.parse(req.url)
     const proxyReq = http.request({
-      hostname: parseUrl.hostname,
+      hostname: parsedUrl.hostname,
       port: proxyPort,
-      path: parseUrl.pathname,
+      path: parsedUrl.pathname,
       method: req.method
     }, proxyRes => {
       console.log(proxyRes.statusCode, proxyRes.statusMessage)
-      if (proxyRes.statusMessage === NOT_MOCKED) {
-        console.log('got NOT_MOCKED proxy response')
-        proxyRes.pipe(res)
-      } else {
-        next()
-      }
+      proxyRes.pipe(res)
     })
     req.pipe(proxyReq)
   }
@@ -183,10 +177,6 @@ function router ({ dir, time = MAX_DELAY, profile = null, repl = true }) {
     // Start interactive server
     replServer()
   }
-
-  router.all('*', (req, res) => {
-    res.status(200).send(NOT_MOCKED)
-  })
 
   return router
 }
