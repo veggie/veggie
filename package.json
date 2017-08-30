@@ -40,6 +40,7 @@
     "express": "^4.15.3",
     "glob": "^7.1.2",
     "meow": "^3.7.0",
+    "path-to-regexp": "^2.0.0",
     "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {
