@@ -2,6 +2,7 @@ import bodyParser from 'body-parser'
 import express from 'express'
 import getPort from 'get-port'
 import glob from 'glob'
+import http from 'http'
 import pathToRegexp from 'path-to-regexp'
 import replServer from './repl'
 import url from 'url'
@@ -9,7 +10,7 @@ import { getApiHandler, getProfileOverrideHandler, profileMethods, profileMiddle
 import * as helpers from './utils'
 
 const MAX_DELAY = 1000
-const NOT_MOCKED = Symbol.for('NOT_MOCKED')
+const NOT_MOCKED = 'NOT_MOCKED'
 const middlewareApiRegex = pathToRegexp('/service-profile/api/:method/:arg?')
 
 /**
