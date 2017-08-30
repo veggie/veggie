@@ -31,13 +31,14 @@ function middleware ({ dir, time = MAX_DELAY, profile = null }) {
 
   return (req, res, next) => {
     const parsedUrl = url.parse(req.url)
+    console.log(`got request ${parsedUrl.hostname} ${parseUrl.pathname} ${req.method}`)
     const proxyReq = http.request({
       hostname: parsedUrl.hostname,
       port: proxyPort,
       path: parsedUrl.pathname,
       method: req.method
     }, proxyRes => {
-      console.log(proxyRes.statusCode, proxyRes.statusMessage)
+      console.log(proxyRes.statusCode, proxyRes.statusMessage, proxyRes.url)
       proxyRes.pipe(res)
     })
     req.pipe(proxyReq)
