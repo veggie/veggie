@@ -2,29 +2,106 @@ import bodyParser from 'body-parser'
 import express from 'express'
 import glob from 'glob'
 import replServer from './repl'
+import pathToRegexp from 'path-to-regexp'
 import url from 'url'
-import { getBlockedHandler, profileMiddleware, profileServer, setAvailableServices } from './profile'
+import { getApiHandler, getProfileOverrideHandler, profileMethods, profileMiddleware, setAvailableServices } from './profile'
 import * as helpers from './utils'
 
 const MAX_DELAY = 1000
 
+// /service-profile/api/:method/:args?
 const middlewareApiPath = /\/service-profile\/api\/(.*)(\/.*)?/
-const profileMethods = {}
+const middlewareApiRegex = pathToRegexp('/service-profile/api/:method/:arg?')
 
 /**
- * Middleware for intercepting service request
+ * Middleware that intercepts requests matching service routes or api paths
+ * Profiles are loaded at initialization and can be manipulated via api calls
+ *
  * @param {object} config
  * @returns {Express middleware}
  */
-function interceptMiddleware ({ dir, time = MAX_DELAY, profile = null, transform = null }) {
+function middleware ({ dir, time = MAX_DELAY, profile = null, transform = null }) {
   // Get routes
-  const routes = {}
+  const routes = []
   for (let { url, handler } of routesFromDir(dir)) {
     // not using a delay
-    routes[url] = handler
+    routes.push({
+      handler,
+      regex: pathToRegexp(url)
+    })
   }
 
-  const dummyResponse = (res) => ({
+  function getRouteHandler (url) {
+    const route = routes.find(route => route.regex.test(url))
+    if (route) {
+      return route.handler
+    }
+    return
+  }
+
+  // Load intial profile
+  profileMethods.loadProfile(profile)
+
+  /**
+   * Middleware function
+   *
+   */
+  return function(req, res, next) {
+    // TODO: remove these by requiring karma to use karma-express-server
+    // Give req some express-like properties
+    req = dummyRequest(req)
+    res = dummyResponse(res)
+
+    const { url } = req
+
+    // API request
+    const apiHandler = getApiHandler(url)
+    if (apiHandler) {
+      return apiHandler(req, res)
+    }
+
+    // Profile override response
+    const profileOverrideHandler = getProfileOverrideHandler(url)
+    if (profileOverrideHandler) {
+      return profileOverrideHandler(req, res)
+    }
+
+    // Mock data response
+    const routeHandler = getRouteHandler(url)
+    if (routeHandler) {
+      return routeHandler(req, res)
+    }
+
+    // Default
+    next()
+  }
+}
+
+/**
+ * Add express-like accessors to http request object
+ * @param {Request} req
+ * @returns {Request}
+ */
+function dummyRequest (req) {
+  const parsed = url.parse(req.url)
+  req.path = parsed.pathname
+  const searchParams = new url.URLSearchParams(parsed.search)
+  if (searchParams) {
+    req.query = {}
+    for (let [key, value] of searchParams.entries()) {
+      req.query[key] = value
+    }
+  }
+  return req
+}
+
+/**
+ * Extend HTTP Response to have Express-like functions
+ * @param {Response} res
+ * @returns {Object} - response api
+ */
+function dummyResponse (res) {
+  return {
     send (response) {
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.write(JSON.stringify(response))
@@ -39,66 +116,7 @@ function interceptMiddleware ({ dir, time = MAX_DELAY, profile = null, transform
       res.statusCode = code
       return dummyResponse(res)
     }
-  })
-
-  return function(req, res, next) {
-    // Give req some express-like properties
-    req = normalize(req)
-
-    // check for profile method request
-    const match = middlewareApiPath.exec(req.url)
-    if (match) {
-      const method = match[1]
-      console.log(`middleware: got profile method ${method}`)
-      if (profileServer[method]) {
-        // perform profile method
-        console.log('middleware: found profile method')
-        if (match[2]) {
-          const arg = match[2]
-          profileServer[method](arg)
-        } else {
-          profileServer[method]()
-        }
-        return res.end()
-      }
-    }
-
-    const blockedHandler = getBlockedHandler(req.url)
-    if (blockedHandler) {
-      return blockedHandler(req, dummyResponse(res))
-    }
-
-    // path transform
-    // i.e. `User(userCtx='dynamicContent')` => `User*`
-    let { url } = req
-    if (transform) {
-      url = transform(url)
-    }
-
-    if (routes[url]) {
-      routes[url](req, dummyResponse(res))
-    } else {
-      next()
-    }
   }
-}
-
-/**
- * Add express-like accessors to http request object
- * @param {Request} req
- * @returns {Request}
- */
-function normalize (req) {
-  const parsed = url.parse(req.url)
-  req.path = parsed.pathname
-  const searchParams = new url.URLSearchParams(parsed.search)
-  if (searchParams) {
-    req.query = {}
-    for (let [key, value] of searchParams.entries()) {
-      req.query[key] = value
-    }
-  }
-  return req
 }
 
 /**
@@ -113,7 +131,9 @@ function server (config) {
 }
 
 /**
- * Router containing all mock data routes
+ * Router containing all mock data routes and using profile middleware
+ * Profiles are loaded at initialization and can be manipulated via REPL
+ *
  * @param {object} - configuration object
  * @returns {Express router}
  */
@@ -181,4 +201,4 @@ function *routesFromDir (dir) {
   setAvailableServices(services)
 }
 
-export { interceptMiddleware as middleware, router, server, helpers }
+export { middleware, router, server, helpers }
