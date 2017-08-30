@@ -1,30 +1,48 @@
 // todo: find available port
 const addr = 1999 // hardcoded to be able to connect
 let allBlocked = false
-let blockedServices = {}
+let serviceOverrides = {}
 let services = {}
+
+function getApiHandler (url) {
+  const match = middlewareApiRegex.exec(url)
+  if (match) {
+    const [ /* ignore */, method, arg ] = match
+    if (profileServer[method]) {
+      return (req, res) => {
+        if (arg) {
+          profileServer[method](arg)
+        } else {
+          profileServer[method]()
+        }
+        res.end()
+      }
+    }
+  }
+  return
+}
 
 function profileMiddleware (profile) {
   return (req, res, next) => {
     const { path } = req
-    const blockedHandler = getBlockedHandler(path)
-    if (blockedHandler) {
-      console.log('Service is blocked')
-      blockedHandler(req, res, next)
+    const profileOverrideHandler = getProfileOverrideHandler(path)
+    if (profileOverrideHandler) {
+      profileOverrideHandler(req, res, next)
+      // TODO: should this return?
     }
     next()
   }
 }
 
-function getBlockedHandler (path) {
-  let blocked = blockedServices[path]
-  if (blocked) {
-    const { status, response } = blocked
-    blocked = (req, res, next) => {
+function getProfileOverrideHandler (path) {
+  let override = serviceOverrides[path]
+  if (override) {
+    const { status, response } = override
+    return (req, res, next) => {
       res.status(status).json(response)
     }
   }
-  return blocked
+  return
 }
 
 function matchServices (services, serviceName, cb) {
@@ -46,7 +64,7 @@ function matchServices (services, serviceName, cb) {
 function block (serviceName, statusCode = 404, altResponse = {}) {
   matchServices(services, serviceName, url => {
     console.log(`Blocking ${url} service with ${statusCode} status`)
-    blockedServices[url] = { statusCode, altResponse }
+    serviceOverrides[url] = { statusCode, altResponse }
   })
 }
 
@@ -56,9 +74,9 @@ function blockAll () {
 }
 
 function reset (serviceName) {
-  matchServices(blockedServices, serviceName, url => {
+  matchServices(serviceOverrides, serviceName, url => {
     console.log(`Reseting ${url} service`)
-    delete blockedServices[url]
+    delete serviceOverrides[url]
   })
   allBlocked = false
 }
@@ -66,33 +84,42 @@ function reset (serviceName) {
 function resetAll () {
   console.log('Reseting ALL services')
   allBlocked = false
-  blockedServices = {}
+  serviceOverrides = {}
 }
 
 function showVerbose () {
-  return blockedServices
+  return serviceOverrides
 }
 
 function show () {
-  return Object.keys(blockedServices)
+  return Object.keys(serviceOverrides)
 }
 
 function setAvailableServices (serviceMap) {
   services = serviceMap
 }
 
-const profileServer = {
+function loadProfile (profile) {
+  resetAll()
+  const profileSettings = fs.readFileSync(path.join(process.cwd(), profile))
+  serviceOverrides = profileSettings
+  return
+}
+
+const profileMethods = {
   block,
   blockAll,
   reset,
   resetAll,
+  loadProfile
   show,
   showVerbose
 }
 
 export {
   addr,
-  getBlockedHandler,
+  getApiHandler,
+  getProfileOverrideHandler,
   profileClient,
   profileMiddleware,
   profileServer,
