@@ -111,7 +111,7 @@ const profileMethods = {
   blockAll,
   reset,
   resetAll,
-  loadProfile
+  loadProfile,
   show,
   showVerbose
 }

@@ -1,16 +1,15 @@
 import bodyParser from 'body-parser'
 import express from 'express'
+import getPort from 'get-port'
 import glob from 'glob'
-import replServer from './repl'
 import pathToRegexp from 'path-to-regexp'
+import replServer from './repl'
 import url from 'url'
 import { getApiHandler, getProfileOverrideHandler, profileMethods, profileMiddleware, setAvailableServices } from './profile'
 import * as helpers from './utils'
 
 const MAX_DELAY = 1000
-
-// /service-profile/api/:method/:args?
-const middlewareApiPath = /\/service-profile\/api\/(.*)(\/.*)?/
+const NOT_MOCKED = Symbol.for('NOT_MOCKED')
 const middlewareApiRegex = pathToRegexp('/service-profile/api/:method/:arg?')
 
 /**
@@ -20,7 +19,36 @@ const middlewareApiRegex = pathToRegexp('/service-profile/api/:method/:arg?')
  * @param {object} config
  * @returns {Express middleware}
  */
-function middleware ({ dir, time = MAX_DELAY, profile = null, transform = null }) {
+function middleware ({ dir, time = MAX_DELAY, profile = null }) {
+  const config = arguments[0]
+  let proxyPort
+  getPort().then(port => {
+    proxyPort = port
+    server(config).listen(port, () => {
+      console.log(`service-profile: Serving mock data from localhost:${port}`)
+    })
+  })
+
+  return (req, res, next) => {
+    const parsedUrl = url.parse(req.url)
+    const proxyReq = http.request({
+      hostname: parseUrl.hostname,
+      port: proxyPort,
+      path: parseUrl.pathname,
+      method: req.method
+    }, proxyRes => {
+      console.log(proxyRes.statusCode, proxyRes.statusMessage)
+      if (proxyRes.statusMessage === NOT_MOCKED) {
+        console.log('got NOT_MOCKED proxy response')
+        proxyRes.pipe(res)
+      } else {
+        next()
+      }
+    })
+    req.pipe(proxyReq)
+  }
+
+    /*
   // Get routes
   const routes = []
   for (let { url, handler } of routesFromDir(dir)) {
@@ -42,10 +70,6 @@ function middleware ({ dir, time = MAX_DELAY, profile = null, transform = null }
   // Load intial profile
   profileMethods.loadProfile(profile)
 
-  /**
-   * Middleware function
-   *
-   */
   return function(req, res, next) {
     // TODO: remove these by requiring karma to use karma-express-server
     // Give req some express-like properties
@@ -75,6 +99,7 @@ function middleware ({ dir, time = MAX_DELAY, profile = null, transform = null }
     // Default
     next()
   }
+  */
 }
 
 /**
@@ -137,7 +162,7 @@ function server (config) {
  * @param {object} - configuration object
  * @returns {Express router}
  */
-function router ({ dir, time = MAX_DELAY, profile = null }) {
+function router ({ dir, time = MAX_DELAY, profile = null, repl = true }) {
   const router = express.Router()
 
   // Apply middleware
@@ -153,8 +178,14 @@ function router ({ dir, time = MAX_DELAY, profile = null }) {
     })
   }
 
-  // Start interactive server
-  replServer()
+  if (repl) {
+    // Start interactive server
+    replServer()
+  }
+
+  router.all('*', (req, res) => {
+    res.status(200).send(NOT_MOCKED)
+  })
 
   return router
 }
