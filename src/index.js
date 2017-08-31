@@ -38,16 +38,13 @@ function middleware ({ dir, time = MAX_DELAY, profile = null }) {
 
   // Return proxy middleware function
   return (req, res, next) => {
-    const parsedUrl = url.parse(req.url)
+    const options = url.parse(req.url)
+    options.port = proxyPort
+    options.method = req.method
+    options.headers = req.headers
 
     // Create proxy request
-    const proxyReq = http.request({
-      hostname: parsedUrl.hostname,
-      port: proxyPort,
-      path: parsedUrl.pathname,
-      method: req.method,
-      headers: req.headers
-    })
+    const proxyReq = http.request(options)
 
     // When proxy responds
     proxyReq.on('response', proxyRes => {
@@ -70,10 +67,9 @@ function middleware ({ dir, time = MAX_DELAY, profile = null }) {
         let json
         try {
           json = JSON.parse(data)
-          res.writeHead(proxyRes.statusCode, {
-            'Content-Type': 'application/json'
-          })
-          res.end(JSON.stringify(json))
+          res.writeHead(proxyRes.statusCode, proxyRes.headers)
+          res.write(JSON.stringify(json))
+          res.end()
         } catch (e) {
           console.error(`service-profile: error parsing json from ${req.path}`)
           next()
