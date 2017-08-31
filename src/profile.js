@@ -104,9 +104,10 @@ function setAvailableServices (serviceMap) {
 
 function loadProfile (profile) {
   resetAll()
-  const profileSettings = fs.readFileSync(path.join(process.cwd(), profile))
-  serviceOverrides = profileSettings
-  return
+  if (profile) {
+    const profileSettings = fs.readFileSync(path.join(process.cwd(), profile))
+    serviceOverrides = profileSettings
+  }
 }
 
 const profileMethods = {
