@@ -8,12 +8,12 @@ function getApiHandler (url) {
   const match = middlewareApiRegex.exec(url)
   if (match) {
     const [ /* ignore */, method, arg ] = match
-    if (profileServer[method]) {
+    if (profileMethods[method]) {
       return (req, res) => {
         if (arg) {
-          profileServer[method](arg)
+          profileMethods[method](arg)
         } else {
-          profileServer[method]()
+          profileMethods[method]()
         }
         res.end()
       }
@@ -122,6 +122,6 @@ export {
   getProfileOverrideHandler,
   profileClient,
   profileMiddleware,
-  profileServer,
+  profileMethods,
   setAvailableServices
 }
