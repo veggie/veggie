@@ -36,6 +36,7 @@
   },
   "homepage": "https://github.com/micburks/service-profile#readme",
   "dependencies": {
+    "babel-polyfill": "^6.26.0",
     "body-parser": "^1.17.2",
     "es6-promise": "^4.1.1",
     "express": "^4.15.3",
