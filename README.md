@@ -99,7 +99,7 @@ This middleware will spawn an express server, as the binary would, and proxies
 all requests to that.
 
 
-## Changing profiles intests
+## Changing profiles in tests
 
 If you want to change profiles during tests, you will need to include
 service-profile from the `browser` field.
