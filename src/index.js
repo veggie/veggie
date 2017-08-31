@@ -20,7 +20,7 @@ const middlewarePassThroughCode = 501
  */
 function middleware ({ dir, time = MAX_DELAY, profile = null }) {
   const config = arguments[0]
-  config.errorStatusCode = middlewarePassThroughCode
+  config.catchAllStatusCode = middlewarePassThroughCode
 
   // Load intial profile
   if (profile) {
@@ -103,7 +103,7 @@ function server (config) {
  * @param {object} - configuration object
  * @returns {Express router}
  */
-function router ({ dir, errorStatusCode = 404, time = MAX_DELAY, profile = null, repl = true }) {
+function router ({ dir, catchAllStatusCode = null, time = MAX_DELAY, profile = null, repl = true }) {
   const router = express.Router()
 
   // Apply middleware
@@ -124,11 +124,11 @@ function router ({ dir, errorStatusCode = 404, time = MAX_DELAY, profile = null,
     replServer()
   }
 
-    /*
-  router.all('*', (req, res) => {
-    res.sendStatus(errorStatusCode)
-  })
-  */
+  if (catchAllStatusCode) {
+    router.all('*', (req, res) => {
+      res.sendStatus(catchAllStatusCode)
+    })
+  }
 
   return router
 }
