@@ -1,3 +1,5 @@
+import babel from 'rollup-plugin-babel'
+
 const pkg = require('./package.json')
 const packageBanner = `/*! ${pkg.name} v${pkg.version} */`
 const binBanner = '#!/usr/bin/env node'
@@ -26,6 +28,7 @@ export default [
       { dest: pkg.main, format: 'cjs' },
       { dest: pkg.module, format: 'es' }
     ],
+    plugins: [ babel() ],
     external: externals
   },
 
@@ -34,6 +37,7 @@ export default [
     entry: './src/api/index.js',
     banner: packageBanner,
     format: 'cjs',
+    plugins: [ babel() ],
     dest: pkg.browser
   },
 
@@ -43,6 +47,7 @@ export default [
     banner: binBanner,
     format: 'cjs',
     dest: './bin/repl',
+    plugins: [ babel() ],
     external: externals
   },
 
@@ -52,6 +57,7 @@ export default [
     banner: binBanner,
     format: 'cjs',
     dest: './bin/www',
+    plugins: [ babel() ],
     external: externals
   }
 ]
