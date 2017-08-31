@@ -45,8 +45,6 @@ const serviceProfile = require('service-profile')
 
 ### Run the server
 
-A binary is installed to `node_modules/.bin/mock-server`
-
 ```bash
 mock-server -d services/**/*.js -p 1337 -t 1000
 ```
@@ -71,9 +69,7 @@ to serve from port 1337
 ## Use a REPL to access your live services
 
 When using the mock router, you may want to change service responses without
-restarting the dev server.
-
-TODO
+restarting the dev server. All service profile methods in return 
 
 
 ## Save profiles
@@ -83,30 +79,77 @@ TODO
 
 ## Use in tests
 
+The mock middleware can be used in karma via the following
+
 ```javascript
 // karma.conf.js
 const mockMiddleware = require('service-profile').middleware
-const bodyParser = require('body-parser')
 // ...
-  middleware: ['bodyParser', 'serviceProfile'],
+  middleware: ['serviceProfile'],
   plugins: [
     'karma-*',
     {
-      'middleware:bodyParser': [ 'factory', function () {
-        return bodyParser.json({ limit: '50mb' })
-      }],
       'middleware:serviceProfile': [ 'factory', mockMiddleware ]
     }
   ]
 // ...
 ```
 
-If your routes need body-parser or any other express middleware, you must
-include it in your karma config as above. Unfortunately, there is no way for
-middleware to define additional dependent middleware.
+This middleware will spawn an express server, as the binary would, and proxies
+all requests to that.
 
 
 ## Changing profiles intests
 
 If you want to change profiles during tests, you will need to include
+service-profile from the `browser` field.
+
+All service profile methods will return promises
+
+
+```javascript
+// Note:
+// When bundling for testing in browsers, your bundler will need to be configured
+// to look for `browser` field of this package
+import serviceProfile from 'service-profile'
+```
+
+#### block
+```javascript
+before(() => {
+  return serviceProfile.block('getUser')
+})
+```
+
+#### blockAll
+```javascript
+before(() => {
+  return serviceProfile.blockAll()
+})
+```
+
+#### reset
+```javascript
+before(() => {
+  return serviceProfile.reset('getUser')
+})
+```
+
+#### resetAll
+```javascript
+before(() => {
+  return serviceProfile.resetAll()
+})
+```
+
+#### loadProfile
+```javascript
+before(() => {
+  return serviceProfile.loadProfile('adminUser')
+})
+```
+
+
+## Configuration options
+
 TODO
