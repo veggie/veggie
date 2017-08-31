@@ -45,7 +45,8 @@ function middleware ({ dir, time = MAX_DELAY, profile = null }) {
       hostname: parsedUrl.hostname,
       port: proxyPort,
       path: parsedUrl.pathname,
-      method: req.method
+      method: req.method,
+      headers: req.headers
     })
 
     // When proxy responds
