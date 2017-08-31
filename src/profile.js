@@ -1,11 +1,15 @@
 import fs from 'fs'
 import getPort from 'get-port'
 import path from 'path'
+import pathToRegexp from 'path-to-regexp'
+import { apiPathPrefix } from './common'
+
 // todo: find available port
 const addr = 1999 // hardcoded to be able to connect
 let allBlocked = false
 let serviceOverrides = {}
 let services = {}
+const middlewareApiRegex = pathToRegexp(`${apiPathPrefix}/:method/:arg?`)
 
 function getApiHandler (url) {
   const match = middlewareApiRegex.exec(url)
