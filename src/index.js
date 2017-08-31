@@ -215,9 +215,11 @@ function router ({ dir, errorStatusCode = 404, time = MAX_DELAY, profile = null,
     replServer()
   }
 
+    /*
   router.all('*', (req, res) => {
     res.sendStatus(errorStatusCode)
   })
+  */
 
   return router
 }
