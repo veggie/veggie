@@ -5,6 +5,7 @@ export default {
   dest: './bin/repl',
   external: [
     'meow',
-    'net'
+    'net',
+    'get-port'
   ]
 }

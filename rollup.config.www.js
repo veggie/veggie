@@ -11,7 +11,8 @@ export default {
     'path',
     'net',
     'repl',
-    'meow'
+    'meow',
+    'get-port'
   ],
   onwarn (message) {
     if (!/eval/.test(message)) {
