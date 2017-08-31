@@ -10,7 +10,7 @@
     "mock-client": "bin/repl"
   },
   "scripts": {
-    "build": "rollup -c && rollup -c rollup.config.api.js && rollup -c rollup.config.www.js && rollup -c rollup.config.repl.js",
+    "build": "rollup -c",
     "preversion": "npm test",
     "version": "npm run build # Get latest version for banners",
     "postversion": "git push && git push --tags && npm publish",
