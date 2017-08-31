@@ -18,7 +18,8 @@ export default {
     'fs',
     'net',
     'repl',
-    'url'
+    'url',
+    'get-port'
   ],
   onwarn (message) {
     if (!/eval/.test(message)) {
