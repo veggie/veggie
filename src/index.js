@@ -25,7 +25,9 @@ function middleware ({ dir, time = MAX_DELAY, profile = null }) {
   config.errorStatusCode = middlewarePassThroughCode
 
   // Load intial profile
-  profileMethods.loadProfile(profile)
+  if (profile) {
+    profileMethods.loadProfile(profile)
+  }
 
   let proxyPort
   getPort().then(port => {
@@ -49,6 +51,9 @@ function middleware ({ dir, time = MAX_DELAY, profile = null }) {
         // Not Implemented
         return next()
       }
+      proxyRes.on('error', e => {
+        console.log(`service-profile: error reading proxy ${e}`)
+      })
       let data = ''
       proxyRes.on('data', chunk => {
         data += chunk
@@ -62,13 +67,9 @@ function middleware ({ dir, time = MAX_DELAY, profile = null }) {
           })
           res.end(JSON.stringify(json))
         } catch (e) {
-          console.error(`service-profile: ${e}`)
+          console.error(`service-profile: error parsing json from ${req.path}`)
           next()
         }
-        proxyRes.pipe(res);
-        proxyRes.on('error', e => {
-          console.log(`service-profile: proxy reading error ${e}`)
-        })
       })
     })
 
