@@ -3,15 +3,13 @@ import express from 'express'
 import getPort from 'get-port'
 import glob from 'glob'
 import http from 'http'
-import pathToRegexp from 'path-to-regexp'
 import replServer from './repl'
 import url from 'url'
-import { getApiHandler, getProfileOverrideHandler, profileMethods, profileMiddleware, setAvailableServices } from './profile'
+import { profileMethods, profileMiddleware, setAvailableServices } from './profile'
 import * as helpers from './utils'
 
 const MAX_DELAY = 1000
 const middlewarePassThroughCode = 501
-const middlewareApiRegex = pathToRegexp('/service-profile/api/:method/:arg?')
 
 /**
  * Middleware that intercepts requests matching service routes or api paths
@@ -29,6 +27,7 @@ function middleware ({ dir, time = MAX_DELAY, profile = null }) {
     profileMethods.loadProfile(profile)
   }
 
+  // Start server
   let proxyPort
   getPort().then(port => {
     proxyPort = port
@@ -37,27 +36,35 @@ function middleware ({ dir, time = MAX_DELAY, profile = null }) {
     })
   })
 
+  // Return proxy middleware function
   return (req, res, next) => {
     const parsedUrl = url.parse(req.url)
+
+    // Create proxy request
     const proxyReq = http.request({
       hostname: parsedUrl.hostname,
       port: proxyPort,
       path: parsedUrl.pathname,
       method: req.method
     })
-      
+
+    // When proxy responds
     proxyReq.on('response', proxyRes => {
       if (proxyRes.statusCode === middlewarePassThroughCode) {
         // Not Implemented
         return next()
       }
+
+      // Error handler
       proxyRes.on('error', e => {
         console.log(`service-profile: error reading proxy ${e}`)
       })
+
+      // Receive data
       let data = ''
-      proxyRes.on('data', chunk => {
-        data += chunk
-      })
+      proxyRes.on('data', chunk => { data += chunk })
+
+      // Finish proxied request
       proxyRes.on('end', () => {
         let json
         try {
@@ -73,108 +80,10 @@ function middleware ({ dir, time = MAX_DELAY, profile = null }) {
       })
     })
 
+    // Pipe incoming request to proxy request
     req.pipe(proxyReq)
   }
-
-    /*
-  // Get routes
-  const routes = []
-  for (let { url, handler } of routesFromDir(dir)) {
-    // not using a delay
-    routes.push({
-      handler,
-      regex: pathToRegexp(url)
-    })
-  }
-
-  function getRouteHandler (url) {
-    const route = routes.find(route => route.regex.test(url))
-    if (route) {
-      return route.handler
-    }
-    return
-  }
-
-  // Load intial profile
-  profileMethods.loadProfile(profile)
-
-  return function(req, res, next) {
-    // TODO: remove these by requiring karma to use karma-express-server
-    // Give req some express-like properties
-    req = dummyRequest(req)
-    res = dummyResponse(res)
-
-    const { url } = req
-
-    // API request
-    const apiHandler = getApiHandler(url)
-    if (apiHandler) {
-      return apiHandler(req, res)
-    }
-
-    // Profile override response
-    const profileOverrideHandler = getProfileOverrideHandler(url)
-    if (profileOverrideHandler) {
-      return profileOverrideHandler(req, res)
-    }
-
-    // Mock data response
-    const routeHandler = getRouteHandler(url)
-    if (routeHandler) {
-      return routeHandler(req, res)
-    }
-
-    // Default
-    next()
-  }
-  */
 }
-
-/**
- * Add express-like accessors to http request object
- * @param {Request} req
- * @returns {Request}
- */
-  /*
-function dummyRequest (req) {
-  const parsed = url.parse(req.url)
-  req.path = parsed.pathname
-  const searchParams = new url.URLSearchParams(parsed.search)
-  if (searchParams) {
-    req.query = {}
-    for (let [key, value] of searchParams.entries()) {
-      req.query[key] = value
-    }
-  }
-  return req
-}
-*/
-
-/**
- * Extend HTTP Response to have Express-like functions
- * @param {Response} res
- * @returns {Object} - response api
- */
-  /*
-function dummyResponse (res) {
-  return {
-    send (response) {
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.write(JSON.stringify(response))
-      res.end()
-    },
-    json (response) {
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.write(JSON.stringify(response))
-      res.end()
-    },
-    status (code) {
-      res.statusCode = code
-      return dummyResponse(res)
-    }
-  }
-}
-*/
 
 /**
  * Entry point for server
