@@ -1,3 +1,4 @@
+import 'babel-polyfill'
 import bodyParser from 'body-parser'
 import express from 'express'
 import getPort from 'get-port'
