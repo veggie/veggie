@@ -21,6 +21,7 @@ const middlewarePassThroughCode = 501
 function middleware ({ dir, time = MAX_DELAY, profile = null }) {
   const config = arguments[0]
   config.catchAllStatusCode = middlewarePassThroughCode
+  config.time = 0
 
   // Load intial profile
   if (profile) {
