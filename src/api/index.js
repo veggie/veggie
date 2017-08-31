@@ -1,8 +1,10 @@
 require('es6-promise').polyfill()
 require('whatwg-fetch')
 
+import { apiPathPrefix } from '../common'
+
 // @returns {function}
-const api = method => (...args) => fetch(`/service-profile/api/${ [method].concat(args).join('/') }`)
+const api = method => (...args) => fetch(`${apiPathPrefix}/${ [method].concat(args).join('/') }`)
 
 export const block = api('block')
 export const reset = api('reset')
