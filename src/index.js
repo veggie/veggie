@@ -10,6 +10,7 @@ import { getApiHandler, getProfileOverrideHandler, profileMethods, profileMiddle
 import * as helpers from './utils'
 
 const MAX_DELAY = 1000
+const middlewarePassThroughCode = 501
 const middlewareApiRegex = pathToRegexp('/service-profile/api/:method/:arg?')
 
 /**
@@ -21,6 +22,11 @@ const middlewareApiRegex = pathToRegexp('/service-profile/api/:method/:arg?')
  */
 function middleware ({ dir, time = MAX_DELAY, profile = null }) {
   const config = arguments[0]
+  config.errorStatusCode = middlewarePassThroughCode
+
+  // Load intial profile
+  profileMethods.loadProfile(profile)
+
   let proxyPort
   getPort().then(port => {
     proxyPort = port
@@ -31,16 +37,41 @@ function middleware ({ dir, time = MAX_DELAY, profile = null }) {
 
   return (req, res, next) => {
     const parsedUrl = url.parse(req.url)
-    console.log(`got request ${parsedUrl.hostname} ${parsedUrl.pathname} ${req.method}`)
     const proxyReq = http.request({
       hostname: parsedUrl.hostname,
       port: proxyPort,
       path: parsedUrl.pathname,
       method: req.method
-    }, proxyRes => {
-      console.log(proxyRes.statusCode, proxyRes.statusMessage, proxyRes.url)
-      proxyRes.pipe(res)
     })
+      
+    proxyReq.on('response', proxyRes => {
+      if (proxyRes.statusCode === middlewarePassThroughCode) {
+        // Not Implemented
+        return next()
+      }
+      let data = ''
+      proxyRes.on('data', chunk => {
+        data += chunk
+      })
+      proxyRes.on('end', () => {
+        let json
+        try {
+          json = JSON.parse(data)
+          res.writeHead(proxyRes.statusCode, {
+            'Content-Type': 'application/json'
+          })
+          res.end(JSON.stringify(json))
+        } catch (e) {
+          console.error(`service-profile: ${e}`)
+          next()
+        }
+        proxyRes.pipe(res);
+        proxyRes.on('error', e => {
+          console.log(`service-profile: proxy reading error ${e}`)
+        })
+      })
+    })
+
     req.pipe(proxyReq)
   }
 
@@ -103,6 +134,7 @@ function middleware ({ dir, time = MAX_DELAY, profile = null }) {
  * @param {Request} req
  * @returns {Request}
  */
+  /*
 function dummyRequest (req) {
   const parsed = url.parse(req.url)
   req.path = parsed.pathname
@@ -115,12 +147,14 @@ function dummyRequest (req) {
   }
   return req
 }
+*/
 
 /**
  * Extend HTTP Response to have Express-like functions
  * @param {Response} res
  * @returns {Object} - response api
  */
+  /*
 function dummyResponse (res) {
   return {
     send (response) {
@@ -139,6 +173,7 @@ function dummyResponse (res) {
     }
   }
 }
+*/
 
 /**
  * Entry point for server
@@ -158,7 +193,7 @@ function server (config) {
  * @param {object} - configuration object
  * @returns {Express router}
  */
-function router ({ dir, time = MAX_DELAY, profile = null, repl = true }) {
+function router ({ dir, errorStatusCode = 404, time = MAX_DELAY, profile = null, repl = true }) {
   const router = express.Router()
 
   // Apply middleware
@@ -178,6 +213,10 @@ function router ({ dir, time = MAX_DELAY, profile = null, repl = true }) {
     // Start interactive server
     replServer()
   }
+
+  router.all('*', (req, res) => {
+    res.sendStatus(errorStatusCode)
+  })
 
   return router
 }
