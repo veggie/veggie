@@ -6,11 +6,12 @@ import glob from 'glob'
 import http from 'http'
 import replServer from './repl'
 import url from 'url'
-import { profileMethods, profileMiddleware, setAvailableServices } from './profile'
+import { profileApiMiddleware, profileMethods, profileOverrideMiddleware, setAvailableServices } from './profile'
+import { randomExclusive } from './common'
 import * as helpers from './utils'
 
 const MAX_DELAY = 1000
-const middlewarePassThroughCode = 501
+const proxyPassThroughCode = 501
 
 /**
  * Middleware that intercepts requests matching service routes or api paths
@@ -19,9 +20,9 @@ const middlewarePassThroughCode = 501
  * @param {object} config
  * @returns {Express middleware}
  */
-function middleware ({ dir, time = MAX_DELAY, profile = null }) {
+function proxyMiddleware ({ dir, time = MAX_DELAY, profile = null }) {
   const config = arguments[0]
-  config.catchAllStatusCode = middlewarePassThroughCode
+  config.catchAllStatusCode = proxyPassThroughCode
 
   // Load intial profile
   if (profile) {
@@ -49,7 +50,7 @@ function middleware ({ dir, time = MAX_DELAY, profile = null }) {
 
     // When proxy responds
     proxyReq.on('response', proxyRes => {
-      if (proxyRes.statusCode === middlewarePassThroughCode) {
+      if (proxyRes.statusCode === proxyPassThroughCode) {
         // Not Implemented
         return next()
       }
@@ -106,7 +107,8 @@ function router ({ dir, catchAllStatusCode = null, time = MAX_DELAY, profile = n
 
   // Apply middleware
   router.use(bodyParser.json({ limit: '50mb' }))
-  router.use(profileMiddleware(profile))
+  router.use(profileApiMiddleware())
+  router.use(profileOverrideMiddleware(profile))
 
   // Apply all routes
   for (let { url, handler } of routesFromDir(dir)) {
@@ -164,4 +166,4 @@ function *routesFromDir (dir) {
   setAvailableServices(services)
 }
 
-export { middleware, router, server, helpers }
+export { proxyMiddleware as middleware, router, server, helpers }
