@@ -6,7 +6,8 @@ import glob from 'glob'
 import http from 'http'
 import replServer from './repl'
 import url from 'url'
-import { profileApiMiddleware, profileMethods, profileOverrideMiddleware, setAvailableServices } from './profile'
+import { apiMiddleware, apiMethods } from './api'
+import { profileOverrideMiddleware } from './profile'
 import { randomExclusive } from './common'
 import * as helpers from './utils'
 
@@ -26,7 +27,7 @@ function proxyMiddleware ({ dir, time = MAX_DELAY, profile = null }) {
 
   // Load intial profile
   if (profile) {
-    profileMethods.loadProfile(profile)
+    apiMethods.loadProfile(profile)
   }
 
   // Start server
@@ -107,7 +108,7 @@ function router ({ dir, catchAllStatusCode = null, time = MAX_DELAY, profile = n
 
   // Apply middleware
   router.use(bodyParser.json({ limit: '50mb' }))
-  router.use(profileApiMiddleware())
+  router.use(apiMiddleware())
   router.use(profileOverrideMiddleware(profile))
 
   // Apply all routes
@@ -163,7 +164,7 @@ function *routesFromDir (dir) {
     yield { url, handler }
   }
 
-  setAvailableServices(services)
+  apiMethods.setAvailableServices(services)
 }
 
 export { proxyMiddleware as middleware, router, server, helpers }
