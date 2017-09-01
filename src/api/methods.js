@@ -1,3 +1,6 @@
+import fs from 'fs'
+import path from 'path'
+
 // TODO: all blocked needs to actually add all services
 let allBlocked = false
 let serviceOverrides = {}
@@ -52,3 +55,17 @@ export function showAll () {
 export function show () {
   return Object.keys(serviceOverrides)
 }
+
+
+export function setAvailableServices (serviceMap) {
+  services = serviceMap
+}
+
+export function loadProfile (profile) {
+  resetAll()
+  if (profile) {
+    const profileSettings = fs.readFileSync(path.join(process.cwd(), profile))
+    serviceOverrides = profileSettings
+  }
+}
+
