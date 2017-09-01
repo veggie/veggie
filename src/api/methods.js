@@ -1,28 +1,13 @@
 import fs from 'fs'
 import path from 'path'
+import { getServices, matchServices } from './services'
 
 // TODO: all blocked needs to actually add all services
 let allBlocked = false
 let serviceOverrides = {}
-let services = {}
-
-function matchServices (services, serviceName, cb) {
-  const isRegex = serviceName instanceof RegExp
-  return Object
-    .keys(services)
-    .filter(url => {
-      if (isRegex) {
-        return serviceName.test(url)
-      } else {
-        return url === serviceName
-      }
-    })
-    .forEach(url => {
-      cb(url, services[url])
-    })
-}
 
 export function block (serviceName, statusCode = 404, altResponse = {}) {
+  const services = getServices()
   matchServices(services, serviceName, url => {
     console.log(`Blocking ${url} service with ${statusCode} status`)
     serviceOverrides[url] = { statusCode, altResponse }
@@ -54,11 +39,6 @@ export function showAll () {
 
 export function show () {
   return Object.keys(serviceOverrides)
-}
-
-
-export function setAvailableServices (serviceMap) {
-  services = serviceMap
 }
 
 export function loadProfile (profile) {

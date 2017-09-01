@@ -2,10 +2,11 @@ import express from 'express'
 import pathToRegexp from 'path-to-regexp'
 import * as apiMethods from './methods'
 import { apiPathPrefix } from '../common'
+import { matchServices, setServices } from './services'
 
 const middlewareApiRegex = pathToRegexp(`${apiPathPrefix}/:method/:arg?`)
 
-export { apiMethods }
+export { apiMethods, matchServices, setServices }
 
 /**
  * Middleware that registers the profile api
