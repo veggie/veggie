@@ -6,16 +6,19 @@ const { blue, green, red, yellow, magenta, cyan, white, underline, gray } = chal
 const log  = message => console.log(green(message))
 const error = message => console.log(red(message))
 
-const mock = type => blue(`mock-${type}:`)
+const mock = type => blue(`${type}:`)
 const colors = [ red, blue, green, yellow, magenta, cyan, white, gray ]
 const randomColor = message => colors[randomExlusive(colors.length)](message)
 const random = message => message.split(' ').map(word => randomColor(word)).join(' ')
 
-const server = mock('server')
-const client = mock('client')
+const profile = mock('service-profile')
+const server = mock('mock-server')
+const client = mock('mock-client')
 
+export const profileLog = message => log(`${profile} ${message}`)
 export const serverLog = message => log(`${server} ${message}`)
 export const clientLog = message => log(`${client} ${message}`)
+export const profileError = message => error(`${profile} ${message}`)
 export const serverError = message => error(`${server} ${message}`)
 export const clientError = message => error(`${client} ${message}`)
 export const prompt = message => gray(message)

@@ -6,7 +6,8 @@ import glob from 'glob'
 import http from 'http'
 import replServer from './repl'
 import url from 'url'
-import { apiMiddleware, apiMethods } from './api'
+import { profileError, profileLog } from './log'
+import { apiMiddleware, apiMethods, setServices } from './api'
 import { profileOverrideMiddleware } from './profile'
 import { randomExclusive } from './common'
 import * as helpers from './utils'
@@ -35,7 +36,7 @@ function proxyMiddleware ({ dir, time = MAX_DELAY, profile = null }) {
   getPort().then(port => {
     proxyPort = port
     server(config).listen(port, () => {
-      console.log(`service-profile: Serving mock data from localhost:${port}`)
+      profileLog(`serving mock data from localhost:${port}`)
     })
   })
 
@@ -58,7 +59,7 @@ function proxyMiddleware ({ dir, time = MAX_DELAY, profile = null }) {
 
       // Error handler
       proxyRes.on('error', e => {
-        console.log(`service-profile: error reading proxy ${e}`)
+        profileError(`error reading proxy ${e}`)
       })
 
       // Receive data
@@ -74,7 +75,7 @@ function proxyMiddleware ({ dir, time = MAX_DELAY, profile = null }) {
           res.write(JSON.stringify(json))
           res.end()
         } catch (e) {
-          console.error(`service-profile: error parsing json from ${req.path}`)
+          profileError(`error parsing json from ${req.path}`)
           next()
         }
       })
@@ -164,7 +165,7 @@ function *routesFromDir (dir) {
     yield { url, handler }
   }
 
-  apiMethods.setAvailableServices(services)
+  setServices(services)
 }
 
 export { proxyMiddleware as middleware, router, server, helpers }
