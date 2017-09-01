@@ -1,5 +1,7 @@
-import { apiMethods } from '../api'
+import { apiMethods } from './api'
 let profileRouter
+
+// TODO: swap out router with new router everytime api is called
 
 /**
  * Middleware that registers profile override responses

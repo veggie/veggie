@@ -3,7 +3,7 @@ require('whatwg-fetch')
 
 import { apiPathPrefix } from './common'
 
-// TODO: add arguments
+// TODO: add arguments and body
 
 // @returns {function}
 const api = method => (...args) => fetch(`${apiPathPrefix}/${ [method].concat(args).join('/') }`)
