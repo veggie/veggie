@@ -113,7 +113,7 @@ function router ({ dir, catchAllStatusCode = null, time = MAX_DELAY, profile = n
     router.all(url, (...args) => {
       setTimeout(() => {
         handler(...args)
-      }, randomDelay(time))
+      }, randomExclusive(time))
     })
   }
 
@@ -129,15 +129,6 @@ function router ({ dir, catchAllStatusCode = null, time = MAX_DELAY, profile = n
   }
 
   return router
-}
-
-/**
- * Return random delay from 0 to time, exclusive
- * @param {number} time - max delay
- * @returns {number}
- */
-function randomDelay (time) {
-  return Math.floor(Math.random() * time)
 }
 
 /**
