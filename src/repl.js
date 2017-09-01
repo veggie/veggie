@@ -2,7 +2,7 @@ import fs from 'fs'
 import net from 'net'
 import path from 'path'
 import repl from 'repl'
-import { addr, profileMethods } from './profile'
+import { apiMethods } from './api'
 import { clientLog, clientError, prompt, serverLog, serverError } from './log'
 import { socketPath } from './common'
 
