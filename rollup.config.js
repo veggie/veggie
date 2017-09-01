@@ -1,3 +1,4 @@
+import nodeResolve from 'rollup-plugin-node-resolve'
 import babel from 'rollup-plugin-babel'
 
 const pkg = require('./package.json')
@@ -6,6 +7,7 @@ const binBanner = '#!/usr/bin/env node'
 
 const externals = [
   'body-parser',
+  'chalk',
   'express',
   'glob',
   'path',
@@ -28,16 +30,16 @@ export default [
       { dest: pkg.main, format: 'cjs' },
       { dest: pkg.module, format: 'es' }
     ],
-    plugins: [ babel() ],
+    plugins: [ babel(), nodeResolve() ],
     external: externals
   },
 
   // API
   {
-    entry: './src/api/index.js',
+    entry: './src/fetchClientApi.js',
     banner: packageBanner,
     format: 'cjs',
-    plugins: [ babel() ],
+    plugins: [ babel(), nodeResolve() ],
     dest: pkg.browser
   },
 
@@ -47,7 +49,7 @@ export default [
     banner: binBanner,
     format: 'cjs',
     dest: './bin/repl',
-    plugins: [ babel() ],
+    plugins: [ babel(), nodeResolve() ],
     external: externals
   },
 
@@ -57,7 +59,7 @@ export default [
     banner: binBanner,
     format: 'cjs',
     dest: './bin/www',
-    plugins: [ babel() ],
+    plugins: [ babel(), nodeResolve() ],
     external: externals
   }
 ]
