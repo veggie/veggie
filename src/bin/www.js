@@ -1,5 +1,6 @@
 import meow from 'meow'
 import { server } from '../index'
+import { wwwLog } from '../log'
 
 const cli = meow(`
       Usage
@@ -31,5 +32,5 @@ const cli = meow(`
 
 const { port } = cli.flags
 server(cli.flags).listen(port, () => {
-  console.log(`Serving mock data from localhost:${port}`)
+  wwwLog(`Serving mock data from localhost:${port}`)
 })
