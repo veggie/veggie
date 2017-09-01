@@ -5,7 +5,7 @@ import { apiPathPrefix } from '../common'
 
 const middlewareApiRegex = pathToRegexp(`${apiPathPrefix}/:method/:arg?`)
 
-export apiMethods
+export { apiMethods }
 
 /**
  * Middleware that registers the profile api
@@ -17,7 +17,7 @@ export function apiMiddleware () {
     .forEach(method => {
       apiRouter.all(`${apiPathPrefix}/${method}/:arg?`, apiRoutes[`${method}Route`])
     })
-  return (req, res, next) {
+  return (req, res, next) => {
     if (middlewareApiRegex.test(req.path)) {
       apiRouter(req, res, next)
     } else {
