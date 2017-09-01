@@ -1,58 +1,82 @@
 import fs from 'fs'
 import net from 'net'
+import path from 'path'
 import repl from 'repl'
 import { addr, profileMethods } from './profile'
+import { clientLog, clientError, prompt, serverLog, serverError } from './log'
+import { socketPath } from './common'
 
 /**
+ * Create the repl server
  * @returns void
  */
 export default function replServer () {
+  // cleanup leftover socket if it exists
+  fs.unlinkSync(socketPath)
+
   // Open net connection for repl
-  const replServer = net.createServer(socket => {
-    console.log('Mocket session: Connected')
+  const replServer = net.createServer()
+  
+  replServer.on('connection', socket => {
+    serverLog('repl client session connected')
+
     const session = repl.start({
-      prompt: 'mock-client > ',
+      prompt: prompt('mock-client > '),
       input: socket,
       output: socket,
       terminal: true
     })
+
     session.defineCommand('save', {
       help: 'Save session to file',
       action (name) {
-        const history = this.history.reverse().filter(line => !(/^\./).test(line))
-        const requires = `const { ${Object.keys(profileMethods).join(', ')} } ` +
-          `= require('service-profile/services/replUtils').methods`
-        const file = `${process.cwd()}/${name}`
-        fs.writeFileSync(file, [ requires, ...history ].join('\n'))
-        console.log(`Saved to ${file}`)
+        const file = getFilePath(name)
+        // fs.writeFileSync(file, profileMethods.showVerbose())
+        clientLog(`saved to ${file}`)
         this.displayPrompt()
       }
     })
+
     session.defineCommand('load', {
       help: 'Load session from file',
-      action (fileName) {
-        const file = fs.readFileSync(fileName).toString()
-        const code = file.replace('service-profile/services', '.')
-        console.log('Running loaded code:\n', code, '\n--End of code--\n')
-        eval(code)
+      action (name) {
+        const file = getFilePath(name)
+        // const fileData = fs.readFileSync(fileName)
+        // try {
+        // const json = JSON.parse(fileData)
+        // profileMethods.loadProfile(json)
+        clientLog(`profile loaded from ${file}`)
+        // } catch (e) {
+        // clientError(`error reading profile from ${file}`)
+        // }
       }
     })
+
     session.on('exit', () => {
-      console.log('Mocket session: Exit')
-      // socket.destroy()
+      serverLog('repl client session exited')
       socket.end()
     })
+
     session.context = Object.assign(session.context, profileMethods)
   })
+
+  replServer.on('listening', () => {
+    serverLog(`repl listening at ${socketPath}`)
+  })
+
   replServer.on('error', (e) => {
-    if (e.code === 'EADDRINUSE') {
-      console.log('Repl server: Address in use')
-      replServer.close()
-    }
+    serverError(`repl error - ${e}`)
+    replServer.close()
   })
+
   replServer.on('close', () => {
-    console.log('Repl server: Closing')
+    serverLog('repl closing')
   })
-  replServer.listen(addr)
+
+  replServer.listen(socketPath)
+}
+
+function getFilePath (name) {
+  return path.join(process.cwd(), name)
 }
 

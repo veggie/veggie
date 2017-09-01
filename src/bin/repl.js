@@ -1,6 +1,7 @@
-import getPort from 'get-port'
 import meow from 'meow'
 import net from 'net'
+import { socketPath } from '../common'
+import { clientError, clientLog } from '../log'
 
 const cli = meow(`
       Usage
@@ -18,37 +19,39 @@ const cli = meow(`
     }
   })
 
-getPort().then(port => {
-  const sock = net.connect(port)
+const socket = net.createConnection(socketPath)
 
-  sock.setEncoding('utf8')
-  process.stdin.pipe(sock)
-  sock.pipe(process.stdout)
+socket.setEncoding('utf8')
+process.stdin.pipe(socket)
+socket.pipe(process.stdout)
 
-  sock.on('connect', function () {
-    console.log(`connected to repl at ${port}`)
-    process.stdin.resume()
-    process.stdin.setRawMode(true)
-  })
+socket.on('connect', () => {
+  clientLog(`connected to repl at ${socketPath}`)
+  process.stdin.resume()
+  process.stdin.setRawMode(true)
+})
 
-  sock.on('message', function (data) {
-    console.log(data.length, data)
-  })
+socket.on('message', data => {
+  clientLog(`data received - ${data}\n`)
+})
 
-  sock.on('close', function done () {
-    process.stdin.setRawMode(false)
-    process.stdin.pause()
-    sock.removeListener('close', done)
-  })
+socket.on('error', e => {
+  clientError(`repl error ${e}`)
+})
 
-  process.stdin.on('end', function () {
-    sock.destroy()
-    console.log()
-  })
+socket.on('close', /* done */() => {
+  clientLog('repl closing')
+  process.stdin.setRawMode(false)
+  process.stdin.pause()
+  // socket.removeListener('close', done)
+})
 
-  process.stdin.on('data', function (b) {
-    if (b.length === 1 && b[0] === 4) {
-      process.stdin.emit('end')
-    }
-  })
+process.stdin.on('end', () => {
+  socket.destroy()
+})
+
+process.stdin.on('data', (b) => {
+  if (b.length === 1 && b[0] === 4) {
+    process.stdin.emit('end')
+  }
 })
