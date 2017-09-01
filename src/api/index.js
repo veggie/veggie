@@ -5,11 +5,13 @@ import { apiPathPrefix } from '../common'
 
 const middlewareApiRegex = pathToRegexp(`${apiPathPrefix}/:method/:arg?`)
 
+export apiMethods
+
 /**
  * Middleware that registers the profile api
  * @returns {function}
  */
-function apiMiddleware () {
+export function apiMiddleware () {
   const apiRouter = express.Router()
   Object.keys(apiMethods)
     .forEach(method => {
