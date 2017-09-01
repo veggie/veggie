@@ -31,7 +31,7 @@ export default function replServer () {
       help: 'Save session to file',
       action (name) {
         const file = getFilePath(name)
-        // fs.writeFileSync(file, profileMethods.showVerbose())
+        fs.writeFileSync(file, apiMethods.showAll())
         clientLog(`saved to ${file}`)
         this.displayPrompt()
       }
@@ -41,14 +41,14 @@ export default function replServer () {
       help: 'Load session from file',
       action (name) {
         const file = getFilePath(name)
-        // const fileData = fs.readFileSync(fileName)
-        // try {
-        // const json = JSON.parse(fileData)
-        // profileMethods.loadProfile(json)
-        clientLog(`profile loaded from ${file}`)
-        // } catch (e) {
-        // clientError(`error reading profile from ${file}`)
-        // }
+        const fileData = fs.readFileSync(file)
+        try {
+          const json = JSON.parse(fileData)
+          apiMethods.loadProfile(json)
+          clientLog(`profile loaded from ${file}`)
+        } catch (e) {
+          clientError(`error reading profile from ${file}`)
+        }
       }
     })
 
@@ -57,7 +57,7 @@ export default function replServer () {
       socket.end()
     })
 
-    session.context = Object.assign(session.context, profileMethods)
+    session.context = Object.assign(session.context, apiMethods)
   })
 
   replServer.on('listening', () => {
