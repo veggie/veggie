@@ -8,17 +8,18 @@ const binBanner = '#!/usr/bin/env node'
 const externals = [
   'body-parser',
   'chalk',
+  'crypto',
   'express',
+  'fs',
+  'get-port',
   'glob',
+  'http',
+  'meow',
+  'net',
   'path',
   'path-to-regexp',
-  'http',
-  'fs',
-  'net',
-  'meow',
   'repl',
-  'url',
-  'get-port'
+  'url'
 ]
 
 export default [
