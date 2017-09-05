@@ -7,7 +7,7 @@ import http from 'http'
 import replServer from './repl'
 import url from 'url'
 import { profileError, profileLog } from './log'
-import { apiMiddleware, apiMethods, setServices } from './api'
+import { apiMiddleware, apiMethods, apiServices } from './api'
 import { profileOverrideMiddleware } from './profile'
 import { randomExclusive } from './common'
 import * as helpers from './utils'
@@ -165,7 +165,7 @@ function *routesFromDir (dir) {
     yield { url, handler }
   }
 
-  setServices(services)
+  apiServices.setServices(services)
 }
 
 export { proxyMiddleware as middleware, router, server, helpers }
