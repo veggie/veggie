@@ -1,36 +1,36 @@
 import fs from 'fs'
 import path from 'path'
-import { getServices, matchServices } from './services'
-
-// TODO: all blocked needs to actually add all services
-let allBlocked = false
-let serviceOverrides = {}
+import { serverLog } from '../log'
+import {
+  filterServices, services, serviceOverrides,
+  setServiceOverride, resetServiceOverride,
+  setAllServiceOverrides, resetAllServiceOverrides
+} from './services'
 
 export function block (serviceName, statusCode = 404, altResponse = {}) {
-  const services = getServices()
-  matchServices(services, serviceName, url => {
-    console.log(`Blocking ${url} service with ${statusCode} status`)
-    serviceOverrides[url] = { statusCode, altResponse }
-  })
+  filterServices(services, serviceName)
+    .forEach(url => {
+      serverLog(`blocking ${url} service with ${statusCode} status`)
+      setServiceOverride(url, { statusCode, altResponse })
+    })
 }
 
 export function blockAll () {
-  console.log('Blocking ALL services')
-  allBlocked = true
+  // TODO: all blocked needs to actually add all services
+  serverLog('blocking ALL services')
 }
 
 export function reset (serviceName) {
-  matchServices(serviceOverrides, serviceName, url => {
-    console.log(`Reseting ${url} service`)
-    delete serviceOverrides[url]
-  })
-  allBlocked = false
+  filterServices(serviceOverrides, serviceName)
+    .forEach(url => {
+      serverLog(`reseting ${url} service`)
+      resetServiceOverride(url)
+    })
 }
 
 export function resetAll () {
-  console.log('Reseting ALL services')
-  allBlocked = false
-  serviceOverrides = {}
+  serverLog('reseting ALL services')
+  resetAllServiceOverrides(url)
 }
 
 export function showAll () {
@@ -44,8 +44,9 @@ export function show () {
 export function loadProfile (profile) {
   resetAll()
   if (profile) {
-    const profileSettings = fs.readFileSync(path.join(process.cwd(), profile))
-    serviceOverrides = profileSettings
+    const profilePath = path.join(process.cwd(), profile)
+    const fileData = fs.readFileSync(profilePath)
+    setAllServiceOverrides(fileData)
   }
 }
 
