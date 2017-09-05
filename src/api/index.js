@@ -31,13 +31,14 @@ function apiHandler (req, res) {
   const { method, arg } = params
 
   try {
+    let payload
     if (body) {
-      apiMethods[method](body)
+      payload = apiMethods[method](body)
     } else {
-      apiMethods[method](arg)
+      payload = apiMethods[method](arg)
     }
     res.status(200)
-    res.send({ message: `mock-server: ${method} call successful` })
+    res.send({ message: `mock-server: ${method} call successful`, payload })
   } catch (e) {
     res.status(500)
     res.send({ message: `mock-server: ${method} call failed` })
