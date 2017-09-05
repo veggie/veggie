@@ -3,7 +3,7 @@ import net from 'net'
 import path from 'path'
 import repl from 'repl'
 import { apiMethods } from './api'
-import { clientLog, clientError, prompt, serverLog, serverError } from './log'
+import { clientLog, clientError, serverLog, serverError } from './log'
 import { socketPath } from './common'
 
 /**
@@ -28,7 +28,7 @@ export default function replServer () {
     serverLog('repl client session connected')
 
     const session = repl.start({
-      prompt: prompt('mock-client > '),
+      prompt: 'mock-client > ',
       input: socket,
       output: socket,
       terminal: true

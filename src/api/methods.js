@@ -30,7 +30,7 @@ export function reset (serviceName) {
 
 export function resetAll () {
   serverLog('reseting ALL services')
-  resetAllServiceOverrides(url)
+  resetAllServiceOverrides()
 }
 
 export function showAll () {

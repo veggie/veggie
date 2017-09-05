@@ -21,6 +21,5 @@ export const clientLog = message => log(`${client} ${message}`)
 export const profileError = message => error(`${profile} ${message}`)
 export const serverError = message => error(`${server} ${message}`)
 export const clientError = message => error(`${client} ${message}`)
-export const prompt = message => gray(message)
 export const wwwLog = message => console.log(underline(random(message)))
 
