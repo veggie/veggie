@@ -1,6 +1,6 @@
 {
   "name": "service-profile",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Interactive mock server for profiling user scenarios",
   "main": "dist/service-profile.js",
   "module": "dist/service-profile.es.js",
