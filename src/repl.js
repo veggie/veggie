@@ -7,6 +7,13 @@ import { clientLog, clientError, prompt, serverLog, serverError } from './log'
 import { socketPath } from './common'
 
 /**
+ * @returns {string} - absolute path to file
+ */
+function getFilePath (name) {
+  return path.join(process.cwd(), name)
+}
+
+/**
  * Create the repl server
  * @returns void
  */
@@ -75,8 +82,3 @@ export default function replServer () {
 
   replServer.listen(socketPath)
 }
-
-function getFilePath (name) {
-  return path.join(process.cwd(), name)
-}
-
