@@ -1,3 +1,5 @@
+import { serverError } from './log'
+
 /**
  * @param {object} data
  * @param {string} queryKey - key to extract from query string
@@ -52,26 +54,32 @@ export function matchKeyToQueryParam (queryKey, responses) {
 }
 
 /**
- * Returns an express route handler for the given service
+ * Returns an express route handler for the given user-defined response
  *
  * @param {function|object|string} response - The service response
+ * @param [optional] {number} statusCode - status code to be used for response
  * @returns {(req: Express Request, res: Express Response) => void}
  */
-export function getRouteHandler (response) {
+export function getRouteHandler (response, statusCode = null) {
   if (typeof response === 'function') {
-    // Express route
+    // Express route - will need to handle status code itself
     return response
   }
 
   if (typeof response === 'string') {
     // Path to json file
     return (req, res) => {
-      const data = cachelessRequire(response)
+      let data
+      try {
+        data = cachelessRequire(response)
+      } catch (e) {
+        serverError(e)
+      }
       if (data) {
-        res.json(data)
+        res.status(statusCode || 200).json(data)
       }
       else {
-        res.status(404).json({})
+        res.status(statusCode || 404).json({})
       }
     }
   }
@@ -80,10 +88,10 @@ export function getRouteHandler (response) {
   const data = response
   return (req, res) => {
     if (data) {
-      res.json(data)
+      res.status(statusCode || 200).json(data)
     }
     else {
-      res.status(404).json({})
+      res.status(statusCode || 404).json({})
     }
   }
 }
