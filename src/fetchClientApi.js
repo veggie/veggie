@@ -6,7 +6,7 @@ import { apiPathPrefix } from './common'
 // TODO: add arguments and body
 
 // @returns {function}
-const api = method => (...args) => fetch(`${apiPathPrefix}/${ [method].concat(args).join('/') }`)
+const api = method => (...args) => fetch(`${apiPathPrefix}/${[method, ...args].join('/')}`)
 
 export const block = api('block')
 export const reset = api('reset')
