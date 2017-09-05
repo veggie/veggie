@@ -1,9 +1,12 @@
-import express from 'express'
+export let services = {}
+export let serviceOverrides = {}
 
-let services = {}
-let profileRouter
-
-export function matchServices (services, serviceName, cb) {
+/**
+ * @param {object} services - services to search through
+ * @param {regex|string} serviceName - match to compare with service url
+ * @returns {array} - array of matching services
+ */
+export function filterServices (services, serviceName, cb) {
   const isRegex = serviceName instanceof RegExp
   return Object
     .keys(services)
@@ -14,25 +17,24 @@ export function matchServices (services, serviceName, cb) {
         return url === serviceName
       }
     })
-    .forEach(url => {
-      cb(url, services[url])
-    })
-}
-
-export function getServices () {
-  return services
 }
 
 export function setServices (serviceMap) {
-  services = serviceMap
+  services = serviceMap || {}
 }
 
-export function getRouter () {
-  return profileRouter
+export function setServiceOverride (url, override) {
+  serviceOverrides[url] = override
 }
 
-export function setRouter () {
-  const router = express.Router()
-  // TODO: add profile override routes
-  profileRouter = router
+export function resetServiceOverride (url) {
+  delete serviceOverrides[url]
+}
+
+export function resetAllServiceOverrides () {
+  serviceOverrides = {}
+}
+
+export function setAllServiceOverrides (overrides) {
+  serviceOverrides = overrides || {}
 }
