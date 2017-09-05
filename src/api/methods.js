@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { serverLog } from '../log'
+import { serverError, serverLog } from '../log'
 import {
   filterServices, services, serviceOverrides,
   setServiceOverride, resetServiceOverride,
@@ -44,9 +44,15 @@ export function show () {
 export function loadProfile (profile) {
   resetAll()
   if (profile) {
-    const profilePath = path.join(process.cwd(), profile)
-    const fileData = fs.readFileSync(profilePath)
-    setAllServiceOverrides(fileData)
+    serverLog(`loading ${profile} profile`)
+    try {
+      const profilePath = path.join(process.cwd(), profile)
+      const fileData = fs.readFileSync(profilePath)
+      const profileData = JSON.parse(fileData)
+      setAllServiceOverrides(profileData)
+    } catch (e) {
+      serverError(`loading ${profile} profile failed`)
+    }
   }
 }
 
