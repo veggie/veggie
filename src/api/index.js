@@ -1,12 +1,12 @@
 import express from 'express'
 import pathToRegexp from 'path-to-regexp'
 import * as apiMethods from './methods'
+import * as apiServices from './services'
 import { apiPathPrefix } from '../common'
-import { matchServices, setServices } from './services'
 
 const middlewareApiRegex = pathToRegexp(`${apiPathPrefix}/:method/:arg?`)
 
-export { apiMethods, matchServices, setServices }
+export { apiMethods, apiServices }
 
 /**
  * Middleware that registers the profile api
@@ -19,6 +19,7 @@ export function apiMiddleware () {
       apiRouter.all(`${apiPathPrefix}/${method}/:arg?`, apiHandler)
     })
   return (req, res, next) => {
+    // TODO: is this test necessary? profile isn't doing one
     if (middlewareApiRegex.test(req.path)) {
       apiRouter(req, res, next)
     } else {
