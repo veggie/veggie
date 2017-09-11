@@ -19,7 +19,9 @@ function getFilePath (name) {
  */
 export default function replServer () {
   // cleanup leftover socket if it exists
-  fs.unlinkSync(socketPath)
+  if (fs.existsSync(socketPath) {
+    fs.unlinkSync(socketPath)
+  }
 
   // Open net connection for repl
   const replServer = net.createServer()
