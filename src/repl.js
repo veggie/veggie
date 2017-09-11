@@ -19,7 +19,7 @@ function getFilePath (name) {
  */
 export default function replServer () {
   // cleanup leftover socket if it exists
-  if (fs.existsSync(socketPath) {
+  if (fs.existsSync(socketPath)) {
     fs.unlinkSync(socketPath)
   }
 
