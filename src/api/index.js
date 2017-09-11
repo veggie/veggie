@@ -27,16 +27,14 @@ export function apiMiddleware () {
  * @returns {void}
  */
 function apiHandler (req, res) {
-  const { body, params } = req
+  const { params } = req
   const { method, arg } = params
+
+  // TODO: use body from POST as well
 
   try {
     let payload
-    if (body) {
-      payload = apiMethods[method](body)
-    } else {
-      payload = apiMethods[method](arg)
-    }
+    payload = apiMethods[method](arg)
     res.status(200)
     res.send({ message: `mock-server: ${method} call successful`, payload })
   } catch (e) {
