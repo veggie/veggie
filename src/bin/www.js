@@ -1,19 +1,20 @@
 import meow from 'meow'
 import { server } from '../index'
 import { wwwLog } from '../log'
+import { _setHost } from '../fetchClientApi'
 
 const cli = meow(`
       Usage
-        $ mock-server -d <dir> -p <port> -t <time>
+        $ veg -d <dir> -p <port> -t <time>
 
       Options
         -d, --dir  Glob matching files containing mock services
         -p, --port  Port to serve mocks from
         -t, --time  Max delay (in milliseconds) to wait before returning service response
-        -v, --version  Output mock-server version and exit
+        -v, --version  Output veg version and exit
 
       Examples
-        $ mock-server -g services/**/index.js -p 9999 -d 1000
+        $ veg -g services/**/index.js -p 9999 -d 1000
         Serving mock data from localhost:9999
   `, {
     string: 'dir',

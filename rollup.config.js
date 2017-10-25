@@ -5,7 +5,7 @@ const pkg = require('./package.json')
 const packageBanner = `/*! ${pkg.name} v${pkg.version} */`
 const binBanner = '#!/usr/bin/env node'
 
-const externals = [
+const external = [
   'body-parser',
   'chalk',
   'crypto',
@@ -32,7 +32,7 @@ export default [
       { dest: pkg.module, format: 'es' }
     ],
     plugins: [ babel(), nodeResolve() ],
-    external: externals
+    external
   },
 
   // API
@@ -49,9 +49,9 @@ export default [
     entry: './src/bin/repl.js',
     banner: binBanner,
     format: 'cjs',
-    dest: './bin/repl',
+    dest: './bin/veg-connect',
     plugins: [ babel(), nodeResolve() ],
-    external: externals
+    external
   },
 
   // `www` bin
@@ -59,8 +59,8 @@ export default [
     entry: './src/bin/www.js',
     banner: binBanner,
     format: 'cjs',
-    dest: './bin/www',
+    dest: './bin/veg',
     plugins: [ babel(), nodeResolve() ],
-    external: externals
+    external
   }
 ]
