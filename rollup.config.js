@@ -44,7 +44,7 @@ export default [
     dest: pkg.browser
   },
 
-  // `repl` bin
+  // `veg-connect` bin
   {
     entry: './src/bin/repl.js',
     banner: binBanner,
@@ -54,7 +54,7 @@ export default [
     external
   },
 
-  // `www` bin
+  // `veg` bin
   {
     entry: './src/bin/www.js',
     banner: binBanner,

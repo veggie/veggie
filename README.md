@@ -1,18 +1,15 @@
 
-# service-profile
+# veggie
+
+*Eat your damn vegetables*
 
 Interactive mock server for profiling user scenarios
-
-
-## --- DEPRECATION NOTICE ---
-
-This package has been moved to [veggie](https://www.npmjs.com/package/veggie)
 
 
 ### Installation
 
 ```
-npm i -D service-profile
+npm i -D veggie
 ```
 
 
@@ -35,11 +32,11 @@ restarting your development server.
 
 ```javascript
 // webpack.config.js
-const serviceProfile = require('service-profile')
+const veggie = require('veggie')
 // ...
   devServer: {
     setup(app) {
-      app.use(serviceProfile.router({ dir: 'services/**/*.js' }))
+      app.use(veggie.router({ dir: 'services/**/*.js' }))
     }
   }
 // ...
@@ -51,7 +48,7 @@ const serviceProfile = require('service-profile')
 ### Run the server
 
 ```bash
-mock-server -d services/**/*.js -p 1337 -t 1000
+veg -d services/**/*.js -p 1337 -t 1000
 ```
 
 to serve from port 1337
@@ -74,7 +71,7 @@ to serve from port 1337
 ## Use a REPL to access your live services
 
 When using the mock router, you may want to change service responses without
-restarting the dev server. All service profile methods in return 
+restarting the dev server. All veggie profile methods in return 
 
 
 ## Save profiles
@@ -88,13 +85,13 @@ The mock middleware can be used in karma via the following
 
 ```javascript
 // karma.conf.js
-const mockMiddleware = require('service-profile').middleware
+const mockMiddleware = require('veggie').middleware
 // ...
-  middleware: ['serviceProfile'],
+  middleware: ['veggie'],
   plugins: [
     'karma-*',
     {
-      'middleware:serviceProfile': [ 'factory', mockMiddleware ]
+      'middleware:veggie': [ 'factory', mockMiddleware ]
     }
   ]
 // ...
@@ -107,50 +104,50 @@ all requests to that.
 ## Changing profiles in tests
 
 If you want to change profiles during tests, you will need to include
-service-profile from the `browser` field.
+veggie from the `browser` field.
 
-All service profile methods will return promises
+All veggie profile methods will return promises
 
 
 ```javascript
 // Note:
 // When bundling for testing in browsers, your bundler will need to be configured
 // to look for `browser` field of this package
-import serviceProfile from 'service-profile'
+import veggie from 'veggie'
 ```
 
 #### block
 ```javascript
 before(() => {
-  return serviceProfile.block('getUser')
+  return veggie.block('getUser')
 })
 ```
 
 #### blockAll
 ```javascript
 before(() => {
-  return serviceProfile.blockAll()
+  return veggie.blockAll()
 })
 ```
 
 #### reset
 ```javascript
 before(() => {
-  return serviceProfile.reset('getUser')
+  return veggie.reset('getUser')
 })
 ```
 
 #### resetAll
 ```javascript
 before(() => {
-  return serviceProfile.resetAll()
+  return veggie.resetAll()
 })
 ```
 
 #### loadProfile
 ```javascript
 before(() => {
-  return serviceProfile.loadProfile('adminUser')
+  return veggie.loadProfile('adminUser')
 })
 ```
 
