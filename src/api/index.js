@@ -3,9 +3,9 @@ import * as apiMethods from './methods'
 import * as apiServices from './services'
 import { apiPathPrefix } from '../common'
 
-const middlewareApiRegex = `${apiPathPrefix}/:method/:arg?`
-
 export { apiMethods, apiServices }
+
+const middlewareApiRegex = `${apiPathPrefix}/:method/:arg?`
 
 /**
  * Middleware that registers the profile api
@@ -13,13 +13,8 @@ export { apiMethods, apiServices }
  */
 export function apiMiddleware () {
   const apiRouter = express.Router()
-  Object.keys(apiMethods)
-    .forEach(method => {
-      apiRouter.all(middlewareApiRegex, apiHandler)
-    })
-  return (req, res, next) => {
-    apiRouter(req, res, next)
-  }
+  apiRouter.all(middlewareApiRegex, apiHandler)
+  return apiRouter
 }
 
 /**
@@ -30,16 +25,23 @@ function apiHandler (req, res) {
   const { params } = req
   const { method, arg } = params
 
+  // TODO: need to get a path from encoded url slugs
+
   // TODO: use body from POST as well
 
-  try {
-    let payload
-    payload = apiMethods[method](arg)
-    res.status(200)
-    res.send({ message: `mock-server: ${method} call successful`, payload })
-  } catch (e) {
-    res.status(500)
-    res.send({ message: `mock-server: ${method} call failed` })
+  if (!(method in apiMethods)) {
+    res.status(501)
+    res.send({ message: `mock-server: ${method} not implemented` })
+  } else {
+    try {
+      let payload
+      payload = apiMethods[method](arg)
+      res.status(200)
+      res.send({ message: `mock-server: ${method} call successful`, payload })
+    } catch (e) {
+      res.status(500)
+      res.send({ message: `mock-server: ${method} call failed` })
+    }
   }
   res.end()
 }
