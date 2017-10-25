@@ -22,12 +22,9 @@ export function apiMiddleware () {
  * @returns {void}
  */
 function apiHandler (req, res) {
-  const { params } = req
-  const { method, arg } = params
-
-  // TODO: need to get a path from encoded url slugs
-
-  // TODO: use body from POST as well
+  const { params, body } = req
+  const { method } = params
+  const arg = decodeURIComponent(params.arg)
 
   if (!(method in apiMethods)) {
     res.status(501)
