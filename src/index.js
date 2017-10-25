@@ -6,7 +6,7 @@ import glob from 'glob'
 import http from 'http'
 import replServer from './repl'
 import url from 'url'
-import { profileError, profileLog } from './log'
+import { profileError, profileLog, setLog } from './log'
 import { apiMiddleware, apiMethods, apiServices } from './api'
 import { profileOverrideMiddleware } from './profile'
 import { randomExclusive } from './common'
@@ -23,7 +23,8 @@ const proxyPassThroughCode = 501
  * @param {object} config
  * @returns {Express middleware}
  */
-function proxyMiddleware ({ dir, time = MAX_DELAY, profile = null }) {
+function proxyMiddleware ({ profile = null, log = true }) {
+  setLog(log)
   const config = arguments[0]
   config.catchAllStatusCode = proxyPassThroughCode
 
@@ -106,7 +107,8 @@ function server (config) {
  * @param {object} - configuration object
  * @returns {Express router}
  */
-function router ({ dir, catchAllStatusCode = null, time = MAX_DELAY, profile = null, repl = true }) {
+function router ({ dir, catchAllStatusCode = null, time = MAX_DELAY, profile = null, repl = true, log = true }) {
+  setLog(log)
   const router = express.Router()
 
   // Apply middleware
