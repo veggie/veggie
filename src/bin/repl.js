@@ -5,14 +5,14 @@ import { clientError, clientLog } from '../log'
 
 const cli = meow(`
       Usage
-        $ mock-client
+        $ veg-connect
 
       Options
-        -v, --version  Output mock-client version and exit
+        -v, --version  Output veg-connect version and exit
 
       Examples
-        $ mock-client
-        connected to repl at [PORT]
+        $ veg-connect
+        connected to veg repl server
   `, {
     alias: {
       v: 'version'

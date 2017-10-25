@@ -1,25 +1,27 @@
 {
-  "name": "service-profile",
+  "name": "veggie",
   "version": "1.1.8",
   "description": "Interactive mock server for profiling user scenarios",
-  "main": "dist/service-profile.js",
-  "module": "dist/service-profile.es.js",
-  "browser": "dist/service-profile.api.js",
+  "main": "dist/veggie.js",
+  "module": "dist/veggie.es.js",
+  "browser": "dist/veggie.api.js",
   "bin": {
-    "mock-server": "bin/www",
-    "mock-client": "bin/repl"
+    "veg": "bin/www"
   },
   "scripts": {
     "build": "rollup -c",
+    "build:watch": "nodemon -w src -x 'npm run build'",
     "preversion": "npm test",
     "version": "npm run build # Get latest version for banners",
     "postversion": "git push && git push --tags && npm publish",
     "pretest": "npm run build",
-    "test": "nyc mocha"
+    "test": "nyc --reporter=html --reporter=text mocha",
+    "test:watch": "nodemon -w dist -w test -x 'nyc mocha'",
+    "watch": "parallelshell 'npm run test:watch' 'npm run build:watch'"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/micburks/service-profile.git"
+    "url": "git+https://github.com/micburks/veggie.git"
   },
   "keywords": [
     "mock",
@@ -32,9 +34,9 @@
   "author": "Mickey Burks",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/micburks/service-profile/issues"
+    "url": "https://github.com/micburks/veggie/issues"
   },
-  "homepage": "https://github.com/micburks/service-profile#readme",
+  "homepage": "https://github.com/micburks/veggie#readme",
   "dependencies": {
     "babel-polyfill": "^6.26.0",
     "body-parser": "^1.17.2",
@@ -43,15 +45,17 @@
     "express": "^4.15.3",
     "get-port": "^3.2.0",
     "glob": "^7.1.2",
+    "isomorphic-fetch": "^2.2.1",
     "meow": "^3.7.0",
-    "path-to-regexp": "^2.0.0",
-    "whatwg-fetch": "^2.0.3"
+    "path-to-regexp": "^2.0.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-preset-es2015-rollup": "^3.0.0",
     "mocha": "^3.5.0",
+    "nodemon": "^1.12.1",
     "nyc": "^11.1.0",
+    "parallelshell": "^3.0.2",
     "rollup": "^0.45.2",
     "rollup-plugin-babel": "^3.0.2",
     "rollup-plugin-node-resolve": "^3.0.0"
