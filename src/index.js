@@ -10,6 +10,7 @@ import { profileError, profileLog } from './log'
 import { apiMiddleware, apiMethods, apiServices } from './api'
 import { profileOverrideMiddleware } from './profile'
 import { randomExclusive } from './common'
+import * as fetchApi from './fetchClientApi'
 import * as helpers from './utils'
 
 const MAX_DELAY = 1000
@@ -36,6 +37,7 @@ function proxyMiddleware ({ dir, time = MAX_DELAY, profile = null }) {
   getPort().then(port => {
     proxyPort = port
     server(config).listen(port, () => {
+      fetchApi._setHost(`http://localhost:${port}`)
       profileLog(`serving mock data from localhost:${port}`)
     })
   })
@@ -168,4 +170,4 @@ function *routesFromDir (dir) {
   apiServices.setServices(services)
 }
 
-export { proxyMiddleware as middleware, router, server, helpers }
+export { proxyMiddleware as middleware, router, server, fetchApi, helpers }
