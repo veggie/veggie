@@ -4,7 +4,7 @@
 Interactive mock server for profiling user scenarios
 
 
-## Deprecation notice
+## --- DEPRECATION NOTICE ---
 
 This package has been moved to [veggie](https://www.npmjs.com/package/veggie)
 
