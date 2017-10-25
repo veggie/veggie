@@ -1,12 +1,14 @@
 require('es6-promise').polyfill()
-require('whatwg-fetch')
+require('isomorphic-fetch')
 
 import { apiPathPrefix } from './common'
 
 // TODO: add arguments and body
 
-// @returns {function}
-const api = method => (...args) => fetch(`${apiPathPrefix}/${[method, ...args].join('/')}`)
+let hostname = ''
+export function _setHost (host) {
+  hostname = host
+}
 
 /**
  * Return method to call api function via fetch

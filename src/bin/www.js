@@ -33,5 +33,6 @@ const cli = meow(`
 
 const { port } = cli.flags
 server(cli.flags).listen(port, () => {
+  fetchApi._setHost(`http://localhost:${port}`)
   wwwLog(`Serving mock data from localhost:${port}`)
 })
