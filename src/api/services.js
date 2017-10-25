@@ -27,14 +27,14 @@ export function setServiceOverride (url, override) {
   serviceOverrides[url] = override
 }
 
+export function setAllServiceOverrides (overrides) {
+  serviceOverrides = overrides || {}
+}
+
 export function resetServiceOverride (url) {
   delete serviceOverrides[url]
 }
 
 export function resetAllServiceOverrides () {
   serviceOverrides = {}
-}
-
-export function setAllServiceOverrides (overrides) {
-  serviceOverrides = overrides || {}
 }

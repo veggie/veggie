@@ -17,7 +17,11 @@ export function block (serviceName, statusCode = 404, altResponse = {}) {
 
 export function blockAll () {
   // TODO: all blocked needs to actually add all services
-  serverLog('blocking ALL services')
+  serverLog('blocking all services')
+}
+
+export function set (serviceName, status, response) {
+  serverLog('setting override')
 }
 
 export function reset (serviceName) {
@@ -29,7 +33,7 @@ export function reset (serviceName) {
 }
 
 export function resetAll () {
-  serverLog('reseting ALL services')
+  serverLog('reseting all services')
   resetAllServiceOverrides()
 }
 
