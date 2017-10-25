@@ -4,6 +4,7 @@ import express from 'express'
 import getPort from 'get-port'
 import glob from 'glob'
 import http from 'http'
+import path from 'path'
 import replServer from './repl'
 import url from 'url'
 import { profileError, profileLog, setLog } from './log'
@@ -150,14 +151,19 @@ function *routesFromDir (dir) {
   try {
     files = glob.sync(dir)
   } catch (e) {
-    throw new Error('service-profile: error reading `dir` glob')
+    throw new Error('veggie: error reading `dir` glob')
   }
 
   // Build master route config object
   const routeConfig = files
     .reduce((acc, file) => {
-      const services = require(file)
-      acc = Object.assign(acc, services)
+      let services
+      try {
+        services = require(path.join(process.cwd(), file))
+        acc = Object.assign(acc, services)
+      } catch (e) {
+        profileError(`error reading file ${file}`)
+      }
       return acc
     }, {})
 
