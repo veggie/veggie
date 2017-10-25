@@ -5,6 +5,9 @@
 
 Interactive mock server for profiling user scenarios
 
+[![Build Status](https://travis-ci.org/micburks/veggie.svg?branch=master)](https://travis-ci.org/micburks/veggie)
+[![Coverage Status](https://coveralls.io/repos/github/micburks/veggie/badge.svg?branch=master)](https://coveralls.io/github/micburks/veggie?branch=master)
+
 
 ### Installation
 

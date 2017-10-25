@@ -11,6 +11,7 @@
   "scripts": {
     "build": "rollup -c",
     "build:watch": "nodemon -w src -x 'npm run build'",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "preversion": "npm test",
     "version": "npm run build # Get latest version for banners",
     "postversion": "git push && git push --tags && npm publish",
@@ -52,6 +53,7 @@
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-preset-es2015-rollup": "^3.0.0",
+    "coveralls": "^3.0.0",
     "mocha": "^3.5.0",
     "nodemon": "^1.12.1",
     "nyc": "^11.1.0",
