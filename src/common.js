@@ -9,8 +9,8 @@ export const apiPathPrefix = '/veggie/api'
 export const socketPath = '/tmp/veggie.sock'
 
 /**
- * Return random number from 0 to time, exclusive
- * @param {number} time - max delay
+ * Return random number from 0 to max, exclusive
+ * @param {number} max
  * @returns {number}
  */
-export const randomExclusive = time => Math.floor(Math.random() * time)
+export const randomExclusive = max => Math.floor(Math.random() * max)

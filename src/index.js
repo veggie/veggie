@@ -72,11 +72,9 @@ function proxyMiddleware ({ profile = null, log = true }) {
 
       // Finish proxied request
       proxyRes.on('end', () => {
-        let json
         try {
-          json = JSON.parse(data)
           res.writeHead(proxyRes.statusCode, proxyRes.headers)
-          res.write(JSON.stringify(json))
+          res.write(data)
           res.end()
         } catch (e) {
           profileError(`error parsing json from ${req.path}`)
@@ -96,9 +94,9 @@ function proxyMiddleware ({ profile = null, log = true }) {
  * @returns {Express app}
  */
 function server (config) {
-  config.app = express()
-  config.app.use(router(config))
-  return config.app
+  const app = express()
+  app.use(router(config))
+  return app
 }
 
 /**
