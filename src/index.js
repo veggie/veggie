@@ -161,7 +161,11 @@ function *routesFromDir (dir) {
     .reduce((acc, file) => {
       let services
       try {
-        services = require(path.join(process.cwd(), file))
+        if (!path.isAbsolute(file)) {
+          // Make file path absolute
+          file = path.join(process.cwd(), file)
+        }
+        services = require(file)
         acc = Object.assign(acc, services)
       } catch (e) {
         profileError(`error reading file ${file}`)
