@@ -1,6 +1,3 @@
-require('es6-promise').polyfill()
-require('isomorphic-fetch')
-
 import { apiPathPrefix } from './common'
 
 // TODO: add arguments and body
