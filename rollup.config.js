@@ -44,19 +44,9 @@ export default [
     dest: pkg.browser
   },
 
-  // `veg-connect` bin
-  {
-    entry: './src/bin/repl.js',
-    banner: binBanner,
-    format: 'cjs',
-    dest: './bin/veg-connect',
-    plugins: [ babel(), nodeResolve() ],
-    external
-  },
-
   // `veg` bin
   {
-    entry: './src/bin/www.js',
+    entry: './src/bin/veg.js',
     banner: binBanner,
     format: 'cjs',
     dest: './bin/veg',
