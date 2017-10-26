@@ -61,6 +61,8 @@ to serve from port 1337
 
 ### Add proxies to webpack-dev-server
 
+Then proxy to your server using webpack-dev-server
+
 ```javascript
 // webpack.config.js
 // ...
@@ -71,21 +73,6 @@ to serve from port 1337
   }
 // ...
 ```
-
-
-## Use a REPL to access your live services
-
-When using the mock router, you may want to change service responses without
-restarting the dev server. All veggie profile methods in return 
-
-```bash
-npm  i -g veg-connect
-```
-
-
-## Save profiles
-
-TODO
 
 
 ## Use in tests
@@ -112,18 +99,56 @@ all requests to that.
 
 ## Changing profiles in tests
 
-If you want to change profiles during tests, you will need to include
-veggie from the `browser` field.
+veggie provides an api for changing service responses without restarting the server.
 
-All veggie profile methods will return promises
+You can use these functions by including the veggie api in your tests.
 
+Note: All veggie profile methods will return promises
+
+
+### Testing in Node
 
 ```javascript
-// Note:
-// When bundling for testing in browsers, your bundler will need to be configured
-// to look for `browser` field of this package
-import veggie from 'veggie'
+// This should point to veggie's package.json `main` or `module` field (`veggie.js` or `veggie.es.js`)
+const veggieApi = require('veggie').fetchApi
+// or
+// import { fetchApi as veggieApi } from 'veggie'
+
+// Fetch is required
+require('isomorphic-fetch')
+// or just
+require('node-fetch')
+
+// ...
+  before(() => {
+    // You need to specify the host before using the api
+    veggieApi._setHost(`http://localhost:${port}`)
+    return veggieApi.block('/my/blocked/route')
+  })
+// ...
 ```
+
+
+### Testing in the browser
+
+```javascript
+// This should point to veggie's package.json `browser` field (`veggie.api.js`)
+import * as veggie from 'veggie'
+
+// If you plan to test in a fetch-less browser
+require('isomorphic-fetch')
+// or just
+require('whatwg-fetch')
+
+// ...
+  before(() => {
+    return veggieApi.block('/my/blocked/route')
+  })
+// ...
+```
+
+
+### API methods
 
 #### block
 ```javascript
@@ -160,7 +185,33 @@ before(() => {
 })
 ```
 
+### set
+```javascript
+before(() => {
+  return veggie.set('getUser', 400, {})
+})
+```
+
+
+## Use a REPL to access your live services
+
+Services can also be manipulated through a REPL (read-eval-print-loop) by
+install `veg-connect`
+
+```bash
+$ npm  i -g veg-connect
+$ veg-connect
+veg-connect: connected to repl at /tmp/veggie.sock
+```
+
+
+## Save profiles
+
+TODO
+
 
 ## Configuration options
 
 TODO
+
+
