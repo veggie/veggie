@@ -1,5 +1,6 @@
 import nodeResolve from 'rollup-plugin-node-resolve'
 import babel from 'rollup-plugin-babel'
+import json from 'rollup-plugin-json'
 
 const pkg = require('./package.json')
 const packageBanner = `/*! ${pkg.name} v${pkg.version} */`
@@ -25,33 +26,37 @@ const external = [
 export default [
   // Server
   {
-    entry: './src/index.js',
+    input: './src/index.js',
     banner: packageBanner,
-    targets: [
-      { dest: pkg.main, format: 'cjs' },
-      { dest: pkg.module, format: 'es' }
+    output: [
+      { file: pkg.main, format: 'cjs' },
+      { file: pkg.module, format: 'es' }
     ],
-    plugins: [ babel(), nodeResolve() ],
+    plugins: [ json(), babel(), nodeResolve() ],
     external
   },
 
   // API
   {
-    entry: './src/fetchClientApi.js',
+    input: './src/fetchClientApi.js',
     banner: packageBanner,
-    moduleName: 'veggie',
-    format: 'umd',
+    name: 'veggie',
     plugins: [ babel(), nodeResolve() ],
-    dest: pkg.browser
+    output: {
+      file: pkg.browser,
+      format: 'umd'
+    }
   },
 
   // `veg` bin
   {
-    entry: './src/bin/veg.js',
+    input: './src/bin/veg.js',
     banner: binBanner,
-    format: 'cjs',
-    dest: './bin/veg',
-    plugins: [ babel(), nodeResolve() ],
+    output: {
+      file: './bin/veg',
+      format: 'cjs'
+    },
+    plugins: [ json(), babel(), nodeResolve() ],
     external
   }
 ]

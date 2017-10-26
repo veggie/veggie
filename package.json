@@ -40,26 +40,27 @@
   "homepage": "https://github.com/micburks/veggie#readme",
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "body-parser": "^1.17.2",
-    "chalk": "^2.1.0",
+    "body-parser": "^1.18.2",
+    "chalk": "^2.3.0",
     "es6-promise": "^4.1.1",
-    "express": "^4.15.3",
+    "express": "^4.16.2",
     "get-port": "^3.2.0",
     "glob": "^7.1.2",
     "isomorphic-fetch": "^2.2.1",
     "meow": "^3.7.0",
-    "path-to-regexp": "^2.0.0"
+    "path-to-regexp": "^2.1.0",
+    "rollup": "^0.50.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-preset-es2015-rollup": "^3.0.0",
     "coveralls": "^3.0.0",
-    "mocha": "^3.5.0",
+    "mocha": "^3.5.3",
     "nodemon": "^1.12.1",
-    "nyc": "^11.1.0",
+    "nyc": "^11.3.0",
     "parallelshell": "^3.0.2",
-    "rollup": "^0.45.2",
     "rollup-plugin-babel": "^3.0.2",
+    "rollup-plugin-json": "^2.3.0",
     "rollup-plugin-node-resolve": "^3.0.0"
   },
   "files": [
