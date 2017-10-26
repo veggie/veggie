@@ -1,12 +1,14 @@
 
 # veggie
 
-*Eat your damn vegetables*
-
-Interactive mock server for profiling user scenarios
-
 [![Build Status](https://travis-ci.org/micburks/veggie.svg?branch=master)](https://travis-ci.org/micburks/veggie)
 [![Coverage Status](https://coveralls.io/repos/github/micburks/veggie/badge.svg?branch=master)](https://coveralls.io/github/micburks/veggie?branch=master)
+[![NPM Version](https://img.shields.io/npm/v/veggie.svg)](https://www.npmjs.com/package/veggie)
+[![License](https://img.shields.io/npm/l/rollup.svg)](https://github.com/micburks/veggie/blob/master/LICENSE)
+
+> *Eat your damn vegetables*
+
+Interactive mock server for profiling user scenarios
 
 
 ### Installation
