@@ -13,7 +13,7 @@ Interactive mock server for profiling user scenarios
 
 ### Installation
 
-```
+```bash
 npm i -D veggie
 ```
 
@@ -77,6 +77,10 @@ to serve from port 1337
 
 When using the mock router, you may want to change service responses without
 restarting the dev server. All veggie profile methods in return 
+
+```bash
+npm  i -g veg-connect
+```
 
 
 ## Save profiles
