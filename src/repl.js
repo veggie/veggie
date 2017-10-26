@@ -5,6 +5,7 @@ import repl from 'repl'
 import { apiMethods } from './api'
 import { clientLog, clientError, serverLog, serverError } from './log'
 import { socketPath } from './common'
+import pkg from '../package.json'
 
 /**
  * @returns {string} - absolute path to file
@@ -30,7 +31,7 @@ export default function replServer () {
     serverLog('repl client session connected')
 
     const session = repl.start({
-      prompt: 'veg-client $ ',
+      prompt: `veg v${pkg.version} $ `,
       input: socket,
       output: socket,
       terminal: true
