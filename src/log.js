@@ -4,33 +4,30 @@ import { randomExclusive } from './common'
 const { blue, green, red, underline, gray } = chalk
 
 let logEnabled = true
+export function setLog (enabled) {
+  logEnabled = enabled
+}
 
-const out = (output) => {
+/* Log message if enabled */
+function log (output) {
   if (logEnabled) {
     console.log(output)
   }
 }
 
-export function setLog (enabled) {
-  logEnabled = enabled
-}
+/* Log messages */
+export const profileLog = message => log(chalk`{blue veggie:} {green ${message}}`)
+export const serverLog = message => log(chalk`{blue veg:} {green ${message}}`)
+export const clientLog = message => log(chalk`{blue veg-connect:} {green ${message}}`)
 
-const log  = message => out(green(message))
-const error = message => out(red(message))
+/* Error messages */
+export const profileError = message => log(chalk`{blue veggie:} {red ${message}}`)
+export const serverError = message => log(chalk`{blue veg:} {red ${message}}`)
+export const clientError = message => log(chalk`{blue veg-connect:} {red ${message}}`)
 
-const mock = type => blue(`${type}:`)
-const colors = ['red','blue','green','yellow','magenta','cyan','white','gray']
+/* Random color */
+const colors = ['yellow','magenta','cyan','white']
 const randomColor = message => chalk[colors[randomExclusive(colors.length)]](message)
 const random = message => message.split(' ').map(word => randomColor(word)).join(' ')
 
-const profile = mock('veggie')
-const server = mock('veg')
-const client = mock('veg-connect')
-
-export const profileLog = message => log(`${profile} ${message}`)
-export const serverLog = message => log(`${server} ${message}`)
-export const clientLog = message => log(`${client} ${message}`)
-export const profileError = message => error(`${profile} ${message}`)
-export const serverError = message => error(`${server} ${message}`)
-export const clientError = message => error(`${client} ${message}`)
-export const wwwLog = message => out(underline(random(message)))
+export const wwwLog = message => log(underline(random(message)))
