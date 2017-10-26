@@ -30,7 +30,7 @@ export default function replServer () {
     serverLog('repl client session connected')
 
     const session = repl.start({
-      prompt: 'mock-client > ',
+      prompt: 'veg-client $ ',
       input: socket,
       output: socket,
       terminal: true
