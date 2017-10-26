@@ -107,6 +107,10 @@ function server (config) {
  * @returns {Express router}
  */
 function router ({ dir, catchAllStatusCode = null, time = MAX_DELAY, profile = null, repl = true, log = true }) {
+  if (!dir) {
+    throw new Error('veggie: dir is required')
+  }
+
   setLog(log)
   const router = express.Router()
 
