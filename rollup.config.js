@@ -39,7 +39,8 @@ export default [
   {
     entry: './src/fetchClientApi.js',
     banner: packageBanner,
-    format: 'cjs',
+    moduleName: 'veggie',
+    format: 'umd',
     plugins: [ babel(), nodeResolve() ],
     dest: pkg.browser
   },
