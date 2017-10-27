@@ -1,7 +1,7 @@
 const assert = require('assert')
 const express = require('express')
 const veggie = require('../dist/veggie.js')
-const veggieApi = require('../dist/veggie.api.js')
+let veggieApi = require('../dist/veggie.api.js').default
 
 require('isomorphic-fetch')
 
