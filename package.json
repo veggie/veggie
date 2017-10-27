@@ -16,6 +16,7 @@
     "version": "npm run build # Get latest version for banners",
     "postversion": "git push && git push --tags && npm publish",
     "pretest": "npm run build",
+    "serve": "bin/veg --dir test/services/*.js",
     "test": "nyc --reporter=html --reporter=text mocha",
     "test:watch": "nodemon -w dist -w test -x 'nyc mocha'",
     "watch": "parallelshell 'npm run test:watch' 'npm run build:watch'"
