@@ -38,6 +38,10 @@ describe('a server using veggie middleware', () => {
     })
   })
 
+  after(() => {
+    app.emit('close')
+  })
+
   it('handles path', () => {
     return fetchJSON('/path')
       .then(({ msg }) => assert(msg === 'path'))
@@ -92,10 +96,15 @@ describe('a server using veggie router', () => {
   before(() => {
     ++port
     return new Promise((resolve, reject) => {
-      veggieApi._setHost(`http://localhost:${port}`)
+      veggieApi = veggieApi(port)
       vegServer.listen(port, resolve)
     })
   })
+
+  after(() => {
+    vegServer.emit('close')
+  })
+
 
   beforeEach(() => {
     return veggieApi.resetAll()
@@ -104,16 +113,19 @@ describe('a server using veggie router', () => {
   it('handles path', () => {
     return fetchJSON('/path')
       .then(({ msg }) => assert(msg === 'path'))
+      .catch(() => assert(false)) // Fail
   })
 
   it('handles static object', () => {
     return fetchJSON('/obj')
       .then(({ msg }) => assert(msg === 'obj'))
+      .catch(() => assert(false)) // Fail
   })
 
   it('handles route function', () => {
     return fetchJSON('/fn')
       .then(({ msg }) => assert(msg === 'fn'))
+      .catch(() => assert(false)) // Fail
   })
 
   it('handles route function with params', () => {
@@ -123,6 +135,7 @@ describe('a server using veggie router', () => {
         assert(typeof params !== 'undefined')
         assert(params.id === '123')
       })
+      .catch(() => assert(false)) // Fail
   })
 
   it('handles route function with query', () => {
@@ -132,6 +145,7 @@ describe('a server using veggie router', () => {
         assert(typeof query !== 'undefined')
         assert(query.id === '123')
       })
+      .catch(() => assert(false)) // Fail
   })
 
   it('handles route function with body', () => {
@@ -141,6 +155,7 @@ describe('a server using veggie router', () => {
         assert(typeof body !== 'undefined')
         assert(body.id === 123)
       })
+      .catch(() => assert(false)) // Fail
   })
 
   it('can block services', () => {
@@ -162,5 +177,24 @@ describe('a server using veggie router', () => {
       })
       .then(() => fetchJSON('/obj'))
       .then(({ msg }) => assert(msg === 'obj'))
+      .catch(() => assert(false)) // Fail
+  })
+
+  it('can set a service response', () => {
+    return veggieApi.set('/obj', { status: 200, response: { msg: 'set' } })
+      .then(() => fetchJSON('/obj'))
+      .then(({ msg }) => {
+        assert(msg === 'set')
+      })
+      .catch(() => assert(false)) // Fail
+  })
+
+  it('can set a service status code', () => {
+    return veggieApi.set('/obj', { status: 400, response: {} })
+      .then(() => fetchJSON('/obj'))
+      .then(() => assert(false)) // Fail
+      .catch(() => {
+        assert(true)
+      })
   })
 })
