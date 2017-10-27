@@ -31,7 +31,7 @@ function proxyMiddleware ({ profile = null, log = true }) {
 
   // Load intial profile
   if (profile) {
-    apiMethods.loadProfile(profile)
+    apiMethods.load(profile)
   }
 
   // Start server
