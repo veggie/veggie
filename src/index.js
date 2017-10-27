@@ -11,7 +11,7 @@ import { profileError, profileLog, setLog } from './log'
 import { apiMiddleware, apiMethods, apiServices } from './api'
 import { profileOverrideMiddleware } from './profile'
 import { randomExclusive } from './common'
-import * as fetchApi from './fetchClientApi'
+import fetchApi from './fetchClientApi'
 import * as helpers from './utils'
 
 const MAX_DELAY = 1000
@@ -183,4 +183,4 @@ function *routesFromDir (dir) {
   apiServices.setServices(services)
 }
 
-export { proxyMiddleware as middleware, router, server, fetchApi, helpers }
+export { proxyMiddleware as middleware, router, server, fetchApi as api, helpers }

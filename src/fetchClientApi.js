@@ -1,27 +1,60 @@
 import { apiPathPrefix } from './common'
 
-// TODO: add arguments and body
+/**
+ * Available api methods
+ */
+const apiMethods = [
+  'block',
+  'blockAll',
+  'reset',
+  'resetAll',
+  'show',
+  'showAll',
+  'set',
+  'load'
+]
 
-let hostname = ''
-export function _setHost (host) {
-  hostname = host
+export const block = api('block')
+export const blockAll = api('blockAll')
+export const reset = api('reset')
+export const resetAll = api('resetAll')
+export const show = api('show')
+export const showAll = api('showAll')
+export const set = api('set')
+export const load = api('load')
+
+/**
+ * Get api for a particular host
+ *
+ * @param {number} port
+ * @param {string} host
+ * @returns {object} api
+ */
+export default function (port = 1337, host = 'http://localhost') {
+  const hostname = `${host}:${port}`
+  return apiMethods
+    .reduce((acc, method) => {
+      acc[method] = api(method, hostname)
+      return acc
+    }, {})
 }
 
 /**
  * Return method to call api function via fetch
  * @returns {function}
  */
-function api (method) {
-  return function (...args) {
-    const encodedArgs = args.map(arg => encodeURIComponent(arg))
-    const path = [method].concat(encodedArgs).join('/')
-    return fetch(`${hostname}${apiPathPrefix}/${path}`)
+function api (method, hostname = '') {
+  return function (name, body) {
+    const encodedName = encodeURIComponent(name)
+
+    if (body) {
+      return fetch(`${hostname}${apiPathPrefix}/${method}/${encodedName}`, {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+    } else {
+      return fetch(`${hostname}${apiPathPrefix}/${method}/${encodedName}`)
+    }
   }
 }
-
-export const set = api('set')
-export const block = api('block')
-export const reset = api('reset')
-export const blockAll = api('blockAll')
-export const resetAll = api('resetAll')
-export const loadProfile = api('loadProfile')
