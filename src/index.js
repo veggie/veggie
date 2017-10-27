@@ -39,7 +39,6 @@ function proxyMiddleware ({ profile = null, log = true }) {
   getPort().then(port => {
     proxyPort = port
     server(config).listen(port, () => {
-      fetchApi._setHost(`http://localhost:${port}`)
       profileLog(`serving mock data from localhost:${port}`)
     })
   })

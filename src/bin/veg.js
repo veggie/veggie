@@ -1,7 +1,6 @@
 import meow from 'meow'
-import { fetchApi, server } from '../index'
+import { server } from '../index'
 import { wwwLog } from '../log'
-import { _setHost } from '../fetchClientApi'
 
 const cli = meow(`
       Usage
@@ -33,6 +32,5 @@ const cli = meow(`
 
 const { port } = cli.flags
 server(cli.flags).listen(port, () => {
-  fetchApi._setHost(`http://localhost:${port}`)
   wwwLog(`Serving mock data from localhost:${port}`)
 })
