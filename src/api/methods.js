@@ -7,21 +7,17 @@ import {
   setAllServiceOverrides, resetAllServiceOverrides
 } from './services'
 
-export function block (serviceName, statusCode = 404, altResponse = {}) {
+export function block (serviceName, status = 404, response = {}) {
   filterServices(services, serviceName)
     .forEach(url => {
-      serverLog(`blocking ${url} service with ${statusCode} status`)
-      setServiceOverride(url, { statusCode, altResponse })
+      serverLog(`blocking ${url} service with ${status} status`)
+      setServiceOverride(url, { status, response })
     })
 }
 
 export function blockAll () {
   // TODO: all blocked needs to actually add all services
   serverLog('blocking all services')
-}
-
-export function set (serviceName, status, response) {
-  serverLog('setting override')
 }
 
 export function reset (serviceName) {
@@ -37,25 +33,34 @@ export function resetAll () {
   resetAllServiceOverrides()
 }
 
-export function showAll () {
-  return serviceOverrides
-}
-
 export function show () {
   return Object.keys(serviceOverrides)
 }
 
-export function loadProfile (profile) {
+export function showAll () {
+  return serviceOverrides
+}
+
+export function set (serviceName, config) {
+  const { status } = config
+  filterServices(services, serviceName)
+    .forEach(url => {
+      serverLog(`setting override for ${url} service with ${status} status`)
+      setServiceOverride(url, config)
+    })
+}
+
+export function load (profileName) {
   resetAll()
-  if (profile) {
-    serverLog(`loading ${profile} profile`)
+  if (profileName) {
+    serverLog(`loading ${profileName} profile`)
     try {
-      const profilePath = path.join(process.cwd(), profile)
+      const profilePath = path.join(process.cwd(), profileName)
       const fileData = fs.readFileSync(profilePath)
       const profileData = JSON.parse(fileData)
       setAllServiceOverrides(profileData)
     } catch (e) {
-      serverError(`loading ${profile} profile failed`)
+      serverError(`loading ${profileName} profile failed`)
     }
   }
 }
