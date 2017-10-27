@@ -54,7 +54,7 @@ export default function replServer () {
         const fileData = fs.readFileSync(file)
         try {
           const json = JSON.parse(fileData)
-          apiMethods.loadProfile(json)
+          apiMethods.load(json)
           clientLog(`profile loaded from ${file}`)
         } catch (e) {
           clientError(`error reading profile from ${file}`)
