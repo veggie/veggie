@@ -47,13 +47,18 @@ function api (method, hostname = '') {
   return function (name, body) {
     const encodedName = encodeURIComponent(name)
 
-    if (body) {
+    if (!name) {
+      // API has no paramters
+      return fetch(`${hostname}${apiPathPrefix}/${method}`)
+    } else if (body) {
+      // API receives POSTed body
       return fetch(`${hostname}${apiPathPrefix}/${method}/${encodedName}`, {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       })
     } else {
+      // API receives a single name
       return fetch(`${hostname}${apiPathPrefix}/${method}/${encodedName}`)
     }
   }
