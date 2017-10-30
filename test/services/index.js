@@ -1,7 +1,7 @@
 const path = require('path')
 
 module.exports = {
-  '/path': path.join(__dirname, '../data/sample.json'),
+  '/path': path.join(__dirname, '../data/test.json'),
   '/obj': { msg: 'obj' },
   '/fn': (req, res) => res.send({ msg: 'fn' }),
   '/fn/params/:id': (req, res) => res.send({ msg: 'fn', params: req.params }),
