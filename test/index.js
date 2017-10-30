@@ -205,10 +205,30 @@ describe('a server using veggie router', () => {
       })
   })
 
+    /*
+  it('can set a service that isn\'t specified by mock data', () => {
+    return veggieApi.set('/set', { status: 200, response: { msg: 'set' } })
+      .then(() => fetchJSON('/set'))
+      .then(({ msg }) => {
+        assert(msg === 'set')
+      })
+      .catch(() => assert(false)) // Fail
+  })
+  */
+
   it('can load a profile', () => {
-    return veggieApi.load('test/profiles/test')
+    return veggieApi.load('test')
       .then(() => fetchJSON('/obj'))
       .then(() => assert(false)) // Fail
       .catch(e => assert(/409/.test(e)))
   })
+
+    /*
+  it('can save a profile', () => {
+    assert(false)
+    return veggieApi.save('test')
+      .then(() => {})
+      .catch(() => {})
+  })
+  */
 })
