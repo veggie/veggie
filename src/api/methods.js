@@ -77,6 +77,46 @@ export function load (profileName) {
     } catch (e) {
       serverError(`loading ${profileName} profile failed`)
     }
+  } else {
+    serverError('load requires a name')
   }
+}
+
+export function save (profileName) {
+  if (profileName) {
+    serverLog(`saving ${profileName} profile`)
+    try {
+      let profilePath = profileName
+
+      // Add json extension
+      if (!profilePath.includes('.json')) {
+        profilePath = `${profilePath}.json`
+      }
+
+      // Make path absolute
+      if (!path.isAbsolute(profilePath)) {
+        profilePath = path.join(profileDir, profilePath)
+      }
+
+      fs.writeFileSync(profilePath, fileData)
+    } catch (e) {
+      serverError(`saving ${profileName} profile failed`)
+    }
+  } else {
+    serverError('save requires a name')
+  }
+}
+
+// Directory for saving/loading profiles
+let profileDir = process.cwd()
+
+/**
+ * Setter function for profileDir
+ *
+ * @param {string} dir - absolute path to profile directory
+ * @returns {void}
+ */
+export function _setProfileDir (dir) {
+  profileDir = dir
 }
 
