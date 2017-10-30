@@ -15,7 +15,7 @@ export function block (serviceName, status = 404, response = {}) {
     })
 }
 
-export function blockAll () {
+export function blockAll (status = 500, response = {}) {
   // TODO: all blocked needs to actually add all services
   serverLog('blocking all services')
 }
@@ -43,6 +43,9 @@ export function showAll () {
 
 export function set (serviceName, config) {
   const { status } = config
+
+  // TODO: set services that are not defined in service map
+
   filterServices(services, serviceName)
     .forEach(url => {
       serverLog(`setting override for ${url} service with ${status} status`)

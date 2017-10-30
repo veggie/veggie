@@ -2,6 +2,8 @@ export let services = {}
 export let serviceOverrides = {}
 
 /**
+ * Find matching services
+ *
  * @param {object} services - services to search through
  * @param {regex|string} serviceName - match to compare with service url
  * @returns {array} - array of matching services
