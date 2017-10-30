@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import express from 'express'
-import { serviceOverrides } from './api/services'
+import { apiMethods, apiServices } from './api'
 import { getRouteHandler } from './utils'
 
 let profileRouter
@@ -10,7 +10,12 @@ let cachedProfileHash
  * Middleware that registers profile override responses
  * @returns {function}
  */
-export function profileOverrideMiddleware (profile) {
+export function profileOverrideMiddleware (profile = null) {
+  // Load intial profile
+  if (profile) {
+    apiMethods.load(profile)
+  }
+
   return (req, res, next) => {
     profileRouter = getRouter()
     profileRouter(req, res, next)
@@ -32,9 +37,9 @@ function getRouter () {
 
   // create new router
   const router = express.Router()
-  Object.keys(serviceOverrides)
+  Object.keys(apiServices.serviceOverrides)
     .forEach(url => {
-      router.all(url, getOverrideHandler(serviceOverrides[url]))
+      router.all(url, getOverrideHandler(apiServices.serviceOverrides[url]))
     })
   return router
 }
@@ -45,7 +50,7 @@ function getRouter () {
  */
 function getProfileHash () {
   const hash = crypto.createHash('md5')
-  hash.update(JSON.stringify(serviceOverrides))
+  hash.update(JSON.stringify(apiServices.serviceOverrides))
   return hash.digest('hex')
 }
 

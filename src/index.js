@@ -24,15 +24,11 @@ const proxyPassThroughCode = 501
  * @param {object} config
  * @returns {Express middleware}
  */
-function proxyMiddleware ({ profile = null, log = true }) {
+function proxyMiddleware ({ log = true }) {
   setLog(log)
+
   const config = arguments[0]
   config.catchAllStatusCode = proxyPassThroughCode
-
-  // Load intial profile
-  if (profile) {
-    apiMethods.load(profile)
-  }
 
   // Start server
   let proxyPort

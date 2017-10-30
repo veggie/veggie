@@ -52,10 +52,22 @@ export function set (serviceName, config) {
 
 export function load (profileName) {
   resetAll()
+
   if (profileName) {
     serverLog(`loading ${profileName} profile`)
     try {
-      const profilePath = path.join(process.cwd(), profileName)
+      let profilePath = profileName
+
+      // Add json extension
+      if (!profilePath.includes('.json')) {
+        profilePath = `${profilePath}.json`
+      }
+
+      // Make path absolute
+      if (!path.isAbsolute(profilePath)) {
+        profilePath = path.join(process.cwd(), profilePath)
+      }
+
       const fileData = fs.readFileSync(profilePath)
       const profileData = JSON.parse(fileData)
       setAllServiceOverrides(profileData)

@@ -19,16 +19,16 @@ export function filterServices (services, serviceName, cb) {
     })
 }
 
-export function setServices (serviceMap) {
-  services = serviceMap || {}
+export function setServices (serviceMap = {}) {
+  services = serviceMap
 }
 
 export function setServiceOverride (url, override) {
   serviceOverrides[url] = override
 }
 
-export function setAllServiceOverrides (overrides) {
-  serviceOverrides = overrides || {}
+export function setAllServiceOverrides (overrides = {}) {
+  serviceOverrides = overrides
 }
 
 export function resetServiceOverride (url) {
