@@ -183,4 +183,4 @@ function *routesFromDir (dir) {
   apiServices.setServices(services)
 }
 
-/* export { proxyMiddleware as middleware, router, server, fetchApi as api, helpers } */
+export { proxyMiddleware as middleware, router, server, fetchApi as api, helpers }
