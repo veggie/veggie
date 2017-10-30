@@ -91,7 +91,8 @@ describe('a server using veggie router', () => {
     dir: 'test/services/**/*.js',
     repl: false,
     time: 0,
-    log: false
+    log: false,
+    profileDir: 'test/profiles'
   })
 
   before(() => {

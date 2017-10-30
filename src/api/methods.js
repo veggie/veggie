@@ -68,7 +68,7 @@ export function load (profileName) {
 
       // Make path absolute
       if (!path.isAbsolute(profilePath)) {
-        profilePath = path.join(process.cwd(), profilePath)
+        profilePath = path.join(profileDir, profilePath)
       }
 
       const fileData = fs.readFileSync(profilePath)
