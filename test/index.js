@@ -1,4 +1,5 @@
 const assert = require('assert')
+const path = require('path')
 const express = require('express')
 const veggie = require('../dist/veggie.js')
 let veggieApi = require('../dist/veggie.api.js').default
@@ -110,9 +111,15 @@ describe('a server using veggie router', () => {
     return veggieApi.resetAll()
   })
 
-  it('handles path', () => {
+  it('handles path and doesn\'t cache file', () => {
     return fetchJSON('/path')
-      .then(({ msg }) => assert(msg === 'path'))
+      .then(({ msg }) => {
+        assert(msg === 'path')
+
+        const test = path.join(__dirname, 'data/test.json')
+        // Test that file has not been cached
+        assert(typeof require.cache[test] === 'undefined')
+      })
       .catch(() => assert(false)) // Fail
   })
 
@@ -193,8 +200,15 @@ describe('a server using veggie router', () => {
     return veggieApi.set('/obj', { status: 400, response: {} })
       .then(() => fetchJSON('/obj'))
       .then(() => assert(false)) // Fail
-      .catch(() => {
-        assert(true)
+      .catch(e => {
+        assert(/400/.test(e))
       })
+  })
+
+  it('can load a profile', () => {
+    return veggieApi.load('test/profiles/test')
+      .then(() => fetchJSON('/obj'))
+      .then(() => assert(false)) // Fail
+      .catch(e => assert(/409/.test(e)))
   })
 })
