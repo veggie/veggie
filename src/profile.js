@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import express from 'express'
+import path from 'path'
 import { apiMethods, apiServices } from './api'
 import { getRouteHandler } from './utils'
 
@@ -8,9 +9,21 @@ let cachedProfileHash
 
 /**
  * Middleware that registers profile override responses
+ *
+ * @param {string} profile - name of profile to initially load
+ * @param {string} profileDir - directory to save/load profiles
  * @returns {function}
  */
-export function profileOverrideMiddleware (profile = null) {
+export function profileOverrideMiddleware (profile = null, profileDir = null) {
+  // Set directory for saving/loading profiles
+  if (profileDir) {
+    // Make profile dir absolute
+    if (!path.isAbsolute(profileDir)) {
+      profileDir = path.join(process.cwd(), profileDir)
+    }
+    apiMethods._setProfileDir(profileDir)
+  }
+
   // Load intial profile
   if (profile) {
     apiMethods.load(profile)

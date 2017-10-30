@@ -101,7 +101,7 @@ function server (config) {
  * @param {object} - configuration object
  * @returns {Express router}
  */
-function router ({ dir, catchAllStatusCode = null, time = MAX_DELAY, profile = null, repl = true, log = true }) {
+function router ({ dir, catchAllStatusCode = null, time = MAX_DELAY, profile = null, profileDir = null, repl = true, log = true }) {
   if (!dir) {
     throw new Error('veggie: dir is required')
   }
@@ -112,7 +112,7 @@ function router ({ dir, catchAllStatusCode = null, time = MAX_DELAY, profile = n
   // Apply middleware
   router.use(bodyParser.json({ limit: '50mb' }))
   router.use(apiMiddleware())
-  router.use(profileOverrideMiddleware(profile))
+  router.use(profileOverrideMiddleware(profile, profileDir))
 
   // Apply all routes
   for (let { url, handler } of routesFromDir(dir)) {
