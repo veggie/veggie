@@ -8,29 +8,53 @@ import {
 } from './services'
 
 export function block (serviceName, status = 404, response = {}) {
-  filterServices(services, serviceName)
-    .forEach(url => {
-      serverLog(`blocking ${url} service with ${status} status`)
+  const matchingServices = filterServices(services, serviceName)
+
+  if (matchingServices.length > 0) {
+    let message
+    matchingServices.forEach(url => {
+      message = `blocking ${url} service with ${status} status`
+      serverLog(message)
       setServiceOverride(url, { status, response })
     })
+    return message
+  } else {
+    let error = `could not find ${serviceName} service to block`
+    serverError(error)
+    throw new Error(error)
+  }
 }
 
 export function blockAll (status = 500, response = {}) {
   // TODO: all blocked needs to actually add all services
-  serverLog('blocking all services')
+  let message = 'blocking all services'
+  serverLog(message)
+  return message
 }
 
 export function reset (serviceName) {
-  filterServices(serviceOverrides, serviceName)
-    .forEach(url => {
-      serverLog(`reseting ${url} service`)
+  const matchingServices = filterServices(serviceOverrides, serviceName)
+
+  if (matchingServices.length > 0) {
+    let message
+    matchingServices.forEach(url => {
+      message = `reseting ${url} service`
+      serverLog(message)
       resetServiceOverride(url)
     })
+    return message
+  } else {
+    let error = `could not find ${serviceName} service to reset`
+    serverError(error)
+    throw new Error(error)
+  }
 }
 
 export function resetAll () {
-  serverLog('reseting all services')
+  let message = 'reseting all services'
+  serverLog(message)
   resetAllServiceOverrides()
+  return message
 }
 
 export function show () {
@@ -41,25 +65,32 @@ export function showAll () {
   return serviceOverrides
 }
 
-export function set (serviceName, config) {
-  const { status } = config
+export function set (serviceName, status, response) {
+  const config = { status, response }
+  const matchingServices = filterServices(services, serviceName)
+  let message
 
-  // TODO: set services that are not defined in service map
-
-  filterServices(services, serviceName)
-    .forEach(url => {
-      serverLog(`setting override for ${url} service with ${status} status`)
+  if (matchingServices.length > 0) {
+    matchingServices.forEach(url => {
+      message = `setting override for ${url} service with ${status} status`
       setServiceOverride(url, config)
     })
+  } else {
+    message = `service ${serviceName} not found. setting response for new service with ${status} status`
+    setServiceOverride(serviceName, config)
+  }
+
+  serverLog(message)
+  return message
 }
 
 export function load (profileName) {
   resetAll()
 
   if (profileName) {
-    serverLog(`loading ${profileName} profile`)
+    let profilePath = profileName
     try {
-      let profilePath = profileName
+      let message
 
       // Add json extension
       if (!profilePath.includes('.json')) {
@@ -74,19 +105,27 @@ export function load (profileName) {
       const fileData = fs.readFileSync(profilePath)
       const profileData = JSON.parse(fileData)
       setAllServiceOverrides(profileData)
+
+      message = `loading ${profileName} profile`
+      serverLog(message)
+      return message
     } catch (e) {
-      serverError(`loading ${profileName} profile failed`)
+      error = `loading ${profileName} profile failed at ${profilePath}`
+      serverError(error)
+      throw new Error(error)
     }
   } else {
-    serverError('load requires a name')
+    error = 'load requires a name'
+    serverError(error)
+    throw new Error(error)
   }
 }
 
 export function save (profileName) {
   if (profileName) {
-    serverLog(`saving ${profileName} profile`)
+    let profilePath = profileName
     try {
-      let profilePath = profileName
+      let message
 
       // Add json extension
       if (!profilePath.includes('.json')) {
@@ -99,11 +138,19 @@ export function save (profileName) {
       }
 
       fs.writeFileSync(profilePath, fileData)
+
+      message = `saving ${profileName} profile`
+      serverLog(message)
+      return message
     } catch (e) {
-      serverError(`saving ${profileName} profile failed`)
+      error = `saving ${profileName} profile failed at ${profilePath}`
+      serverError(error)
+      throw new Error(error)
     }
   } else {
-    serverError('save requires a name')
+    error = 'save requires a name'
+    serverError(error)
+    throw new Error(error)
   }
 }
 
