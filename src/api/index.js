@@ -25,10 +25,10 @@ function apiHandler (req, res) {
   const { params, body } = req
   const { method } = params
   const name = decodeURIComponent(params.name)
-  let config
+  let args = []
 
   if (req.method.toLowerCase() === 'post') {
-    config = req.body
+    args = req.body
   }
 
   if (!(method in apiMethods)) {
@@ -37,7 +37,7 @@ function apiHandler (req, res) {
   } else {
     try {
       let payload
-      payload = apiMethods[method](name, config)
+      payload = apiMethods[method](name, ...args)
       res.status(200)
       res.send({ message: `mock-server: ${method} call successful`, payload })
     } catch (e) {
