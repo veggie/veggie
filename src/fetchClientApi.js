@@ -44,18 +44,18 @@ export default function (port = 1337, host = 'http://localhost') {
  * @returns {function}
  */
 function api (method, hostname = '') {
-  return function (name, body) {
+  return function (name, ...args) {
     const encodedName = encodeURIComponent(name)
 
     if (!name) {
       // API has no paramters
       return fetch(`${hostname}${apiPathPrefix}/${method}`)
-    } else if (body) {
+    } else if (args.length > 0) {
       // API receives POSTed body
       return fetch(`${hostname}${apiPathPrefix}/${method}/${encodedName}`, {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(args)
       })
     } else {
       // API receives a single name

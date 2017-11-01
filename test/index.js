@@ -189,7 +189,7 @@ describe('a server using veggie router', () => {
   })
 
   it('can set a service response', () => {
-    return veggieApi.set('/obj', { status: 200, response: { msg: 'set' } })
+    return veggieApi.set('/obj', 200, { msg: 'set' })
       .then(() => fetchJSON('/obj'))
       .then(({ msg }) => {
         assert(msg === 'set')
@@ -198,7 +198,7 @@ describe('a server using veggie router', () => {
   })
 
   it('can set a service status code', () => {
-    return veggieApi.set('/obj', { status: 400, response: {} })
+    return veggieApi.set('/obj', 400, {})
       .then(() => fetchJSON('/obj'))
       .then(() => assert(false)) // Fail
       .catch(e => {
