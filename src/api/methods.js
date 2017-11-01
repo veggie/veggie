@@ -90,8 +90,6 @@ export function load (profileName) {
   if (profileName) {
     let profilePath = profileName
     try {
-      let message
-
       // Add json extension
       if (!profilePath.includes('.json')) {
         profilePath = `${profilePath}.json`
@@ -106,7 +104,7 @@ export function load (profileName) {
       const profileData = JSON.parse(fileData)
       setAllServiceOverrides(profileData)
 
-      message = `loading ${profileName} profile`
+      let message = `loading ${profileName} profile`
       serverLog(message)
       return message
     } catch (e) {
@@ -125,8 +123,6 @@ export function save (profileName) {
   if (profileName) {
     let profilePath = profileName
     try {
-      let message
-
       // Add json extension
       if (!profilePath.includes('.json')) {
         profilePath = `${profilePath}.json`
@@ -137,9 +133,9 @@ export function save (profileName) {
         profilePath = path.join(profileDir, profilePath)
       }
 
-      fs.writeFileSync(profilePath, fileData)
+      fs.writeFileSync(profilePath, JSON.stringify(serviceOverrides, null, 2))
 
-      message = `saving ${profileName} profile`
+      let message = `saving ${profileName} profile`
       serverLog(message)
       return message
     } catch (e) {

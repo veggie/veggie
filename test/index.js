@@ -1,5 +1,6 @@
 const assert = require('assert')
 const path = require('path')
+const fs = require('fs')
 const express = require('express')
 const veggie = require('../dist/veggie.js')
 let veggieApi = require('../dist/veggie.api.js').default
@@ -206,16 +207,14 @@ describe('a server using veggie router', () => {
       })
   })
 
-    /*
   it('can set a service that isn\'t specified by mock data', () => {
-    return veggieApi.set('/set', { status: 200, response: { msg: 'set' } })
+    return veggieApi.set('/set', 200, { msg: 'set' })
       .then(() => fetchJSON('/set'))
       .then(({ msg }) => {
         assert(msg === 'set')
       })
       .catch(() => assert(false)) // Fail
   })
-  */
 
   it('can load a profile', () => {
     return veggieApi.load('test')
@@ -224,12 +223,12 @@ describe('a server using veggie router', () => {
       .catch(e => assert(/409/.test(e)))
   })
 
-    /*
   it('can save a profile', () => {
-    assert(false)
-    return veggieApi.save('test')
-      .then(() => {})
-      .catch(() => {})
+    return veggieApi.save('newTest')
+      .then(() => {
+        assert(fs.existsSync(path.join(__dirname, 'profiles/newTest.json')))
+        fs.unlinkSync(path.join(__dirname, 'profiles/newTest.json'))
+      })
+      .catch(() => assert(false))
   })
-  */
 })
