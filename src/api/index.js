@@ -36,13 +36,12 @@ function apiHandler (req, res) {
     res.send({ message: `mock-server: ${method} not implemented` })
   } else {
     try {
-      let payload
-      payload = apiMethods[method](name, ...args)
+      let message = apiMethods[method](name, ...args)
       res.status(200)
-      res.send({ message: `mock-server: ${method} call successful`, payload })
+      res.send({ status: 'success', message })
     } catch (e) {
       res.status(500)
-      res.send({ message: `mock-server: ${method} call failed` })
+      res.send({ status: 'fail', error: e.message })
     }
   }
   res.end()
