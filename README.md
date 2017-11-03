@@ -10,6 +10,25 @@
 
 Interactive mock server for profiling user scenarios
 
+With veggie you can add mock data and route handlers to an existing server.
+Veggie provides a API to alter requests while the server is running to allow
+you to manage user scenarios.
+
+
+### Motivation
+
+Veggie was created to do 3 things:
+
+- serve mock data in a dev server
+- serve the same data in tests
+- allow testing/demoing specific user scenarios
+
+A user scenario (or profile) is defined here as a set of services and their
+responses. This may include varying errors from different services due to bad
+input data or downed servers, or it could refer to situations where a user is
+not enrolled in a campaign or not registered for an application. Any situation
+worth testing.
+
 
 ### Installation
 
@@ -18,22 +37,91 @@ npm i -D veggie
 ```
 
 
-## Add mock data routes to existing Express server
+## Service configuration
 
 ### Create routes
 
-Export an object that keys your service url to either:
+Veggie builds an express router by looking at service files. A service file is
+a file that exports an object that keys your service url to either:
 
 - a static JSON object
+- a path to a json file
 - an express route that completes the request
-- a file path
+
+
+```javascript
+const path = require('path')
+
+module.exports = {
+
+  // JSON object
+  '/service/user': {
+    d: {
+      id: 1
+    }
+  },
+
+  // Hot-loaded json file
+  '/service/posts': path.join(__dirname, '../data/posts.json'),
+
+  // Express route
+  '/service/post/save': function (req, res) {
+    res.send({ message: 'Post saved!' })
+  }
+}
+```
+
+
+#### Hot-loaded JSON files: 
 
 If you are using a path to a JSON file, the file will be loaded every time this
 url is reached. This allows you to edit your JSON file and have it sent without
 restarting your development server.
 
 
-### Add express routes to webpack-dev-server
+## Options
+
+#### dir
+
+**Required**
+Glob matching the service configuration files
+e.g. `'services/**/*.js'`
+
+
+#### time
+
+Max delay in milliseconds before returning mock data
+Default `1000`
+e.g.
+
+
+#### log
+
+Enable logging
+Default `true`
+
+
+#### profileDir
+
+Directory with which to save/load profiles
+Default `process.cwd() // Directory where server was started`
+
+
+#### profile
+
+Initial profile to load
+e.g. `userNotRegistered`
+
+
+#### repl
+
+Enable REPL server (use `veg-connect` to connect)
+Defulat: `true`
+
+
+## Serve your veggie routes
+
+### Serve mock data from webpack-dev-server
 
 ```javascript
 // webpack.config.js
@@ -41,27 +129,28 @@ const veggie = require('veggie')
 // ...
   devServer: {
     setup(app) {
-      app.use(veggie.router({ dir: 'services/**/*.js' }))
+      app.use(veggie.router(options))
     }
   }
 // ...
 ```
 
 
-## Run stand alone server
+### Serve mock data from a stand alone server
 
-### Run the server
+#### Run the server
 
 ```bash
 veg -d services/**/*.js -p 1337 -t 1000
 ```
 
-to serve from port 1337
+to serve from port 1337 with a max delay of 1 second
 
 
-### Add proxies to webpack-dev-server
+#### Add proxies to webpack-dev-server
 
-Then proxy to your server using webpack-dev-server
+In this case, you could then proxy from your dev server to the mock data
+server. For example, in webpack-dev-server:
 
 ```javascript
 // webpack.config.js
@@ -75,7 +164,7 @@ Then proxy to your server using webpack-dev-server
 ```
 
 
-## Use in tests
+### Serve mock data in tests from karma
 
 The mock middleware can be used in karma via the following
 
@@ -87,26 +176,122 @@ const mockMiddleware = require('veggie').middleware
   plugins: [
     'karma-*',
     {
-      'middleware:veggie': [ 'factory', mockMiddleware ]
+      'middleware:veggie': [ 'factory', function () {
+        return mockMiddleware(options)
+    }]
     }
   ]
 // ...
 ```
 
-This middleware will spawn an express server, as the binary would, and proxies
-all requests to that.
+*Note about implementation: For the sake of uniformity, this middleware will
+actually spawn an express server, as the binary would, and proxies all requests
+to that. This is so we can use Express routes and all the useful methods that
+come along with them.*
 
 
-## Changing profiles in tests
+## Managing profiles
 
-veggie provides an api for changing service responses without restarting the server.
+Veggie provides a helpful set of methods to alter the data served from the
+running server. This API is the core of creating and changing profiles. These
+methods create overrides to the services we defined in the service
+configuration. The override configuration (i.e. the profile) can be saved and
+subsequently loaded back into the server.
 
-You can use these functions by including the veggie api in your tests.
 
-Note: All veggie profile methods will return promises
+### API methods
+
+*Note: All methods use fetch and return a promise. A promise polyfill may be
+required depending on your testing environment.*
 
 
-### Testing in Node
+#### block
+```javascript
+// Set the '/getUser' response to be an empty object with a 404 status code
+veggie.block('/getUser')
+```
+
+#### blockAll
+```javascript
+// TODO: Not implemented - possibly not even wanted
+// Block all services as above
+veggie.blockAll()
+```
+
+### set
+```javascript
+// Set the '/getUser' status code and response 
+veggie.set('/getUser', 400, { message: 'Bad request for /getUser' })
+```
+
+#### reset
+```javascript
+// Reset the '/getUser' response to the default specified in the service configuration
+veggie.reset('/getUser')
+```
+
+#### resetAll
+```javascript
+// Reset all current overrides or remove current profile
+veggie.resetAll()
+```
+
+#### show
+```javascript
+// Show the currently overriden services
+veggie.show()
+```
+
+#### showAll
+```javascript
+// Show the current override configuration
+veggie.showAll()
+```
+
+#### save
+```javascript
+// Save the current override configuration as a profile using the given name
+// Saved to '<profileDir>/adminUser.json'
+veggie.save('adminUser')
+```
+
+#### load
+```javascript
+// Load the profile matching the given name
+// Loaded from '<profileDir>/adminUser.json'
+veggie.load('adminUser')
+```
+
+*Note: profileDir (for save and load) defaults to `process.cwd()` (the directory the server was
+launched from). It can alternatively be set using the `profileDir` options*
+
+
+### Call API from browser
+
+By placing a script tag in your demo index.html, you can call the API methods
+from the browser console.
+
+```html
+<script src="/node_modules/veggie/dist/veggie.api.js"></script>
+```
+
+*Note: promise and fetch polyfills may be needed depending on your browser*
+
+
+### Call API from REPL
+
+Services can also be manipulated through a REPL (read-eval-print-loop) by
+install `veg-connect`
+
+```bash
+$ npm  i -g veg-connect
+$ veg-connect
+veg-connect: connected to repl at /tmp/veggie.sock
+```
+
+### Call API from tests
+
+#### Testing in Node
 
 ```javascript
 // This should point to veggie's package.json `main` or `module` field (`veggie.js` or `veggie.es.js`)
@@ -129,7 +314,7 @@ require('node-fetch')
 ```
 
 
-### Testing in the browser
+#### Testing in the browser
 
 ```javascript
 // This should point to veggie's package.json `browser` field (`veggie.api.js`)
@@ -146,72 +331,3 @@ require('whatwg-fetch')
   })
 // ...
 ```
-
-
-### API methods
-
-#### block
-```javascript
-before(() => {
-  return veggie.block('getUser')
-})
-```
-
-#### blockAll
-```javascript
-before(() => {
-  return veggie.blockAll()
-})
-```
-
-#### reset
-```javascript
-before(() => {
-  return veggie.reset('getUser')
-})
-```
-
-#### resetAll
-```javascript
-before(() => {
-  return veggie.resetAll()
-})
-```
-
-#### loadProfile
-```javascript
-before(() => {
-  return veggie.loadProfile('adminUser')
-})
-```
-
-### set
-```javascript
-before(() => {
-  return veggie.set('getUser', 400, {})
-})
-```
-
-
-## Use a REPL to access your live services
-
-Services can also be manipulated through a REPL (read-eval-print-loop) by
-install `veg-connect`
-
-```bash
-$ npm  i -g veg-connect
-$ veg-connect
-veg-connect: connected to repl at /tmp/veggie.sock
-```
-
-
-## Save profiles
-
-TODO
-
-
-## Configuration options
-
-TODO
-
-
