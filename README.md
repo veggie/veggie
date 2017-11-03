@@ -84,39 +84,45 @@ restarting your development server.
 #### dir
 
 **Required**
+
 Glob matching the service configuration files
+
 e.g. `'services/**/*.js'`
 
 
 #### time
 
 Max delay in milliseconds before returning mock data
+
 Default `1000`
-e.g.
 
 
 #### log
 
 Enable logging
+
 Default `true`
 
 
 #### profileDir
 
 Directory with which to save/load profiles
+
 Default `process.cwd() // Directory where server was started`
 
 
 #### profile
 
 Initial profile to load
+
 e.g. `userNotRegistered`
 
 
 #### repl
 
 Enable REPL server (use `veg-connect` to connect)
-Defulat: `true`
+
+Default: `true`
 
 
 ## Serve your veggie routes
@@ -275,7 +281,7 @@ from the browser console.
 <script src="/node_modules/veggie/dist/veggie.api.js"></script>
 ```
 
-*Note: promise and fetch polyfills may be needed depending on your browser*
+*Note: promise and fetch polyfills may be required depending on your browser*
 
 
 ### Call API from REPL
@@ -291,29 +297,6 @@ veg-connect: connected to repl at /tmp/veggie.sock
 
 ### Call API from tests
 
-#### Testing in Node
-
-```javascript
-// This should point to veggie's package.json `main` or `module` field (`veggie.js` or `veggie.es.js`)
-const veggieApi = require('veggie').fetchApi
-// or
-// import { fetchApi as veggieApi } from 'veggie'
-
-// Fetch is required
-require('isomorphic-fetch')
-// or just
-require('node-fetch')
-
-// ...
-  before(() => {
-    // You need to specify the host before using the api
-    veggieApi._setHost(`http://localhost:${port}`)
-    return veggieApi.block('/my/blocked/route')
-  })
-// ...
-```
-
-
 #### Testing in the browser
 
 ```javascript
@@ -328,6 +311,33 @@ require('whatwg-fetch')
 // ...
   before(() => {
     return veggieApi.block('/my/blocked/route')
+  })
+// ...
+```
+
+
+#### Testing in Node
+
+```javascript
+// This should point to veggie's package.json `main` or `module` field (`veggie.js` or `veggie.es.js`)
+const veggieApi = require('veggie').api
+// or
+// import { api as veggieApi } from 'veggie'
+
+// In node, you need to specify the port and host before using the api
+// port defaults to 1337
+// host defaults to 'http://localhost'
+// veggieApi returns the api pointed to the specified host and port 
+const veggie = veggieApi(port, 'http://localhost')
+
+// Fetch is required
+require('isomorphic-fetch')
+// or just
+require('node-fetch')
+
+// ...
+  before(() => {
+    return veggie.block('/my/blocked/route')
   })
 // ...
 ```
