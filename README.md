@@ -281,6 +281,8 @@ from the browser console.
 <script src="/node_modules/veggie/dist/veggie.api.js"></script>
 ```
 
+The veggie API will be available namespaced to `window.veggie`
+
 *Note: promise and fetch polyfills may be required depending on your browser*
 
 
@@ -294,6 +296,9 @@ $ npm  i -g veg-connect
 $ veg-connect
 veg-connect: connected to repl at /tmp/veggie.sock
 ```
+
+The veggie API will be available as global functions.
+
 
 ### Call API from tests
 
