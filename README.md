@@ -208,7 +208,7 @@ subsequently loaded back into the server.
 ### API methods
 
 *Note: All methods use fetch and return a promise. A promise polyfill may be
-required depending on your testing environment.*
+required depending on your environment.*
 
 
 #### block
@@ -289,7 +289,7 @@ The veggie API will be available namespaced to `window.veggie`
 ### Call API from REPL
 
 Services can also be manipulated through a REPL (read-eval-print-loop) by
-install `veg-connect`
+installing `veg-connect`
 
 ```bash
 $ npm  i -g veg-connect
@@ -315,7 +315,7 @@ require('whatwg-fetch')
 
 // ...
   before(() => {
-    return veggieApi.block('/my/blocked/route')
+    return veggie.block('/my/blocked/route')
   })
 // ...
 ```
@@ -333,7 +333,7 @@ const veggieApi = require('veggie').api
 // port defaults to 1337
 // host defaults to 'http://localhost'
 // veggieApi returns the api pointed to the specified host and port 
-const veggie = veggieApi(port, 'http://localhost')
+const veggie = veggieApi(9999, 'http://localhost')
 
 // Fetch is required
 require('isomorphic-fetch')
