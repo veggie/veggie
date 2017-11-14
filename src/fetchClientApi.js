@@ -12,7 +12,8 @@ const apiMethods = [
   'showAll',
   'set',
   'load',
-  'save'
+  'save',
+  'hang'
 ]
 
 export const block = api('block')
@@ -24,6 +25,7 @@ export const showAll = api('showAll')
 export const set = api('set')
 export const load = api('load')
 export const save = api('save')
+export const hang = api('hang')
 
 /**
  * Get api for a particular host

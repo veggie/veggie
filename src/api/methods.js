@@ -150,6 +150,24 @@ export function save (profileName) {
   }
 }
 
+export function hang (serviceName, time = Infinity) {
+  const matchingServices = filterServices(services, serviceName)
+
+  if (matchingServices.length > 0) {
+    let message
+    matchingServices.forEach(url => {
+      message = `hanging ${url} service for ${time}s`
+      serverLog(message)
+      setServiceOverride(url, { hang: time })
+    })
+    return message
+  } else {
+    let error = `could not find ${serviceName} service to hang`
+    serverError(error)
+    throw new Error(error)
+  }
+}
+
 // Directory for saving/loading profiles
 let profileDir = process.cwd()
 
