@@ -230,6 +230,11 @@ veggie.blockAll()
 veggie.set('/getUser', 400, { message: 'Bad request for /getUser' })
 ```
 
+### hang
+```javascript
+// Set the '/getUser' route handler to never respond
+veggie.hang('/getUser')
+
 #### reset
 ```javascript
 // Reset the '/getUser' response to the default specified in the service configuration
