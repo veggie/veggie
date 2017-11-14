@@ -231,4 +231,16 @@ describe('a server using veggie router', () => {
       })
       .catch(() => assert(false))
   })
+
+  it('can hang a service', () => {
+    return veggieApi.hang('/obj')
+      .then(() => {
+        return new Promise((resolve, reject) => {
+          setTimeout(resolve, 1000)
+
+          fetchJSON('/obj')
+            .then(() => reject(new Error('request did not hang')))
+        })
+      })
+  })
 })

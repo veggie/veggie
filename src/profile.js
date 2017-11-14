@@ -72,6 +72,10 @@ function getProfileHash () {
  * @param {object} override - profile override to parse
  * @returns {Express route} - route handler
  */
-function getOverrideHandler ({ response, status }) {
-  return getRouteHandler(response, status)
+function getOverrideHandler ({ response, status, hang }) {
+  if (hang) {
+    return (req, res) => {}
+  } else {
+    return getRouteHandler(response, status)
+  }
 }
