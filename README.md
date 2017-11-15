@@ -234,6 +234,7 @@ veggie.set('/getUser', 400, { message: 'Bad request for /getUser' })
 ```javascript
 // Set the '/getUser' route handler to never respond
 veggie.hang('/getUser')
+```
 
 #### reset
 ```javascript
