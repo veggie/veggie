@@ -224,16 +224,16 @@ veggie.block('/getUser')
 veggie.blockAll()
 ```
 
-### set
+#### set
 ```javascript
 // Set the '/getUser' status code and response 
 veggie.set('/getUser', 400, { message: 'Bad request for /getUser' })
 ```
 
-### hang
+#### hang
 ```javascript
 // Set the '/getUser' route handler to never respond
-veggie.hang('/getUser')
+ veggie.hang('/getUser')
 ```
 
 #### reset
