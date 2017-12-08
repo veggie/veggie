@@ -49,8 +49,7 @@
     "glob": "^7.1.2",
     "isomorphic-fetch": "^2.2.1",
     "meow": "^3.7.0",
-    "path-to-regexp": "^2.1.0",
-    "rollup": "^0.50.0"
+    "path-to-regexp": "^2.1.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -60,6 +59,7 @@
     "nodemon": "^1.12.1",
     "nyc": "^11.3.0",
     "parallelshell": "^3.0.2",
+    "rollup": "^0.51.6",
     "rollup-plugin-babel": "^3.0.2",
     "rollup-plugin-json": "^2.3.0",
     "rollup-plugin-node-resolve": "^3.0.0"
