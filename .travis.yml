@@ -1,9 +1,12 @@
-sudo: false
-language: node_js
-node_js: stable
-install: rm package-lock.json && npm install
-script: npm test
 after_success: npm run coverage
+branches:
+  only:
+  - master
 cache:
   directories:
     - "node_modules"
+install: rm package-lock.json && npm install
+language: node_js
+node_js: stable
+script: npm test
+sudo: false
