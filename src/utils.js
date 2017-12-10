@@ -1,59 +1,6 @@
 import { serverError } from './log'
 
 /**
- * @param {object} data
- * @param {string} queryKey - key to extract from query string
- * @returns {function} - express handler
- */
-export function mapQueryParamToKey (data, queryKey) {
-  return function (req, res) {
-    const queryValue = req.query[queryKey]
-    res.send(data[queryValue])
-  }
-}
-
-export function wrap (key, data) {
-  return { [key]: data }
-}
-
-export function dWrap (data) {
-  return wrap('d', data)
-}
-
-/**
- * express handler
- * Return the body of the POST, wrapped in a { d: [body] }
- * @returns {void}
- */
-export function mirrorBody (req, res) {
-  // Node doesn't support the spread operator on objects, so...
-  const response = Object.keys(req.body)
-    .reduce((acc, current) => {
-      acc[current] = req.body[current]
-      return acc
-    }, {})
-  res.send(dWrap(response))
-}
-
-/**
- * @param {string} queryKey
- * @param {object} responses - { String: JSON|Express route|path }
- * @returns {function} - express handler
- */
-export function matchKeyToQueryParam (queryKey, responses) {
-  return (req, res) => {
-    const queryValue = req.query[queryKey]
-    const responseKey = Object.keys(responses)
-      .find(pattern => {
-        const regex = new RegExp(pattern)
-        return regex.test(queryValue)
-      })
-    const callback = getRouteHandler(responses[responseKey])
-    callback(req, res)
-  }
-}
-
-/**
  * Returns an express route handler for the given user-defined response
  *
  * @param {function|object|string} response - The service response
