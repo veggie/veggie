@@ -1,11 +1,15 @@
+import { getNewPort, fetchJSON } from './utils'
+import * as veggie from '../src'
+
 const assert = require('assert')
-const path = require('path')
-const fs = require('fs')
 const express = require('express')
-const { getNewPort, fetchJSON } = require('./utils')
-const veggie = require('../dist/veggie.test.js')
+const fs = require('fs')
+const path = require('path')
+
+// API
 const apiFactory = veggie.api
 
+// Server settings
 const serverSettings = {
   dir: 'test/services/**/*.js',
   repl: false,
@@ -14,6 +18,7 @@ const serverSettings = {
   profileDir: 'test/profiles'
 }
 
+// Tests to run
 const tests = [{
   type: 'middleware',
   init () {
@@ -221,8 +226,8 @@ describe('a server', () => {
         it('can save a profile', () => {
           return veggieApi.save('newTest')
             .then(() => {
-              assert(fs.existsSync(path.join(__dirname, 'profiles/newTest.json')))
-              fs.unlinkSync(path.join(__dirname, 'profiles/newTest.json'))
+              assert(fs.existsSync(path.join(__dirname, '../test/profiles/newTest.json')))
+              fs.unlinkSync(path.join(__dirname, '../test/profiles/newTest.json'))
             })
             .catch(() => assert(false))
         })
