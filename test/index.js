@@ -113,7 +113,7 @@ describe('a server', () => {
             })
           })
 
-          describe('with params including a ?', () => {
+          describe.skip('with params including a ?', () => {
             it('by returning correct data', () => {
               return fetchJSON('/fn/params/123?')
                 .then(({ msg, type, params }) => {
@@ -126,7 +126,7 @@ describe('a server', () => {
             })
           })
 
-          describe('with params including a ? and query param', () => {
+          describe.skip('with params including a ? and query param', () => {
             it('by returning correct data', () => {
               return fetchJSON('/fn/params/123?search=true')
                 .then(({ msg, type, params }) => {
@@ -161,6 +161,16 @@ describe('a server', () => {
                 })
                 .catch(() => assert(false)) // Fail
             })
+          })
+        })
+
+        describe.skip('when route is not defined', () => {
+          it('by returning 404', () => {
+            return fetchJSON('/undefined')
+              .then(() => assert(false)) // Fail
+              .catch(error => {
+                assert(/404 Not Found/.test(error))
+              })
           })
         })
       })
