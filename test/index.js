@@ -164,7 +164,7 @@ describe('a server', () => {
           })
         })
 
-        describe.skip('when route is not defined', () => {
+        describe('when route is not defined', () => {
           it('by returning 404', () => {
             return fetchJSON('/undefined')
               .then(() => assert(false)) // Fail
