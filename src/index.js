@@ -15,7 +15,6 @@ import fetchApi from './fetchClientApi'
 import * as helpers from './utils'
 
 const MAX_DELAY = 1000
-const proxyPassThroughCode = 501
 
 /**
  * Middleware that intercepts requests matching service routes or api paths
@@ -25,10 +24,10 @@ const proxyPassThroughCode = 501
  * @returns {Express middleware}
  */
 function proxyMiddleware ({ log = true }) {
-  setLog(log)
-
   const config = arguments[0]
-  config.catchAllStatusCode = proxyPassThroughCode
+
+  // Set log capabilities
+  setLog(log)
 
   // Start server
   let proxyPort
@@ -51,11 +50,6 @@ function proxyMiddleware ({ log = true }) {
 
     // When proxy responds
     proxyReq.on('response', proxyRes => {
-      if (proxyRes.statusCode === proxyPassThroughCode) {
-        // Not Implemented
-        return next()
-      }
-
       // Error handler
       proxyRes.on('error', e => {
         profileError(`error reading proxy ${e}`)
@@ -101,7 +95,7 @@ function server (config) {
  * @param {object} - configuration object
  * @returns {Express router}
  */
-function router ({ dir, catchAllStatusCode = null, time = MAX_DELAY, profile = null, profileDir = null, repl = true, log = true }) {
+function router ({ dir, time = MAX_DELAY, profile = null, profileDir = null, repl = true, log = true }) {
   if (!dir) {
     throw new Error('veggie: dir is required')
   }
@@ -126,12 +120,6 @@ function router ({ dir, catchAllStatusCode = null, time = MAX_DELAY, profile = n
   if (repl) {
     // Start interactive server
     replServer()
-  }
-
-  if (catchAllStatusCode) {
-    router.all('*', (req, res) => {
-      res.sendStatus(catchAllStatusCode)
-    })
   }
 
   return router
