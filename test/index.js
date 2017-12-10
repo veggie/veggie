@@ -3,8 +3,8 @@ const path = require('path')
 const fs = require('fs')
 const express = require('express')
 const { getNewPort, fetchJSON } = require('./utils')
-const veggie = require('../dist/veggie.js')
-let apiFactory = require('../dist/veggie.api.js').default
+const veggie = require('../dist/veggie.test.js')
+const apiFactory = veggie.api
 
 const serverSettings = {
   dir: 'test/services/**/*.js',
