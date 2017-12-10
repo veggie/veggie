@@ -37,6 +37,35 @@ const tests = [{
 }]
 
 describe('a server', () => {
+  describe('started with a profile', () => {
+    let app
+    before(() => {
+      app = veggie.server({
+        dir: 'test/services/**/*.js',
+        repl: false,
+        time: 0,
+        log: false,
+        profileDir: 'test/profiles',
+        profile: 'test'
+      })
+
+      return new Promise((resolve, reject) => {
+        let port = getNewPort()
+        app.listen(port, resolve)
+      })
+    })
+
+    after(() => {
+      app.emit('close')
+    })
+
+    it('will load profile and return correct data', () => {
+      return fetchJSON('/obj')
+        .then(() => assert(false)) // Fail
+        .catch(e => assert(/409/.test(e)))
+    })
+  })
+
   tests.forEach(test => {
     describe(`using veggie ${test.type}`, () => {
       let app = test.init()
