@@ -26,37 +26,31 @@ const external = [
 export default [
   // Server
   {
-    input: './src/index.js',
     banner: packageBanner,
+    external,
+    input: './src/index.js',
     output: [
       { file: pkg.main, format: 'cjs' },
       { file: pkg.module, format: 'es' }
     ],
-    plugins: [ json(), babel(), nodeResolve() ],
-    external
+    plugins: [ json(), babel(), nodeResolve() ]
   },
 
   // API
   {
-    input: './src/fetchClientApi.js',
     banner: packageBanner,
+    input: './src/fetchClientApi.js',
     name: 'veggie',
-    plugins: [ babel(), nodeResolve() ],
-    output: {
-      file: pkg.browser,
-      format: 'umd'
-    }
+    output: { file: pkg.browser, format: 'umd' },
+    plugins: [ babel(), nodeResolve() ]
   },
 
   // `veg` bin
   {
-    input: './src/bin/veg.js',
     banner: binBanner,
-    output: {
-      file: './bin/veg',
-      format: 'cjs'
-    },
-    plugins: [ json(), babel(), nodeResolve() ],
-    external
+    external,
+    input: './src/bin/veg.js',
+    output: { file: pkg.bin.veg, format: 'cjs' },
+    plugins: [ json(), babel(), nodeResolve() ]
   }
 ]
