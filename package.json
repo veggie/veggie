@@ -11,6 +11,7 @@
   "scripts": {
     "build": "rollup -c rollup.config.js",
     "build:test": "rollup -c rollup.test.config.js",
+    "commit": "commit",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "preversion": "npm test",
     "version": "npm run build # Get latest version for banners",
@@ -53,6 +54,8 @@
     "path-to-regexp": "^2.1.0"
   },
   "devDependencies": {
+    "@commitlint/config-conventional": "^5.2.3",
+    "@commitlint/prompt-cli": "^5.2.5",
     "babel-core": "^6.26.0",
     "babel-preset-es2015-rollup": "^3.0.0",
     "coveralls": "^3.0.0",
