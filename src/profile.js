@@ -52,7 +52,7 @@ function getRouter () {
   const router = express.Router()
   Object.keys(apiServices.serviceOverrides)
     .forEach(url => {
-      router.all(url, getOverrideHandler(apiServices.serviceOverrides[url]))
+      router.all(url, getOverrideHandler(url, apiServices.serviceOverrides[url]))
     })
   return router
 }
@@ -72,10 +72,10 @@ function getProfileHash () {
  * @param {object} override - profile override to parse
  * @returns {Express route} - route handler
  */
-function getOverrideHandler ({ response, status, hang }) {
+function getOverrideHandler (url, { response, status, hang }) {
   if (hang) {
     return (req, res) => {}
   } else {
-    return getRouteHandler(response, status)
+    return getRouteHandler(url, response, status)
   }
 }

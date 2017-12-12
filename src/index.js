@@ -159,7 +159,7 @@ function *routesFromDir (dir) {
   const services = {}
   const urls = Object.keys(routeConfig)
   for (let url of urls) {
-    const handler = helpers.getRouteHandler(routeConfig[url])
+    const handler = helpers.getRouteHandler(url, routeConfig[url])
     services[url] = handler
     yield { url, handler }
   }

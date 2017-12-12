@@ -142,32 +142,6 @@ describe('a server', () => {
             })
           })
 
-          describe.skip('with params including a ?', () => {
-            it('by returning correct data', () => {
-              return fetchJSON('/fn/params/123?')
-                .then(({ msg, type, params }) => {
-                  assert(msg === 'fn')
-                  assert(type === 'question')
-                  assert(typeof params !== 'undefined')
-                  assert(params.id === '123')
-                })
-                .catch(() => assert(false)) // Fail
-            })
-          })
-
-          describe.skip('with params including a ? and query param', () => {
-            it('by returning correct data', () => {
-              return fetchJSON('/fn/params/123?search=true')
-                .then(({ msg, type, params }) => {
-                  assert(msg === 'fn')
-                  assert(type === 'question-with-query')
-                  assert(typeof params !== 'undefined')
-                  assert(params.id === '123')
-                })
-                .catch(() => assert(false)) // Fail
-            })
-          })
-
           describe('with query', () => {
             it('by returning correct data', () => {
               return fetchJSON('/fn/query?id=123')
@@ -187,6 +161,28 @@ describe('a server', () => {
                   assert(msg === 'fn')
                   assert(typeof body !== 'undefined')
                   assert(body.id === 123)
+                })
+                .catch(() => assert(false)) // Fail
+            })
+          })
+
+          describe('with question mark', () => {
+            it('by returning correct data', () => {
+              return fetchJSON('/fn/question?')
+                .then(({ msg, type }) => {
+                  assert(msg === 'fn')
+                  assert(type === 'question')
+                })
+                .catch(() => assert(false)) // Fail
+            })
+          })
+
+          describe('with question mark and query param', () => {
+            it('by returning correct data', () => {
+              return fetchJSON('/fn/question?search=true')
+                .then(({ msg, type }) => {
+                  assert(msg === 'fn')
+                  assert(type === 'question-with-query')
                 })
                 .catch(() => assert(false)) // Fail
             })
