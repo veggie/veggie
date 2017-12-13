@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { randomExclusive } from './common'
+import { randomExclusive } from './utils'
 
 const { blue, green, red, underline, gray } = chalk
 

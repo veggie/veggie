@@ -41,14 +41,8 @@ export function getRouteHandler (url, response, statusCode = null) {
     }
   }
 
-  const hasQuery = url.indexOf('?') > 0
-
-  if (hasQuery) {
-    setQueryResponse(url, responseFn)
-    return queryResponseHandler
-  } else {
-    return responseFn
-  }
+  setQueryResponse(url, responseFn)
+  return queryResponseHandler
 }
 
 const alphabetize = (a, b) => a.localeCompare(b)
@@ -85,9 +79,10 @@ function setQueryResponse (url, responseFn) {
  */
 function getQueryFromUrl (url) {
   let [ baseUrl, query ] = url.split('?')
-  let queryString = ''
+  query = query || null
+  let queryString = null
 
-  if (query !== '') {
+  if (query && query !== '') {
     query = query.split('&')
       .reduce((acc, pair) => {
         const [ key, value ] = pair.split('=')
@@ -107,7 +102,11 @@ function getQueryFromUrl (url) {
 
 function queryResponseHandler (req, res) {
   const { baseUrl, query, queryString } = getQueryFromUrl(req.url)
-  const fn = (queryResponse[baseUrl] || {})[queryString || 'fallback']
+  const service = queryResponse[baseUrl] || {}
+
+  const fn = service[queryString] || service.fallback
+
+  console.log('get', !!fn, baseUrl, query, queryString, !!service[queryString], !!service.fallback)
 
   if (fn) {
     return fn(req, res)
@@ -125,3 +124,31 @@ function cachelessRequire (filePath) {
   delete require.cache[filePath]
   return data
 }
+
+/**
+ * Find matching services
+ *
+ * @param {object} services - services to search through
+ * @param {regex|string} serviceName - match to compare with service url
+ * @returns {array} - array of matching services
+ */
+export function filter (services, serviceName) {
+  const isRegex = serviceName instanceof RegExp
+
+  return Object
+    .keys(services)
+    .filter(url => {
+      if (isRegex) {
+        return serviceName.test(url)
+      } else {
+        return url === serviceName
+      }
+    })
+}
+
+/**
+ * Return random number from 0 to max, exclusive
+ * @param {number} max
+ * @returns {number}
+ */
+export const randomExclusive = max => Math.floor(Math.random() * max)

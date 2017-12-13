@@ -1,11 +1,40 @@
 import crypto from 'crypto'
 import express from 'express'
 import path from 'path'
-import { apiMethods, apiServices } from './api'
+import { filter } from './utils'
+import { apiMethods } from './api'
 import { getRouteHandler } from './utils'
 
 let profileRouter
 let cachedProfileHash
+let serviceOverrides = {}
+
+export function setOverride (url, override) {
+  serviceOverrides[url] = override
+}
+
+export function setAllOverrides (overrides = {}) {
+  serviceOverrides = overrides
+}
+
+export function resetOverride (url) {
+  delete serviceOverrides[url]
+}
+
+export function resetAllOverrides () {
+  serviceOverrides = {}
+}
+
+/**
+ * Find all matching service overrides
+ *
+ * @param {regex|string} serviceName - match to compare with service url
+ * @returns {array} - array of matching services
+ */
+export function filterOverrides (serviceName) {
+  return filter(serviceOverrides, serviceName)
+}
+
 
 /**
  * Middleware that registers profile override responses
@@ -50,9 +79,9 @@ function getRouter () {
 
   // create new router
   const router = express.Router()
-  Object.keys(apiServices.serviceOverrides)
+  Object.keys(serviceOverrides)
     .forEach(url => {
-      router.all(url, getOverrideHandler(url, apiServices.serviceOverrides[url]))
+      router.all(url, getOverrideHandler(url, serviceOverrides[url]))
     })
   return router
 }
@@ -63,7 +92,7 @@ function getRouter () {
  */
 function getProfileHash () {
   const hash = crypto.createHash('md5')
-  hash.update(JSON.stringify(apiServices.serviceOverrides))
+  hash.update(JSON.stringify(serviceOverrides))
   return hash.digest('hex')
 }
 
