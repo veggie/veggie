@@ -1,9 +1,8 @@
 import express from 'express'
 import * as apiMethods from './methods'
-import * as apiServices from './services'
 import { apiPathPrefix } from '../common'
 
-export { apiMethods, apiServices }
+export { apiMethods }
 
 const middlewareApiRegex = `${apiPathPrefix}/:method/:name?/:config?`
 

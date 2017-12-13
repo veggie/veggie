@@ -2,17 +2,15 @@ import 'babel-polyfill'
 import bodyParser from 'body-parser'
 import express from 'express'
 import getPort from 'get-port'
-import glob from 'glob'
 import http from 'http'
-import path from 'path'
 import replServer from './repl'
 import url from 'url'
 import { profileError, profileLog, setLog } from './log'
-import { apiMiddleware, apiMethods, apiServices } from './api'
+import { apiMiddleware } from './api'
 import { profileOverrideMiddleware } from './profile'
-import { randomExclusive } from './common'
+import { routesFromDir } from './service'
+import { randomExclusive } from './utils'
 import fetchApi from './fetchClientApi'
-import * as helpers from './utils'
 
 const MAX_DELAY = 1000
 
@@ -125,46 +123,4 @@ function router ({ dir, time = MAX_DELAY, profile = null, profileDir = null, rep
   return router
 }
 
-/**
- * Reads files matching supplied glob and yields url and handler of routes found
- * @param {glob} dir
- * @returns void
- */
-function *routesFromDir (dir) {
-  // Find files matching glob
-  let files
-  try {
-    files = glob.sync(dir)
-  } catch (e) {
-    throw new Error('veggie: error reading `dir` glob')
-  }
-
-  // Build master route config object
-  const routeConfig = files
-    .reduce((acc, file) => {
-      let services
-      try {
-        if (!path.isAbsolute(file)) {
-          // Make file path absolute
-          file = path.join(process.cwd(), file)
-        }
-        services = require(file)
-        acc = Object.assign(acc, services)
-      } catch (e) {
-        profileError(`error reading file ${file}`)
-      }
-      return acc
-    }, {})
-
-  const services = {}
-  const urls = Object.keys(routeConfig)
-  for (let url of urls) {
-    const handler = helpers.getRouteHandler(url, routeConfig[url])
-    services[url] = handler
-    yield { url, handler }
-  }
-
-  apiServices.setServices(services)
-}
-
-export { proxyMiddleware as middleware, router, server, fetchApi as api, helpers }
+export { proxyMiddleware as middleware, router, server, fetchApi as api }

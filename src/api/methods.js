@@ -1,21 +1,22 @@
 import fs from 'fs'
 import path from 'path'
 import { serverError, serverLog } from '../log'
+import { filterServices } from '../service'
 import {
-  filterServices, services, serviceOverrides,
-  setServiceOverride, resetServiceOverride,
-  setAllServiceOverrides, resetAllServiceOverrides
-} from './services'
+  filterOverrides,
+  setOverride, resetOverride,
+  setAllOverrides, resetAllOverrides
+} from '../profile'
 
 export function block (serviceName, status = 404, response = {}) {
-  const matchingServices = filterServices(services, serviceName)
+  const matchingServices = filterServices(serviceName)
 
   if (matchingServices.length > 0) {
     let message
     matchingServices.forEach(url => {
       message = `blocking ${url} service with ${status} status`
       serverLog(message)
-      setServiceOverride(url, { status, response })
+      setOverride(url, { status, response })
     })
     return message
   } else {
@@ -33,14 +34,14 @@ export function blockAll (status = 500, response = {}) {
 }
 
 export function reset (serviceName) {
-  const matchingServices = filterServices(serviceOverrides, serviceName)
+  const matchingServices = filterOverrides(serviceName)
 
   if (matchingServices.length > 0) {
     let message
     matchingServices.forEach(url => {
       message = `reseting ${url} service`
       serverLog(message)
-      resetServiceOverride(url)
+      resetOverride(url)
     })
     return message
   } else {
@@ -53,7 +54,7 @@ export function reset (serviceName) {
 export function resetAll () {
   let message = 'reseting all services'
   serverLog(message)
-  resetAllServiceOverrides()
+  resetAllOverrides()
   return message
 }
 
@@ -67,17 +68,17 @@ export function showAll () {
 
 export function set (serviceName, status, response) {
   const config = { status, response }
-  const matchingServices = filterServices(services, serviceName)
+  const matchingServices = filterServices(serviceName)
   let message
 
   if (matchingServices.length > 0) {
     matchingServices.forEach(url => {
       message = `setting override for ${url} service with ${status} status`
-      setServiceOverride(url, config)
+      setOverride(url, config)
     })
   } else {
     message = `service ${serviceName} not found. setting response for new service with ${status} status`
-    setServiceOverride(serviceName, config)
+    setOverride(serviceName, config)
   }
 
   serverLog(message)
@@ -102,7 +103,7 @@ export function load (profileName) {
 
       const fileData = fs.readFileSync(profilePath)
       const profileData = JSON.parse(fileData)
-      setAllServiceOverrides(profileData)
+      setAllOverrides(profileData)
 
       let message = `loading ${profileName} profile`
       serverLog(message)
@@ -151,14 +152,14 @@ export function save (profileName) {
 }
 
 export function hang (serviceName, time = Infinity) {
-  const matchingServices = filterServices(services, serviceName)
+  const matchingServices = filterServices(serviceName)
 
   if (matchingServices.length > 0) {
     let message
     matchingServices.forEach(url => {
       message = `hanging ${url} service for ${time}s`
       serverLog(message)
-      setServiceOverride(url, { hang: time })
+      setOverride(url, { hang: time })
     })
     return message
   } else {
