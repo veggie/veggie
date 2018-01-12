@@ -50,10 +50,11 @@ export default function (port = 1337, host = 'http://localhost') {
 function api (method, hostname = '') {
   return function (name, ...args) {
     const encodedName = encodeURIComponent(name)
+    let request
 
     if (!name) {
       // API has no paramters
-      return fetch(`${hostname}${apiPathPrefix}/${method}`)
+      request = fetch(`${hostname}${apiPathPrefix}/${method}`)
     } else if (args.length > 0) {
       // API receives POSTed body
       return fetch(`${hostname}${apiPathPrefix}/${method}/${encodedName}`, {
@@ -63,7 +64,10 @@ function api (method, hostname = '') {
       })
     } else {
       // API receives a single name
-      return fetch(`${hostname}${apiPathPrefix}/${method}/${encodedName}`)
+      request = fetch(`${hostname}${apiPathPrefix}/${method}/${encodedName}`)
     }
+
+    return request
+      .then(res => res.json())
   }
 }

@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import { randomExclusive } from './utils'
 
-const { blue, green, red, underline, gray } = chalk
+const { blue, green, red, underline } = chalk
 
 let logEnabled = true
 export function setLog (enabled) {
