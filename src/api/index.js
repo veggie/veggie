@@ -2,9 +2,9 @@ import express from 'express'
 import * as apiMethods from './methods'
 import { apiPathPrefix } from '../common'
 
-export { apiMethods }
-
 const middlewareApiRegex = `${apiPathPrefix}/:method/:name?/:config?`
+
+export { apiMethods }
 
 /**
  * Middleware that registers the profile api
@@ -13,6 +13,7 @@ const middlewareApiRegex = `${apiPathPrefix}/:method/:name?/:config?`
 export function apiMiddleware () {
   const apiRouter = express.Router()
   apiRouter.all(middlewareApiRegex, apiHandler)
+
   return apiRouter
 }
 
@@ -43,5 +44,6 @@ function apiHandler (req, res) {
       res.send({ status: 'fail', error: e.message })
     }
   }
+
   res.end()
 }

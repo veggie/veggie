@@ -298,7 +298,7 @@ Services can also be manipulated through a REPL (read-eval-print-loop) by
 installing `veg-connect`
 
 ```bash
-$ npm  i -g veg-connect
+$ npm i -g veg-connect
 $ veg-connect
 veg-connect: connected to repl at /tmp/veggie.sock
 ```

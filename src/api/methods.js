@@ -3,11 +3,14 @@ import path from 'path'
 import { serverError, serverLog } from '../log'
 import { filterServices } from '../service'
 import {
-  filterOverrides,
+  serviceOverrides, filterOverrides,
   setOverride, resetOverride,
   setAllOverrides, resetAllOverrides
 } from '../profile'
 
+/**
+ * Block the given service
+ */
 export function block (serviceName, status = 404, response = {}) {
   const matchingServices = filterServices(serviceName)
 
@@ -26,6 +29,9 @@ export function block (serviceName, status = 404, response = {}) {
   }
 }
 
+/**
+ * Block all services
+ */
 export function blockAll (status = 500, response = {}) {
   // TODO: all blocked needs to actually add all services
   let message = 'blocking all services'
@@ -33,6 +39,9 @@ export function blockAll (status = 500, response = {}) {
   return message
 }
 
+/**
+ * Remove any override for the given service
+ */
 export function reset (serviceName) {
   const matchingServices = filterOverrides(serviceName)
 
@@ -51,6 +60,9 @@ export function reset (serviceName) {
   }
 }
 
+/**
+ * Remove all service overrides
+ */
 export function resetAll () {
   let message = 'reseting all services'
   serverLog(message)
@@ -58,14 +70,23 @@ export function resetAll () {
   return message
 }
 
+/**
+ * Show the path of all overriden services
+ */
 export function show () {
   return Object.keys(serviceOverrides)
 }
 
+/**
+ * Show all service overrides and their override payload
+ */
 export function showAll () {
   return serviceOverrides
 }
 
+/**
+ * Set the status code and response for a given service
+ */
 export function set (serviceName, status, response) {
   const config = { status, response }
   const matchingServices = filterServices(serviceName)
@@ -85,6 +106,9 @@ export function set (serviceName, status, response) {
   return message
 }
 
+/**
+ * Load a previously saved profile from disk
+ */
 export function load (profileName) {
   resetAll()
 
@@ -120,6 +144,9 @@ export function load (profileName) {
   }
 }
 
+/**
+ * Save the current overrides to disk as a profile
+ */
 export function save (profileName) {
   if (profileName) {
     let profilePath = profileName
@@ -151,6 +178,9 @@ export function save (profileName) {
   }
 }
 
+/**
+ * Prevent the given service from resolving the request for `time` milliseconds
+ */
 export function hang (serviceName, time = Infinity) {
   const matchingServices = filterServices(serviceName)
 
