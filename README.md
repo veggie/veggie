@@ -61,7 +61,7 @@ module.exports = {
     }
   },
 
-  // Hot-loaded json file
+  // Hot-loaded JSON file
   '/service/posts': path.join(__dirname, '../data/posts.json'),
 
   // Express route
@@ -79,50 +79,18 @@ url is reached. This allows you to edit your JSON file and have it sent without
 restarting your development server.
 
 
-## Options
+## Configuration options
 
-#### dir
+| Option | Type |  Description | Required | Default | Example |
+| ------ | ---- | -------- | ----------- | ------- | ------- |
+| dir | string | Glob matching the service configuration files | yes | | `'services/**/*.js'` |
+| time | number | Max delay in milliseconds before returning mock data | no | `1000` | |
+| log | boolean | Enable logging | no | `true` | |
+| profileDir | string | Directory with which to save/load profiles | no | `process.cwd() // [1]` | |
+| profile | string | Initial profile to load | no | | `userNotRegistered` |
+| repl | boolean | Enable REPL server (use `veg-connect` to connect) | no | `true` | |
 
-**Required**
-
-Glob matching the service configuration files
-
-e.g. `'services/**/*.js'`
-
-
-#### time
-
-Max delay in milliseconds before returning mock data
-
-Default `1000`
-
-
-#### log
-
-Enable logging
-
-Default `true`
-
-
-#### profileDir
-
-Directory with which to save/load profiles
-
-Default `process.cwd() // Directory where server was started`
-
-
-#### profile
-
-Initial profile to load
-
-e.g. `userNotRegistered`
-
-
-#### repl
-
-Enable REPL server (use `veg-connect` to connect)
-
-Default: `true`
+[1] `process.cwd()` is the directory where the server was started
 
 
 ## Serve your veggie routes
