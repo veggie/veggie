@@ -7,7 +7,7 @@ import { getRouteHandler } from './utils'
 
 let profileRouter
 let cachedProfileHash
-let serviceOverrides = {}
+export let serviceOverrides = {}
 
 export function setOverride (url, override) {
   serviceOverrides[url] = override
@@ -43,7 +43,7 @@ export function filterOverrides (serviceName) {
  * @param {string} profileDir - directory to save/load profiles
  * @returns {function}
  */
-export function profileOverrideMiddleware (profile = null, profileDir = null) {
+export function profileMiddleware (profile = null, profileDir = null) {
   // Set directory for saving/loading profiles
   if (profileDir) {
     // Make profile dir absolute
@@ -83,6 +83,7 @@ function getRouter () {
     .forEach(url => {
       router.all(url, getOverrideHandler(url, serviceOverrides[url]))
     })
+
   return router
 }
 
@@ -93,6 +94,7 @@ function getRouter () {
 function getProfileHash () {
   const hash = crypto.createHash('md5')
   hash.update(JSON.stringify(serviceOverrides))
+
   return hash.digest('hex')
 }
 

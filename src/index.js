@@ -7,7 +7,7 @@ import replServer from './repl'
 import url from 'url'
 import { profileError, profileLog, setLog } from './log'
 import { apiMiddleware } from './api'
-import { profileOverrideMiddleware } from './profile'
+import { profileMiddleware } from './profile'
 import { routesFromDir } from './service'
 import { randomExclusive } from './utils'
 import fetchApi from './fetchClientApi'
@@ -83,6 +83,7 @@ function proxyMiddleware ({ log = true }) {
 function server (config) {
   const app = express()
   app.use(router(config))
+
   return app
 }
 
@@ -104,11 +105,12 @@ function router ({ dir, time = MAX_DELAY, profile = null, profileDir = null, rep
   // Apply middleware
   router.use(bodyParser.json({ limit: '50mb' }))
   router.use(apiMiddleware())
-  router.use(profileOverrideMiddleware(profile, profileDir))
+  router.use(profileMiddleware(profile, profileDir))
 
   // Apply all routes
-  for (let { url, handler } of routesFromDir(dir)) {
-    router.all(url, (...args) => {
+  for (let { url, method, handler } of routesFromDir(dir)) {
+    method = method || 'all'
+    router[method](url, (...args) => {
       setTimeout(() => {
         handler(...args)
       }, randomExclusive(time))

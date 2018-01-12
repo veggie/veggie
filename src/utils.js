@@ -8,14 +8,19 @@ import { serverError } from './log'
  * @returns {(req: Express Request, res: Express Response) => void}
  */
 export function getRouteHandler (url, response, statusCode = null) {
-  let responseFn
-
+  // Profile is set in memory
+  // Router is created when profile route is hit
+  // getOverrideHandler calls getRouteHandler
+  //
+  // Service router converts glob to files
+  // Assigns all file exports to single object
+  // Calls getRouteHandler for each key-value
   if (typeof response === 'function') {
     // Express route - will need to handle status code itself
-    responseFn = response
+    return response
   } else if (typeof response === 'string') {
     // Path to json file
-    responseFn = (req, res) => {
+    return (req, res) => {
       let data
       try {
         data = cachelessRequire(response)
@@ -31,7 +36,7 @@ export function getRouteHandler (url, response, statusCode = null) {
     }
   } else {
     // JSON object
-    responseFn = (req, res) => {
+    return (req, res) => {
       if (response) {
         res.status(statusCode || 200).json(response)
       }
@@ -40,12 +45,9 @@ export function getRouteHandler (url, response, statusCode = null) {
       }
     }
   }
-
-  setQueryResponse(url, responseFn)
-  return queryResponseHandler
 }
 
-const alphabetize = (a, b) => a.localeCompare(b)
+export const alphabetize = (a, b) => a.localeCompare(b)
 const queryResponse = {}
 
 /**
@@ -56,6 +58,8 @@ const queryResponse = {}
  */
 function setQueryResponse (url, responseFn) {
   const { baseUrl, query, queryString } = getQueryFromUrl(url)
+
+  console.log('set', baseUrl, queryString)
 
   if (query) {
     // Set response function
