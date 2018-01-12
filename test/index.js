@@ -264,7 +264,7 @@ describe('a server', () => {
               assert(fs.existsSync(path.join(__dirname, '../test/profiles/newTest.json')))
               fs.unlinkSync(path.join(__dirname, '../test/profiles/newTest.json'))
             })
-            .catch(() => assert(false))
+          .catch(() => assert(false))
         })
 
         it('can hang a service', () => {
