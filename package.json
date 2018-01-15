@@ -51,7 +51,8 @@
     "glob": "^7.1.2",
     "isomorphic-fetch": "^2.2.1",
     "meow": "^3.7.0",
-    "path-to-regexp": "^2.1.0"
+    "path-to-regexp": "^2.1.0",
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^5.2.3",
