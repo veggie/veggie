@@ -17,7 +17,8 @@ const external = [
   'path',
   'path-to-regexp',
   'repl',
-  'url'
+  'url',
+  'uuid'
 ]
 
 export default [
