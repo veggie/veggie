@@ -1,73 +1,120 @@
-import { apiPathPrefix } from './common'
+import { apiPathPrefix, apiVersion } from './common'
 
-/**
- * Available api methods
- */
-const apiMethods = [
-  'block',
-  'blockAll',
-  'reset',
-  'resetAll',
-  'show',
-  'showAll',
-  'set',
-  'load',
-  'save',
-  'hang'
-]
+// /veggie/api/v1/ping - GET - ping
+// /veggie/api/v1/store - GET - getAllServices
+// /veggie/api/v1/store - POST - newService
+// /veggie/api/v1/store/:id - GET - getService
+// /veggie/api/v1/store/:id - POST - setService (block, reset, hang)
+// /veggie/api/v1/store/profile - GET - getAllProfiles
+// /veggie/api/v1/store/profile - POST - saveProfile
+// /veggie/api/v1/store/profile - PUT - loadProfile
+// /veggie/api/v1/store/profile - DELETE - resetProfile
+// /veggie/api/v1/store/profile/:id - GET - getProfile
+// /veggie/api/v1/store/profile/:id - POST - updateProfile
+// /veggie/api/v1/store/profile/:id - DELETE - deleteProfile
 
-export const block = api('block')
-export const blockAll = api('blockAll')
-export const reset = api('reset')
-export const resetAll = api('resetAll')
-export const show = api('show')
-export const showAll = api('showAll')
-export const set = api('set')
-export const load = api('load')
-export const save = api('save')
-export const hang = api('hang')
-
-/**
- * Get api for a particular host
- *
- * @param {number} port
- * @param {string} host
- * @returns {object} api
- */
-export default function (port = 1337, host = 'http://localhost') {
-  const hostname = `${host}:${port}`
-  return apiMethods
-    .reduce((acc, method) => {
-      acc[method] = api(method, hostname)
-      return acc
-    }, {})
+const apiConfig = {
+  url: `${apiPathPrefix}/${apiVersion}`,
+  ping: {
+    url: '/ping',
+    method: 'get'
+  },
+  getAllServices: {
+    url: '/store',
+    method: 'get'
+  },
+  newService: {
+    url: '/store',
+    method: 'post'
+  },
+  getService: {
+    url: '/store',
+    method: 'get',
+    params: true
+  },
+  setService: {
+    url: '/store',
+    method: 'post',
+    params: true
+  },
+  getAllProfiles: {
+    url: '/store/profile',
+    method: 'get'
+  },
+  saveProfile: {
+    url: '/store/profile',
+    method: 'post'
+  },
+  loadProfile: {
+    url: '/store/profile',
+    method: 'put'
+  },
+  resetProfile: {
+    url: '/store/profile',
+    method: 'delete'
+  },
+  getProfile: {
+    url: '/store/profile',
+    method: 'get',
+    params: true
+  },
+  updateProfile: {
+    url: '/store/profile',
+    method: 'post',
+    params: true
+  },
+  deleteProfile: {
+    url: '/store/profile',
+    method: 'post',
+    params: true
+  }
 }
 
-/**
- * Return method to call api function via fetch
- * @returns {function}
- */
-function api (method, hostname = '') {
-  return function (name, ...args) {
-    const encodedName = encodeURIComponent(name)
-    let request
+let fetchOrigin = ''
+function fetchWrapper(path, options) {
+  return fetch(`${fetchOrigin}${path}`, options)
+}
 
-    if (!name) {
-      // API has no paramters
-      request = fetch(`${hostname}${apiPathPrefix}/${method}`)
-    } else if (args.length > 0) {
-      // API receives POSTed body
-      return fetch(`${hostname}${apiPathPrefix}/${method}/${encodedName}`, {
-        method: 'post',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(args)
-      })
-    } else {
-      // API receives a single name
-      request = fetch(`${hostname}${apiPathPrefix}/${method}/${encodedName}`)
+export function apiCall ({ url, params, method }, hardcodedPayload) {
+  return async (args = {}) => {
+    const { id, payload } = args
+    let apiPath = `${apiConfig.url}/${url}`
+
+    if (params && id) {
+      apiPath = `${apiPath}/${id}`
     }
 
-    return request
+    const options = {
+      method,
+      headers: { 'Content-Type': 'application/json' }
+    }
+    if (hardcodedPayload || payload) {
+      options.body = JSON.stringify(hardcodedPayload || payload)
+    }
+
+    return fetchWrapper(apiPath, options)
       .then(res => res.json())
   }
+}
+
+export const ping = apiCall(apiConfig.ping)
+
+export const getAllServices = apiCall(apiConfig.getAllServices)
+export const newService = apiCall(apiConfig.newService)
+
+export const getService = apiCall(apiConfig.getService)
+export const setService = apiCall(apiConfig.setService)
+
+export const getAllProfiles = apiCall(apiConfig.getAllProfiles)
+export const saveProfile = apiCall(apiConfig.saveProfile)
+export const loadProfile = apiCall(apiConfig.loadProfile)
+export const resetProfile = apiCall(apiConfig.resetProfile)
+
+export const getProfile = apiCall(apiConfig.getProfile)
+export const updateProfile = apiCall(apiConfig.updateProfile)
+export const deleteProfile = apiCall(apiConfig.deleteProfile)
+
+export function setApiOrigin (origin = 'http://localhost:1337') {
+  const hasProtocol = /\w+\:\/\//.test(origin)
+  fetchOrigin = hasProtocol ? origin : `http://${origin}`
 }
