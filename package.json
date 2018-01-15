@@ -17,7 +17,7 @@
     "version": "npm run build # Get latest version for banners",
     "postversion": "git push && git push --tags && npm publish",
     "preserve": "npm run build",
-    "serve": "bin/veg --dir test/services/*.js",
+    "serve": "bin/veg --dir test/services/*.js --profileDir test/profiles",
     "serve:watch": "nodemon -w src -x 'npm run serve'",
     "pretest": "npm run build:test",
     "test": "nyc --reporter=html --reporter=text mocha dist/veggie.test.js",
