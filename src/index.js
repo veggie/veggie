@@ -1,15 +1,17 @@
 import 'babel-polyfill'
-import bodyParser from 'body-parser'
+import fs from 'fs'
+import url from 'url'
+import uuid from 'uuid'
+import http from 'http'
 import express from 'express'
 import getPort from 'get-port'
-import http from 'http'
-import url from 'url'
+import bodyParser from 'body-parser'
+import store from './state/store'
 import { profileError, profileLog, setLog } from './log'
-import { apiMiddleware } from './api'
-import { profileMiddleware } from './profile'
-import { routesFromDir } from './service'
+import { formatService, servicesFromDir } from './service'
 import { randomExclusive } from './utils'
-import fetchApi from './fetchClientApi'
+import { apiPath, apiRouter } from './api'
+import * as fetchApi from './fetchClientApi'
 
 const MAX_DELAY = 1000
 
@@ -105,23 +107,44 @@ function router ({
   }
 
   setLog(log)
-  const router = express.Router()
 
-  // Apply middleware
-  router.use(bodyParser.json({ limit: '50mb' }))
-  router.use(apiMiddleware())
-  router.use(profileMiddleware(profile, profileDir))
+  for (let { url, config } of servicesFromDir(dir)) {
+    store.dispatch(state => {
+      const service = formatService(url, config[url])
+      const { id } = service
+      state.services.ids.push(id)
+      state.services.byId[id] = service
 
-  // Apply all routes
-  for (let { url, method, handler } of routesFromDir(dir)) {
-    method = method || 'all'
-    router[method](url, (...args) => {
-      setTimeout(() => {
-        handler(...args)
-      }, randomExclusive(time))
+      return state
     })
   }
 
+  store.dispatch(state => {
+    profileDir = profileDir || process.cwd()
+    state.profiles.dir = profileDir
+
+    try {
+      fs.readdirSync(profileDir)
+        .forEach(name => {
+          const id = uuid.v4()
+          state.profiles.ids.push(id)
+          state.profiles.byId[id] = { id, name }
+          if (profile === name) {
+            state.profiles.current = id
+          }
+        })
+    } catch (e) {
+      profileError(`error reading profileDir ${profileDir} ${e}`)
+    }
+
+    return state
+  })
+
+  const router = express.Router()
+
+  router.use(bodyParser.json({ limit: '50mb' }))
+  router.use(apiPath, apiRouter)
+  // router.use(responseMiddleware())
 
   return router
 }
