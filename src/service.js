@@ -8,7 +8,9 @@ export function formatService (url, config) {
   return {
     id: uuid.v4(),
     url: getQueryFromUrl(url),
-    response: config,
+    statusCode: config.status || 200,
+    method: (config.method || 'all').toLowerCase(),
+    response: config.method ? config.response : config,
     type: typeof config
   }
 }

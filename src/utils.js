@@ -9,18 +9,13 @@ import { delaySel, serviceByIdSel } from './state/selectors'
  * @param [optional] {number} statusCode - status code to be used for response
  * @returns {(req: Express Request, res: Express Response) => void}
  */
-export function getRouteHandler (url, response, statusCode = null) {
-  // Profile is set in memory
-  // Router is created when profile route is hit
-  // getOverrideHandler calls getRouteHandler
-  //
-  // Service router converts glob to files
-  // Assigns all file exports to single object
-  // Calls getRouteHandler for each key-value
-  if (typeof response === 'function') {
+export function getRouteHandler (id) {
+  const { statusCode, response, type } = serviceByIdSel(id)
+
+  if (type === 'function') {
     // Express route - will need to handle status code itself
     return response
-  } else if (typeof response === 'string') {
+  } else if (type === 'string') {
     // Path to json file
     return (req, res) => {
       let data
