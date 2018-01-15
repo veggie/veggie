@@ -52,6 +52,7 @@ const queryResponse = {}
 
 /**
  * Set the response function based on the query string
+ *
  * @param {string} url plus query
  * @param {function} responseFn
  * @returns {void}
@@ -78,10 +79,11 @@ function setQueryResponse (url, responseFn) {
 
 /**
  * Turn query string into query object
+ *
  * @param {string} url
  * @returns {object} query
  */
-function getQueryFromUrl (url) {
+export function getQueryFromUrl (url) {
   let [ baseUrl, query ] = url.split('?')
   query = query || null
   let queryString = null

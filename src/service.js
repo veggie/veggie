@@ -1,23 +1,16 @@
 import path from 'path'
 import glob from 'glob'
+import uuid from 'uuid'
 import { profileError } from './log'
-import { getRouteHandler } from './utils'
-import { filter } from './utils'
+import { getQueryFromUrl } from './utils'
 
-let services = {}
-
-/**
- * Find all matching services
- *
- * @param {regex|string} serviceName - match to compare with service url
- * @returns {array} - array of matching services
- */
-export function filterServices (serviceName) {
-  return filter(services, serviceName)
-}
-
-export function setServices (serviceMap = {}) {
-  services = serviceMap
+export function formatService (url, config) {
+  return {
+    id: uuid.v4(),
+    url: getQueryFromUrl(url),
+    response: config,
+    type: typeof config
+  }
 }
 
 /**
@@ -25,7 +18,7 @@ export function setServices (serviceMap = {}) {
  * @param {glob} dir
  * @returns void
  */
-export function *routesFromDir (dir) {
+export function *servicesFromDir (dir) {
   // Find files matching glob
   let files
   try {
@@ -53,29 +46,7 @@ export function *routesFromDir (dir) {
       return acc
     }, {})
 
-  const services = {}
-  const urls = Object.keys(routeConfig)
-  for (let url of urls) {
-    const handler = getRouteHandler(url, routeConfig[url])
-    services[url] = handler
-
-    // Need to store the response function for later so we can call it
-    // depending on the query param comparison
-
-    // TODO: remove hard-coded method
-    yield { url, method: 'all', handler }
+  for (let url in routeConfig) {
+    yield { url, config: routeConfig[url] }
   }
-
-  // Or down here
-
-    /*
-  setQueryResponse(url, responseFn)
-  return queryResponseHandler
-  */
-
-  // And this function call to cache the response needs to happen in the
-  // profile module as well
-
-  setServices(services)
 }
-

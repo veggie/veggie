@@ -110,3 +110,18 @@ function getOverrideHandler (url, { response, status, hang }) {
     return getRouteHandler(url, response, status)
   }
 }
+
+function createRouter () {
+  const router = express.Router()
+
+  // Apply all routes
+  for (let { url, method, handler } of routeSel()) {
+    router[method](url, (...args) => {
+      setTimeout(() => {
+        handler(...args)
+      }, randomExclusive(time))
+    })
+  }
+
+  return router
+}
