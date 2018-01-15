@@ -1,4 +1,6 @@
+import store from './state/store'
 import { serverError } from './log'
+import { delaySel, serviceByIdSel } from './state/selectors'
 
 /**
  * Returns an express route handler for the given user-defined response
@@ -48,34 +50,6 @@ export function getRouteHandler (url, response, statusCode = null) {
 }
 
 export const alphabetize = (a, b) => a.localeCompare(b)
-const queryResponse = {}
-
-/**
- * Set the response function based on the query string
- *
- * @param {string} url plus query
- * @param {function} responseFn
- * @returns {void}
- */
-function setQueryResponse (url, responseFn) {
-  const { baseUrl, query, queryString } = getQueryFromUrl(url)
-
-  console.log('set', baseUrl, queryString)
-
-  if (query) {
-    // Set response function
-    queryResponse[baseUrl] = Object.assign(
-      queryResponse[baseUrl] || {},
-      { [queryString]: responseFn }
-    )
-  } else {
-    // Set fallback response function
-    queryResponse[baseUrl] = Object.assign(
-      queryResponse[baseUrl] || {},
-      { fallback: responseFn }
-    )
-  }
-}
 
 /**
  * Turn query string into query object
@@ -106,18 +80,50 @@ export function getQueryFromUrl (url) {
   return { baseUrl, query, queryString }
 }
 
-function queryResponseHandler (req, res) {
-  const { baseUrl, query, queryString } = getQueryFromUrl(req.url)
-  const service = queryResponse[baseUrl] || {}
+export function getQueryHandler (ids) {
+  const { byId } = store.getState().services
 
-  const fn = service[queryString] || service.fallback
+  // Sort ids so that we match most query parameters first
+  ids = ids.sort((idA, idB) => {
+    const urlA = byId[idA].url
+    const urlB = byId[idB].url
+    let numParamsA = 0
+    let numParamsB = 0
 
-  console.log('get', !!fn, baseUrl, query, queryString, !!service[queryString], !!service.fallback)
+    if (urlA.query) {
+      numParamsA = Object.keys(urlA.query).length
+    }
 
-  if (fn) {
-    return fn(req, res)
-  } else {
-    throw new Error('callback not found')
+    if (urlB.query) {
+      numParamsB = Object.keys(urlB.query).length
+    }
+
+    return numParamsA - numParamsB
+  })
+
+  return (req, res) => {
+    console.log('query handler', req.url, req.body)
+    const match = ids.find(id => {
+      const { url } = byId[id]
+
+      if (url.query === null) {
+        // This is the fallback handler
+        return true
+      } else {
+        return Object.keys(url.query)
+          .every(key => req.params[key] === url.query[key])
+      }
+    })
+
+    if (match) {
+      const callback = getRouteHandler(match)
+      setTimeout(() => {
+        callback(req, res)
+      }, randomExclusive(delaySel()))
+    } else {
+      console.log("nothing found")
+      res.sendStatus(404, { status: 'failed', error: 'callback not found' })
+    }
   }
 }
 
@@ -129,27 +135,6 @@ function cachelessRequire (filePath) {
   const data = require(filePath)
   delete require.cache[filePath]
   return data
-}
-
-/**
- * Find matching services
- *
- * @param {object} services - services to search through
- * @param {regex|string} serviceName - match to compare with service url
- * @returns {array} - array of matching services
- */
-export function filter (services, serviceName) {
-  const isRegex = serviceName instanceof RegExp
-
-  return Object
-    .keys(services)
-    .filter(url => {
-      if (isRegex) {
-        return serviceName.test(url)
-      } else {
-        return url === serviceName
-      }
-    })
 }
 
 /**

@@ -1,16 +1,12 @@
 import chalk from 'chalk'
 import { randomExclusive } from './utils'
+import { logSel } from './state/selectors'
 
 const { blue, green, red, underline } = chalk
 
-let logEnabled = true
-export function setLog (enabled) {
-  logEnabled = enabled
-}
-
 /* Log message if enabled */
 function log (output) {
-  if (logEnabled) {
+  if (logSel()) {
     console.log(output)
   }
 }

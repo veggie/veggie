@@ -1,5 +1,7 @@
 let state = {
   id: null,
+  delay: 1000,
+  log: true,
   services: {
     ids: [],
     byId: {}
