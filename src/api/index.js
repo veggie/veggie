@@ -1,26 +1,16 @@
 import express from 'express'
-import * as apiMethods from './methods'
-import { apiPathPrefix } from '../common'
+import { apiPathPrefix, apiVersion } from '../common'
+import { router } from './router'
 
-const middlewareApiRegex = `${apiPathPrefix}/:method/:name?/:config?`
-
-export { apiMethods }
-
-/**
- * Middleware that registers the profile api
- * @returns {function}
- */
-export function apiMiddleware () {
-  const apiRouter = express.Router()
-  apiRouter.all(middlewareApiRegex, apiHandler)
-
-  return apiRouter
-}
+export { router as apiRouter }
+// export const apiRouter = express.Router()
+export const apiPath = `${apiPathPrefix}/${apiVersion}`
 
 /**
  * Route handler for api calls
  * @returns {void}
  */
+  /*
 function apiHandler (req, res) {
   const { params, body } = req
   const { method } = params
@@ -47,3 +37,4 @@ function apiHandler (req, res) {
 
   res.end()
 }
+*/

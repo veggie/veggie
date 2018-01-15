@@ -1,4 +1,5 @@
 import { getNewPort, fetchJSON } from './utils'
+import { block, hang, load, reset, save, set } from './veggie-wrapper'
 import * as veggie from '../src'
 
 const assert = require('assert')
@@ -7,12 +8,11 @@ const fs = require('fs')
 const path = require('path')
 
 // API
-const apiFactory = veggie.api
+const veggieApi = veggie.api
 
 // Server settings
 const serverSettings = {
   dir: 'test/services/**/*.js',
-  repl: false,
   time: 0,
   log: false,
   profileDir: 'test/profiles'
@@ -42,7 +42,6 @@ describe('a server', () => {
     before(() => {
       app = veggie.server({
         dir: 'test/services/**/*.js',
-        repl: false,
         time: 0,
         log: false,
         profileDir: 'test/profiles',
@@ -51,6 +50,7 @@ describe('a server', () => {
 
       return new Promise((resolve, reject) => {
         let port = getNewPort()
+        veggieApi.setApiOrigin(`localhost:${port}`)
         app.listen(port, resolve)
       })
     })
@@ -61,26 +61,31 @@ describe('a server', () => {
 
     it('will load profile and return correct data', () => {
       return fetchJSON('/obj')
-        .then(() => assert(false)) // Fail
-        .catch(e => assert(/409/.test(e)))
+        .then(() => {
+          console.log('got here')
+          assert(false)
+        }) // Fail
+        .catch(e => {
+          console.log('error', e)
+          assert(/409/.test(e))
+        })
     })
   })
 
   tests.forEach(test => {
     describe(`using veggie ${test.type}`, () => {
       let app = test.init()
-      let veggieApi
 
       before(() => {
         return new Promise((resolve, reject) => {
           let port = getNewPort()
-          veggieApi = apiFactory(port)
+          veggieApi.setApiOrigin(`http://localhost:${port}`)
           app.listen(port, resolve)
         })
       })
 
       beforeEach(() => {
-        return veggieApi.resetAll()
+        return veggieApi.resetProfile()
       })
 
       after(() => {
@@ -203,7 +208,7 @@ describe('a server', () => {
 
       describe('api', () => {
         it('can block services', () => {
-          return veggieApi.block('/obj')
+          return block('/obj')
             .then(() => fetchJSON('/obj'))
             .catch(err => {
               // Catch 404 error
@@ -212,12 +217,12 @@ describe('a server', () => {
         })
 
         it('can reset blocked services', () => {
-          return veggieApi.block('/obj')
+          return block('/obj')
             .then(() => fetchJSON('/obj'))
             .catch(err => {
               // Catch 404 error
               assert(true)
-              return veggieApi.reset('/obj')
+              return reset('/obj')
             })
             .then(() => fetchJSON('/obj'))
             .then(({ msg }) => assert(msg === 'obj'))
@@ -225,7 +230,7 @@ describe('a server', () => {
         })
 
         it('can set a service response', () => {
-          return veggieApi.set('/obj', 200, { msg: 'set' })
+          return set('/obj', 200, { msg: 'set' })
             .then(() => fetchJSON('/obj'))
             .then(({ msg }) => {
               assert(msg === 'set')
@@ -234,7 +239,7 @@ describe('a server', () => {
         })
 
         it('can set a service status code', () => {
-          return veggieApi.set('/obj', 400, {})
+          return set('/obj', 400, {})
             .then(() => fetchJSON('/obj'))
             .then(() => assert(false)) // Fail
             .catch(e => {
@@ -243,7 +248,7 @@ describe('a server', () => {
         })
 
         it('can set a service that isn\'t specified by mock data', () => {
-          return veggieApi.set('/set', 200, { msg: 'set' })
+          return set('/set', 200, { msg: 'set' })
             .then(() => fetchJSON('/set'))
             .then(({ msg }) => {
               assert(msg === 'set')
@@ -252,14 +257,14 @@ describe('a server', () => {
         })
 
         it('can load a profile', () => {
-          return veggieApi.load('test')
+          return load('test')
             .then(() => fetchJSON('/obj'))
             .then(() => assert(false)) // Fail
             .catch(e => assert(/409/.test(e)))
         })
 
         it('can save a profile', () => {
-          return veggieApi.save('newTest')
+          return save('newTest')
             .then(() => {
               assert(fs.existsSync(path.join(__dirname, '../test/profiles/newTest.json')))
               fs.unlinkSync(path.join(__dirname, '../test/profiles/newTest.json'))
@@ -268,7 +273,7 @@ describe('a server', () => {
         })
 
         it('can hang a service', () => {
-          return veggieApi.hang('/obj')
+          return hang('/obj')
             .then(() => {
               return new Promise((resolve, reject) => {
                 setTimeout(resolve, 1000)
