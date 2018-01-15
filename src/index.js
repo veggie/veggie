@@ -7,13 +7,12 @@ import express from 'express'
 import getPort from 'get-port'
 import bodyParser from 'body-parser'
 import store from './state/store'
-import { profileError, profileLog, setLog } from './log'
+import { routerSel } from './state/selectors'
+import { profileError, profileLog } from './log'
 import { formatService, servicesFromDir } from './service'
 import { randomExclusive } from './utils'
 import { apiPath, apiRouter } from './api'
 import * as fetchApi from './fetchClientApi'
-
-const MAX_DELAY = 1000
 
 /**
  * Middleware that intercepts requests matching service routes or api paths
@@ -22,12 +21,7 @@ const MAX_DELAY = 1000
  * @param {object} config
  * @returns {Express middleware}
  */
-function proxyMiddleware ({ log = true }) {
-  const config = arguments[0]
-
-  // Set log capabilities
-  setLog(log)
-
+function proxyMiddleware (config) {
   // Start server
   let proxyPort
   getPort().then(port => {
@@ -100,26 +94,31 @@ function router ({
   log = true,
   profile = null,
   profileDir = null,
-  time = MAX_DELAY
+  time = null
 }) {
   if (!dir) {
     throw new Error('veggie: dir is required')
   }
 
-  setLog(log)
+  // Settings
+  store.dispatch(state => {
+    // Logging
+    state.log = log
 
-  for (let { url, config } of servicesFromDir(dir)) {
-    store.dispatch(state => {
-      const service = formatService(url, config[url])
+    // Time delay
+    if (time) {
+      state.delay = time
+    }
+
+    // Services
+    for (let { url, config } of servicesFromDir(dir)) {
+      const service = formatService(url, config)
       const { id } = service
       state.services.ids.push(id)
       state.services.byId[id] = service
+    }
 
-      return state
-    })
-  }
-
-  store.dispatch(state => {
+    // Profile
     profileDir = profileDir || process.cwd()
     state.profiles.dir = profileDir
 
@@ -129,7 +128,7 @@ function router ({
           const id = uuid.v4()
           state.profiles.ids.push(id)
           state.profiles.byId[id] = { id, name }
-          if (profile === name) {
+          if (profile && profile === name) {
             state.profiles.current = id
           }
         })
@@ -144,7 +143,10 @@ function router ({
 
   router.use(bodyParser.json({ limit: '50mb' }))
   router.use(apiPath, apiRouter)
-  // router.use(responseMiddleware())
+  router.use((req, res, next) => {
+    const serviceRouter = routerSel()
+    serviceRouter(req, res, next)
+  })
 
   return router
 }
