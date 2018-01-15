@@ -3,7 +3,6 @@ import bodyParser from 'body-parser'
 import express from 'express'
 import getPort from 'get-port'
 import http from 'http'
-import replServer from './repl'
 import url from 'url'
 import { profileError, profileLog, setLog } from './log'
 import { apiMiddleware } from './api'
@@ -89,12 +88,18 @@ function server (config) {
 
 /**
  * Router containing all mock data routes and using profile middleware
- * Profiles are loaded at initialization and can be manipulated via REPL
+ * Profiles are loaded at initialization
  *
  * @param {object} - configuration object
  * @returns {Express router}
  */
-function router ({ dir, time = MAX_DELAY, profile = null, profileDir = null, repl = true, log = true }) {
+function router ({
+  dir,
+  log = true,
+  profile = null,
+  profileDir = null,
+  time = MAX_DELAY
+}) {
   if (!dir) {
     throw new Error('veggie: dir is required')
   }
@@ -117,10 +122,6 @@ function router ({ dir, time = MAX_DELAY, profile = null, profileDir = null, rep
     })
   }
 
-  if (repl) {
-    // Start interactive server
-    replServer()
-  }
 
   return router
 }

@@ -88,7 +88,6 @@ restarting your development server.
 | log | boolean | Enable logging | no | `true` | |
 | profileDir | string | Directory with which to save/load profiles | no | `process.cwd() // [1]` | |
 | profile | string | Initial profile to load | no | | `userNotRegistered` |
-| repl | boolean | Enable REPL server (use `veg-connect` to connect) | no | `true` | |
 
 [1] `process.cwd()` is the directory where the server was started
 
@@ -258,20 +257,6 @@ from the browser console.
 The veggie API will be available namespaced to `window.veggie`
 
 *Note: promise and fetch polyfills may be required depending on your browser*
-
-
-### Call API from REPL
-
-Services can also be manipulated through a REPL (read-eval-print-loop) by
-installing `veg-connect`
-
-```bash
-$ npm i -g veg-connect
-$ veg-connect
-veg-connect: connected to repl at /tmp/veggie.sock
-```
-
-The veggie API will be available as global functions.
 
 
 ### Call API from tests
