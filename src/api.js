@@ -1,9 +1,10 @@
 import fs from 'fs'
 import path from 'path'
 import express from 'express'
-import store from '../state/store'
-import { serverError, serverLog } from '../log'
-import { overrideService } from '../state/reducers'
+import store from './state/store'
+import { serverError, serverLog } from './log'
+import { overrideService } from './state/reducers'
+import { apiPathPrefix, apiVersion } from './common'
 import {
   profileByIdSel,
   profilesSel,
@@ -12,17 +13,18 @@ import {
   serviceByIdSel,
   serviceIdByUrlSel,
   servicesSel
-} from '../state/selectors'
+} from './state/selectors'
 
-export const router = express.Router()
+export const apiRouter = express.Router()
+export const apiPath = `${apiPathPrefix}/${apiVersion}`
 
 // /ping GET
-router.get('/ping', (req, res) => {
+apiRouter.get('/ping', (req, res) => {
   res.send({ status: 'success', message: 'pong' })
 })
 
 // /veggie/api/v1/store/profile/:id GET
-router.get('/store/profile/:id', (req, res) => {
+apiRouter.get('/store/profile/:id', (req, res) => {
   const { id } = req.params
   const data = profileByIdSel(id)
 
@@ -34,19 +36,19 @@ router.get('/store/profile/:id', (req, res) => {
 })
 
 // /veggie/api/v1/store/profile/:id POST - save
-router.post('/store/profile/:id', (req, res) => {
+apiRouter.post('/store/profile/:id', (req, res) => {
   // TODO
   res.send({})
 })
 
 // /veggie/api/v1/store/profile/:id DELETE - delete
-router.delete('/store/profile/:id', (req, res) => {
+apiRouter.delete('/store/profile/:id', (req, res) => {
   // TODO
   res.send({})
 })
 
 // /veggie/api/v1/store/profile GET
-router.get('/store/profile', (req, res) => {
+apiRouter.get('/store/profile', (req, res) => {
   const data = profilesSel()
   res.send({ status: 'success', data })
 })
@@ -56,7 +58,7 @@ router.get('/store/profile', (req, res) => {
  * Save the current overrides to disk as a profile
  * /veggie/api/v1/store/profile POST - save
  */
-router.post('/store/profile', (req, res) => {
+apiRouter.post('/store/profile', (req, res) => {
   const { name } = req.body
   const profileDir = profileDirSel()
   const profileData = profileDataSel()
@@ -99,7 +101,7 @@ router.post('/store/profile', (req, res) => {
  * Load a previously saved profile from disk
  * /veggie/api/v1/store/profile PUT - load
  */
-router.put('/store/profile', (req, res) => {
+apiRouter.put('/store/profile', (req, res) => {
   const { id } = req.body
   const profile = profileById(id)
 
@@ -160,7 +162,7 @@ router.put('/store/profile', (req, res) => {
  * Reset all
  * /veggie/api/v1/store/profile DELETE - resetAll
  */
-router.delete('/store/profile', (req, res) => {
+apiRouter.delete('/store/profile', (req, res) => {
   const message = 'reseting on to all service defaults'
   serverLog(message)
 
@@ -182,7 +184,7 @@ router.delete('/store/profile', (req, res) => {
  * Show all service overrides and their override payload
  * /veggie/api/v1/store GET - internals
  */
-router.get('/store', (req, res) => {
+apiRouter.get('/store', (req, res) => {
   const data = servicesSel()
   res.send({ status: 'success', data })
 })
@@ -191,7 +193,7 @@ router.get('/store', (req, res) => {
  * New
  * /veggie/api/v1/store POST
  */
-router.post('/store', (req, res) => {
+apiRouter.post('/store', (req, res) => {
   // TODO: create new service with only an override
   res.send({})
 })
@@ -201,7 +203,7 @@ router.post('/store', (req, res) => {
  * Show the path of all overriden services
  * /veggie/api/v1/store/:id GET
  */
-router.get('/store/:id', (req, res) => {
+apiRouter.get('/store/:id', (req, res) => {
   const { id } = req.params
   const data = serviceByIdSel(id)
   res.send({ status: 'success', data })
@@ -212,7 +214,7 @@ router.get('/store/:id', (req, res) => {
  * Set the status code and response for a given service
  * /veggie/api/v1/store/:id POST - set, block, reset, hang
  */
-router.post('/store/:id', (req, res) => {
+apiRouter.post('/store/:id', (req, res) => {
   const { id } = req.params
   const { status, response, hang } = req.body
   const service = serviceByIdSel(id)
