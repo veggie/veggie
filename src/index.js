@@ -5,14 +5,14 @@ import uuid from 'uuid'
 import http from 'http'
 import express from 'express'
 import getPort from 'get-port'
-import bodyParser from 'body-parser'
 import store from './state/store'
+import bodyParser from 'body-parser'
+import * as fetchApi from './client'
+import { randomExclusive } from './utils'
+import { apiPath, apiRouter } from './server'
 import { routerSel } from './state/selectors'
 import { profileError, profileLog } from './log'
 import { formatService, servicesFromDir } from './service'
-import { randomExclusive } from './utils'
-import { apiPath, apiRouter } from './api'
-import * as fetchApi from './fetchClientApi'
 
 /**
  * Middleware that intercepts requests matching service routes or api paths
