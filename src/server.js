@@ -31,7 +31,7 @@ apiRouter.get('/store/profile/:id', (req, res) => {
   if (data) {
     res.send({ status: 'success', data })
   } else {
-    res.sendStatus(404, { status: 'failed' })
+    res.status(404).send({ status: 'failed' })
   }
 })
 
@@ -86,13 +86,13 @@ apiRouter.post('/store/profile', (req, res) => {
       const error = `saving ${profileName} profile failed at ${profilePath}`
       serverError(error)
 
-      res.sendStatus(500, { status: 'failed', error })
+      res.status(500).send({ status: 'failed', error })
     }
   } else {
     const error = 'save requires a name'
     serverError(error)
 
-    res.sendStatus(400, { status: 'failed', error })
+    res.status(400).send({ status: 'failed', error })
   }
 })
 
@@ -102,7 +102,6 @@ apiRouter.post('/store/profile', (req, res) => {
  * /veggie/api/v1/store/profile PUT - load
  */
 apiRouter.put('/store/profile', (req, res) => {
-  console.log('load profile', req.body.id)
   const { id } = req.body
   const profile = profileById(id)
 
@@ -130,7 +129,7 @@ apiRouter.put('/store/profile', (req, res) => {
         const error = `loading ${profile.name} profile failed at ${profilePath}`
         serverError(error)
 
-        return res.sendStatus(500, { status: 'failed', error })
+        return res.status(500).send({ status: 'failed', error })
       }
 
       const profileUrls = Object.keys(profileData)
@@ -161,7 +160,7 @@ apiRouter.put('/store/profile', (req, res) => {
     const error = `could not find profile with id ${id}`
     serverError(error)
 
-    res.sendStatus(400, { status: 'failed', error })
+    res.status(400).send({ status: 'failed', error })
   }
 })
 
@@ -170,7 +169,6 @@ apiRouter.put('/store/profile', (req, res) => {
  * /veggie/api/v1/store/profile DELETE - resetAll
  */
 apiRouter.delete('/store/profile', (req, res) => {
-  console.log('calling reset all')
   const message = 'reseting on to all service defaults'
   serverLog(message)
 
@@ -223,7 +221,6 @@ apiRouter.get('/store/:id', (req, res) => {
  * /veggie/api/v1/store/:id POST - set, block, reset, hang
  */
 apiRouter.post('/store/:id', (req, res) => {
-  console.log('calling set')
   const { id } = req.params
   const { status, response, hang } = req.body
   const service = serviceByIdSel(id)
@@ -242,16 +239,19 @@ apiRouter.post('/store/:id', (req, res) => {
 
     store.dispatch(state => {
       state.id = uuid.v4()
-      state.services.byId[id] = override
-      serverLog(`setting override on ${service.url} service with ${override.status} status`)
+      state.services.byId[id].override = override
 
       return state
     })
 
-    return message
+    const message = `setting override on ${service.url} service with ${override} status`
+    serverLog(message)
+
+    res.send({ status: 'success', message })
   } else {
-    let error = `could not find ${serviceUrl} service to override`
+    const error = `could not find ${service.url} service to override`
     serverError(error)
-    throw new Error(error)
+
+    res.status(400).send({ status: 'failed', error })
   }
 })

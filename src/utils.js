@@ -18,12 +18,12 @@ export const randomExclusive = max => Math.floor(Math.random() * max)
  * Returns an express route handler for the given user-defined response
  *
  * @param {function|object|string} response - The service response
- * @param [optional] {number} statusCode - status code to be used for response
+ * @param [optional] {number} status - status code to be used for response
  * @returns {(req: Express Request, res: Express Response) => void}
  */
 export function getRouteHandler (id) {
   const service = serviceByIdSel(id)
-  const { hang, response, statusCode, type } = service.override || service
+  const { hang, response, status, type } = service.override || service
 
   if (hang) {
     return () => {}
@@ -40,20 +40,20 @@ export function getRouteHandler (id) {
         serverError(e)
       }
       if (data) {
-        res.status(statusCode || 200).json(data)
+        res.status(status || 200).json(data)
       }
       else {
-        res.status(statusCode || 404).json({})
+        res.status(status || 404).json({})
       }
     }
   } else {
     // JSON object
     return (req, res) => {
       if (response) {
-        res.status(statusCode || 200).json(response)
+        res.status(status || 200).json(response)
       }
       else {
-        res.status(statusCode || 404).json({})
+        res.status(status || 404).json({})
       }
     }
   }
@@ -65,8 +65,8 @@ export function getRouteHandler (id) {
  * @param {string} url
  * @returns {object} query
  */
-export function getQueryFromUrl (url) {
-  let [ baseUrl, query ] = url.split('?')
+export function getQueryFromUrl (full) {
+  let [ baseUrl, query ] = full.split('?')
   query = query || null
   let queryString = null
 
@@ -85,7 +85,7 @@ export function getQueryFromUrl (url) {
       .join('&')
   }
 
-  return { baseUrl, query, queryString }
+  return { baseUrl, query, queryString, full }
 }
 
 export function getQueryHandler (ids) {
@@ -152,7 +152,7 @@ export function formatService (url, config) {
   return {
     id: uuid.v4(),
     url: getQueryFromUrl(url),
-    statusCode: config.status || 200,
+    status: config.status || 200,
     method: (config.method || 'all').toLowerCase(),
     response: config.method ? config.response : config,
     type: typeof config

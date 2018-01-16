@@ -19,7 +19,7 @@ const serverSettings = {
 }
 
 // Tests to run
-const tests = [/*{
+const tests = [{
   type: 'middleware',
   init () {
     let app = express()
@@ -27,7 +27,7 @@ const tests = [/*{
 
     return app
   }
-}, */{
+}, {
   type: 'router',
   init () {
     let app = veggie.server(serverSettings)
@@ -37,7 +37,7 @@ const tests = [/*{
 }]
 
 describe('a server', () => {
-  xdescribe('started with a profile', () => {
+  describe('started with a profile', () => {
     let app
     before(() => {
       app = veggie.server({
@@ -61,14 +61,8 @@ describe('a server', () => {
 
     it('will load profile and return correct data', () => {
       return fetchJSON('/obj')
-        .then(() => {
-          console.log('got here')
-          assert(false)
-        }) // Fail
-        .catch(e => {
-          console.log('error', e)
-          assert(/409/.test(e))
-        })
+        .then(() => assert(false)) // Fail
+        .catch(e => assert(/409/.test(e)))
     })
   })
 

@@ -1,15 +1,17 @@
 import { api } from '../src'
 
 async function getServiceId (url) {
-  const store = await api.getAllServices()
+  const res = await api.getAllServices()
+  const store = res.data
   const id = store.ids
-    .find(id => url === store.byId[id].url)
+    .find(id => url === store.byId[id].url.full)
 
   return id
 }
 
 async function getProfileId (name) {
-  const store = await api.getAllProfiles()
+  const res = await api.getAllProfiles()
+  const store = res.data
   const id = store.ids
     .find(id => name === store.byId[id].name)
 
