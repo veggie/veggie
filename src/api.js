@@ -3,7 +3,6 @@ import path from 'path'
 import express from 'express'
 import store from './state/store'
 import { serverError, serverLog } from './log'
-import { overrideService } from './state/reducers'
 import { apiPathPrefix, apiVersion } from './common'
 import {
   profileByIdSel,
@@ -170,7 +169,7 @@ apiRouter.delete('/store/profile', (req, res) => {
     state.profiles.current = null
     state.profiles.data = null
     state.services.ids.forEach(id => {
-      overrideService(state.services.byId[id], null)
+      state.services.byId[id] = null
     })
 
     return state
@@ -232,7 +231,7 @@ apiRouter.post('/store/:id', (req, res) => {
         }
       }
 
-      state.services.byId[id] = overrideService(service, override)
+      state.services.byId[id] = override
       serverLog(`setting override on ${service.url} service with ${override.status} status`)
 
       return state
