@@ -40,7 +40,7 @@ export default [
   // API
   {
     banner: packageBanner,
-    input: './src/fetchClientApi.js',
+    input: './src/client.js',
     name: 'veggie',
     output: { file: pkg.browser, format: 'umd' },
     plugins: [ babel(), nodeResolve() ]
