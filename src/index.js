@@ -8,11 +8,10 @@ import getPort from 'get-port'
 import store from './state/store'
 import bodyParser from 'body-parser'
 import * as fetchApi from './client'
-import { randomExclusive } from './utils'
 import { apiPath, apiRouter } from './server'
 import { routerSel } from './state/selectors'
 import { profileError, profileLog } from './log'
-import { formatService, servicesFromDir } from './service'
+import { formatService, servicesFromDir, randomExclusive } from './utils'
 
 /**
  * Middleware that intercepts requests matching service routes or api paths
@@ -131,10 +130,13 @@ function router ({
           if (profile && profile === name) {
             state.profiles.current = id
           }
+          // TODO: Load profile into services
         })
     } catch (e) {
       profileError(`error reading profileDir ${profileDir} ${e}`)
     }
+
+    state.id = uuid.v4()
 
     return state
   })
@@ -142,6 +144,11 @@ function router ({
   const router = express.Router()
 
   router.use(bodyParser.json({ limit: '50mb' }))
+  // TODO: for debugging, remove
+  router.use((req, res, next) => {
+    console.log(req.url, req.method)
+    next()
+  })
   router.use(apiPath, apiRouter)
   router.use((req, res, next) => {
     const serviceRouter = routerSel()

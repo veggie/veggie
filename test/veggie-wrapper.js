@@ -19,7 +19,7 @@ async function getProfileId (name) {
 export async function block (url) {
   const id = await getServiceId(url)
   const payload = { status: 404, response: {} }
-  const res = await veggie.setService({ id, payload })
+  const res = await api.setService({ id, payload })
 
   return res
 }
@@ -27,14 +27,14 @@ export async function block (url) {
 export async function hang (url) {
   const id = await getServiceId(url)
   const payload = { hang: true }
-  const res = await veggie.setService({ id, payload })
+  const res = await api.setService({ id, payload })
 
   return res
 }
 
 export async function load (name) {
   const id = await getProfileId(name)
-  const res = await veggie.loadProfile({ id })
+  const res = await api.loadProfile({ id })
 
   return res
 }
@@ -42,14 +42,14 @@ export async function load (name) {
 export async function reset (url) {
   const id = await getServiceId(url)
   const payload = {}
-  const res = await veggie.setService({ id, payload })
+  const res = await api.setService({ id, payload })
 
   return res
 }
 
 export async function save (name) {
   const payload = { name }
-  const res = await veggie.saveProfile({ payload })
+  const res = await api.saveProfile({ payload })
 
   return res
 }
@@ -57,7 +57,7 @@ export async function save (name) {
 export async function set (url, status, response) {
   const id = await getServiceId(url)
   const payload = { status, response }
-  const res = await veggie.setService({ id, payload })
+  const res = await api.setService({ id, payload })
 
   return res
 }

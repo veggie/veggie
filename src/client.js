@@ -75,10 +75,10 @@ function fetchWrapper(path, options) {
   return fetch(`${fetchOrigin}${path}`, options)
 }
 
-export function apiCall ({ url, params, method }, hardcodedPayload) {
+function apiCall ({ url, params, method }, hardcodedPayload) {
   return async (args = {}) => {
     const { id, payload } = args
-    let apiPath = `${apiConfig.url}/${url}`
+    let apiPath = `${apiConfig.url}${url}`
 
     if (params && id) {
       apiPath = `${apiPath}/${id}`

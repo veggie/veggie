@@ -19,7 +19,7 @@ const serverSettings = {
 }
 
 // Tests to run
-const tests = [{
+const tests = [/*{
   type: 'middleware',
   init () {
     let app = express()
@@ -27,7 +27,7 @@ const tests = [{
 
     return app
   }
-}, {
+}, */{
   type: 'router',
   init () {
     let app = veggie.server(serverSettings)
@@ -37,7 +37,7 @@ const tests = [{
 }]
 
 describe('a server', () => {
-  describe('started with a profile', () => {
+  xdescribe('started with a profile', () => {
     let app
     before(() => {
       app = veggie.server({
