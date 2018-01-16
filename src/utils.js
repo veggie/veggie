@@ -2,7 +2,6 @@ import path from 'path'
 import glob from 'glob'
 import uuid from 'uuid'
 import store from './state/store'
-import { getQueryFromUrl } from './utils'
 import { profileError, serverError } from './log'
 import { delaySel, serviceByIdSel } from './state/selectors'
 
@@ -23,9 +22,12 @@ export const randomExclusive = max => Math.floor(Math.random() * max)
  * @returns {(req: Express Request, res: Express Response) => void}
  */
 export function getRouteHandler (id) {
-  const { statusCode, response, type } = serviceByIdSel(id)
+  const service = serviceByIdSel(id)
+  const { hang, response, statusCode, type } = service.override || service
 
-  if (type === 'function') {
+  if (hang) {
+    return () => {}
+  } else if (type === 'function') {
     // Express route - will need to handle status code itself
     return response
   } else if (type === 'string') {
@@ -104,11 +106,11 @@ export function getQueryHandler (ids) {
       numParamsB = Object.keys(urlB.query).length
     }
 
-    return numParamsA - numParamsB
+    return numParamsB - numParamsA
   })
 
   return (req, res) => {
-    const match = ids.find(id => {
+    const match = ids.find((id, index) => {
       const { url } = byId[id]
 
       if (url.query === null) {
@@ -116,7 +118,7 @@ export function getQueryHandler (ids) {
         return true
       } else {
         return Object.keys(url.query)
-          .every(key => req.params[key] === url.query[key])
+          .every(key => req.query[key] === url.query[key])
       }
     })
 

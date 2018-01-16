@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import uuid from 'uuid'
 import express from 'express'
 import store from './state/store'
 import { serverError, serverLog } from './log'
@@ -101,38 +102,50 @@ apiRouter.post('/store/profile', (req, res) => {
  * /veggie/api/v1/store/profile PUT - load
  */
 apiRouter.put('/store/profile', (req, res) => {
+  console.log('load profile', req.body.id)
   const { id } = req.body
   const profile = profileById(id)
 
   if (profile) {
-    const profileDir = profileDirSel()
-    let profilePath = profile.name
+    let profileData = profile.data
 
-    try {
-      // Add json extension
-      if (!profilePath.includes('.json')) {
-        profilePath = `${profilePath}.json`
+    if (!profileData) {
+      const profileDir = profileDirSel()
+      let profilePath = profile.name
+
+      try {
+        // Add json extension
+        if (!profilePath.includes('.json')) {
+          profilePath = `${profilePath}.json`
+        }
+
+        // Make path absolute
+        if (!path.isAbsolute(profilePath)) {
+          profilePath = path.join(profileDir, profilePath)
+        }
+
+        const fileData = fs.readFileSync(profilePath)
+        profileData = JSON.parse(fileData)
+      } catch (e) {
+        const error = `loading ${profile.name} profile failed at ${profilePath}`
+        serverError(error)
+
+        return res.sendStatus(500, { status: 'failed', error })
       }
 
-      // Make path absolute
-      if (!path.isAbsolute(profilePath)) {
-        profilePath = path.join(profileDir, profilePath)
-      }
-
-      const fileData = fs.readFileSync(profilePath)
-      const profileData = JSON.parse(fileData)
-
+      const profileUrls = Object.keys(profileData)
       store.dispatch(state => {
-        const profileUrls = Object.keys(profileData)
-        state.profiles.data = profileData
+        state.id = uuid.v4()
+        state.profiles.current = id
+        state.profiles.byId[id].data = profileData
 
         state.services.ids.forEach(id => {
-          const service = state.services.byId[id]
+          const { url } = state.services.byId[id]
 
-          if (profileUrls.indexOf(service.url) > -1) {
-            service.override = profileData[service.url]
+          if (profileUrls.includes(url)) {
+            state.services.byId[id].override = profileData[url]
           } else {
-            service.override = null
+            state.services.byId[id].override = null
           }
         })
 
@@ -143,11 +156,6 @@ apiRouter.put('/store/profile', (req, res) => {
       serverLog(message)
 
       res.send({ status: 'success', message })
-    } catch (e) {
-      const error = `loading ${profile.name} profile failed at ${profilePath}`
-      serverError(error)
-
-      res.sendStatus(500, { status: 'failed', error })
     }
   } else {
     const error = `could not find profile with id ${id}`
@@ -162,14 +170,15 @@ apiRouter.put('/store/profile', (req, res) => {
  * /veggie/api/v1/store/profile DELETE - resetAll
  */
 apiRouter.delete('/store/profile', (req, res) => {
+  console.log('calling reset all')
   const message = 'reseting on to all service defaults'
   serverLog(message)
 
   store.dispatch(state => {
+    state.id = uuid.v4()
     state.profiles.current = null
-    state.profiles.data = null
     state.services.ids.forEach(id => {
-      state.services.byId[id] = null
+      state.services.byId[id].override = null
     })
 
     return state
@@ -214,23 +223,25 @@ apiRouter.get('/store/:id', (req, res) => {
  * /veggie/api/v1/store/:id POST - set, block, reset, hang
  */
 apiRouter.post('/store/:id', (req, res) => {
+  console.log('calling set')
   const { id } = req.params
   const { status, response, hang } = req.body
   const service = serviceByIdSel(id)
 
   if (service) {
-    store.dispatch(state => {
-      let override
-      if (!status && !response) {
-        override = null
-      } else {
-        override = {
-          status: status || 404,
-          response: response || {},
-          hang: hang || false
-        }
+    let override
+    if (!status && !response) {
+      override = null
+    } else {
+      override = {
+        status: status || 404,
+        response: response || {},
+        hang: hang || false
       }
+    }
 
+    store.dispatch(state => {
+      state.id = uuid.v4()
       state.services.byId[id] = override
       serverLog(`setting override on ${service.url} service with ${override.status} status`)
 
