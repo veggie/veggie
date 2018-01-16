@@ -99,13 +99,16 @@ function router ({
     throw new Error('veggie: dir is required')
   }
 
+  // Clear stored state
+  store.clear()
+
   // Settings
   store.dispatch(state => {
     // Logging
     state.log = log
 
     // Time delay
-    if (time) {
+    if (time !== null) {
       state.delay = time
     }
 
@@ -144,11 +147,6 @@ function router ({
   const router = express.Router()
 
   router.use(bodyParser.json({ limit: '50mb' }))
-  // TODO: for debugging, remove
-  router.use((req, res, next) => {
-    console.log(req.url, req.method)
-    next()
-  })
   router.use(apiPath, apiRouter)
   router.use((req, res, next) => {
     const serviceRouter = routerSel()

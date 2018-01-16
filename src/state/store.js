@@ -1,4 +1,4 @@
-let state = {
+const defaultState = {
   id: null,
   delay: 1000,
   log: true,
@@ -15,7 +15,12 @@ let state = {
   }
 }
 
+let state = defaultState
+
 export default {
+  clear () {
+    state = defaultState
+  },
   dispatch (reducer) {
     let newState = reducer(Object.assign({}, state))
 

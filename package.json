@@ -12,7 +12,7 @@
     "build": "rollup -c rollup.config.js",
     "build:test": "rollup -c rollup.test.config.js",
     "commit": "commit",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "coverage": "nyc report --reporter=lcov | coveralls",
     "preversion": "npm test",
     "version": "npm run build # Get latest version for banners",
     "postversion": "git push && git push --tags && npm publish",

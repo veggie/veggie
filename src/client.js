@@ -13,59 +13,64 @@ import { apiPathPrefix, apiVersion } from './common'
 // /veggie/api/v1/store/profile/:id - POST - updateProfile
 // /veggie/api/v1/store/profile/:id - DELETE - deleteProfile
 
+const GET = 'get'
+const POST = 'post'
+const PUT = 'put'
+const DELETE = 'delete'
+
 const apiConfig = {
   url: `${apiPathPrefix}/${apiVersion}`,
   ping: {
     url: '/ping',
-    method: 'get'
+    method: GET
   },
   getAllServices: {
     url: '/store',
-    method: 'get'
+    method: GET
   },
   newService: {
     url: '/store',
-    method: 'post'
+    method: POST
   },
   getService: {
     url: '/store',
-    method: 'get',
+    method: GET,
     params: true
   },
   setService: {
     url: '/store',
-    method: 'post',
+    method: POST,
     params: true
   },
   getAllProfiles: {
     url: '/store/profile',
-    method: 'get'
+    method: GET
   },
   saveProfile: {
     url: '/store/profile',
-    method: 'post'
+    method: POST
   },
   loadProfile: {
     url: '/store/profile',
-    method: 'put'
+    method: PUT
   },
   resetProfile: {
     url: '/store/profile',
-    method: 'delete'
+    method: DELETE
   },
   getProfile: {
     url: '/store/profile',
-    method: 'get',
+    method: GET,
     params: true
   },
   updateProfile: {
     url: '/store/profile',
-    method: 'post',
+    method: POST,
     params: true
   },
   deleteProfile: {
     url: '/store/profile',
-    method: 'post',
+    method: POST,
     params: true
   }
 }
