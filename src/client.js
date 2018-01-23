@@ -20,59 +20,30 @@ const DELETE = 'delete'
 
 const apiConfig = {
   url: `${apiPathPrefix}/${apiVersion}`,
-  ping: {
-    url: '/ping',
-    method: GET
-  },
-  getAllServices: {
-    url: '/store',
-    method: GET
-  },
-  newService: {
-    url: '/store',
-    method: POST
-  },
-  getService: {
-    url: '/store',
-    method: GET,
-    params: true
-  },
-  setService: {
-    url: '/store',
-    method: POST,
-    params: true
-  },
-  getAllProfiles: {
-    url: '/store/profile',
-    method: GET
-  },
-  saveProfile: {
-    url: '/store/profile',
-    method: POST
-  },
-  loadProfile: {
-    url: '/store/profile',
-    method: PUT
-  },
-  resetProfile: {
-    url: '/store/profile',
-    method: DELETE
-  },
-  getProfile: {
-    url: '/store/profile',
-    method: GET,
-    params: true
-  },
-  updateProfile: {
-    url: '/store/profile',
-    method: POST,
-    params: true
-  },
-  deleteProfile: {
-    url: '/store/profile',
-    method: POST,
-    params: true
-  }
+  ping:
+  { url: '/ping', method: GET },
+  getAllServices:
+  { url: '/store', method: GET },
+  newService:
+  { url: '/store', method: POST },
+  getService:
+  { url: '/store', method: GET, params: true },
+  setService:
+  { url: '/store', method: POST, params: true },
+  getAllProfiles:
+  { url: '/store/profile', method: GET },
+  saveProfile:
+  { url: '/store/profile', method: POST },
+  loadProfile:
+  { url: '/store/profile', method: PUT },
+  resetProfile:
+  { url: '/store/profile', method: DELETE },
+  getProfile:
+  { url: '/store/profile', method: GET, params: true },
+  updateProfile:
+  { url: '/store/profile', method: POST, params: true },
+  deleteProfile:
+  { url: '/store/profile', method: DELETE, params: true }
 }
 
 let fetchOrigin = ''

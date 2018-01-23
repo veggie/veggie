@@ -1,7 +1,5 @@
 import 'babel-polyfill'
-import fs from 'fs'
 import url from 'url'
-import uuid from 'uuid'
 import http from 'http'
 import express from 'express'
 import getPort from 'get-port'
@@ -11,7 +9,13 @@ import * as fetchApi from './client'
 import { apiPath, apiRouter } from './server'
 import { routerSel } from './state/selectors'
 import { profileError, profileLog } from './log'
-import { formatService, servicesFromDir, randomExclusive } from './utils'
+import {
+  breakRouterCache,
+  getAvailableProfiles,
+  setCurrentProfileName,
+  setServices,
+  setSettings
+} from './state/reducers'
 
 /**
  * Middleware that intercepts requests matching service routes or api paths
@@ -99,50 +103,17 @@ function router ({
     throw new Error('veggie: dir is required')
   }
 
-  // Clear stored state
-  store.clear()
+  // Initialize stored state
+  store.init()
 
-  // Settings
-  store.dispatch(state => {
-    // Logging
-    state.log = log
-
-    // Time delay
-    if (time !== null) {
-      state.delay = time
-    }
-
-    // Services
-    for (let { url, config } of servicesFromDir(dir)) {
-      const service = formatService(url, config)
-      const { id } = service
-      state.services.ids.push(id)
-      state.services.byId[id] = service
-    }
-
-    // Profile
-    profileDir = profileDir || process.cwd()
-    state.profiles.dir = profileDir
-
-    try {
-      fs.readdirSync(profileDir)
-        .forEach(name => {
-          const id = uuid.v4()
-          state.profiles.ids.push(id)
-          state.profiles.byId[id] = { id, name }
-          if (profile && profile === name) {
-            state.profiles.current = id
-          }
-          // TODO: Load profile into services
-        })
-    } catch (e) {
-      profileError(`error reading profileDir ${profileDir} ${e}`)
-    }
-
-    state.id = uuid.v4()
-
-    return state
-  })
+  // Initialize state
+  store.dispatch(
+    setSettings({ log, profileDir, time }),
+    setServices(dir),
+    getAvailableProfiles(),
+    setCurrentProfileName(profile),
+    breakRouterCache()
+  )
 
   const router = express.Router()
 

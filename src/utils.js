@@ -154,7 +154,7 @@ export function formatService (url, config) {
     url: getQueryFromUrl(url),
     status: config.status || 200,
     method: (config.method || 'all').toLowerCase(),
-    response: config.method ? config.response : config,
+    response: config.response ? config.response : config,
     type: typeof config
   }
 }
