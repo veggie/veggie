@@ -22,3 +22,7 @@ export function fetchJSON (url, opts) {
     }
   })
 }
+
+export function includesArray (arr, included) {
+  return arr.every(el => included.includes(el))
+}
