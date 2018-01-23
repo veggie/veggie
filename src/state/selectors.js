@@ -10,15 +10,6 @@ export function logSel () {
   return store.getState().log
 }
 
-export function serviceIdByUrlSel (url) {
-  const state = store.getState()
-  const id = state.services.ids.find(id => {
-    return state.services.byId[id].url === url
-  })
-
-  return id
-}
-
 export function serviceByIdSel (id) {
   return store.getState().services.byId[id]
 }
@@ -28,7 +19,7 @@ export function servicesSel () {
 }
 
 export function profilesSel () {
-  return store.getState().profiles.byId
+  return store.getState().profiles
 }
 
 export function profileByIdSel (id) {
@@ -39,8 +30,21 @@ export function profileDirSel () {
   return store.getState().profiles.dir
 }
 
-export function profileDataSel () {
-  return store.getState().profiles.data
+export function currentOverridesSel () {
+  const { ids, byId } = store.getState().services
+  const map = ids
+    .reduce((acc, id) => {
+      const service = byId[id]
+      const { method, status, url } = service
+
+      if (service.override) {
+        acc[url.full] = service.override
+      }
+
+      return acc
+    }, {})
+
+    return map
 }
 
 const routerCache = {}
@@ -53,7 +57,7 @@ export function routerSel () {
   const map = ids
     .reduce((acc, id) => {
       const service = byId[id]
-      const method = service.method
+      const { method } = service
       const url = service.url.baseUrl
 
       acc[method] = acc[method] || {}

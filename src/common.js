@@ -1,5 +1,5 @@
 /**
- *
+ * API version
  */
 export const apiVersion = 'v1'
 

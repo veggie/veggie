@@ -8,22 +8,41 @@ import { apiPathPrefix, apiVersion } from './common'
 import {
   profileByIdSel,
   profilesSel,
-  profileDataSel,
   profileDirSel,
   serviceByIdSel,
-  serviceIdByUrlSel,
   servicesSel
 } from './state/selectors'
+import {
+  breakRouterCache,
+  deleteProfile,
+  newServiceWithOverride,
+  setCurrentProfileId,
+  setStateAsProfile,
+  setOverride,
+  updateProfileWithState
+} from './state/reducers'
 
 export const apiRouter = express.Router()
 export const apiPath = `${apiPathPrefix}/${apiVersion}`
 
-// /ping GET
+/**
+ * ping
+ *
+ * @method GET
+ * @path /ping
+ */
 apiRouter.get('/ping', (req, res) => {
   res.send({ status: 'success', message: 'pong' })
 })
 
-// /veggie/api/v1/store/profile/:id GET
+/**
+ * getService
+ *
+ * @method GET
+ * @path /veggie/api/v1/store/profile/:id
+ *
+ * @params id
+ */
 apiRouter.get('/store/profile/:id', (req, res) => {
   const { id } = req.params
   const data = profileByIdSel(id)
@@ -35,59 +54,95 @@ apiRouter.get('/store/profile/:id', (req, res) => {
   }
 })
 
-// /veggie/api/v1/store/profile/:id POST - save
+/**
+ * updateProfile
+ *
+ * @method POST
+ * @path /veggie/api/v1/store/profile/:id
+ * @params id
+ */
 apiRouter.post('/store/profile/:id', (req, res) => {
-  // TODO
-  res.send({})
+  const { id } = req.params
+  const profile = profileByIdSel(id)
+
+  if (profile) {
+    let message = `updating profile ${id}`
+
+    store.dispatch(
+      updateProfileWithState(id)
+    )
+
+    serverLog(message)
+    res.send({ status: 'success', message })
+  } else {
+    const error = 'profile not found'
+    serverError(error)
+
+    res.status(400).send({ status: 'failed', error })
+  }
 })
 
-// /veggie/api/v1/store/profile/:id DELETE - delete
+/**
+ * deleteProfile
+ *
+ * @path /veggie/api/v1/store/profile/:id
+ * @method DELETE
+ * @params id
+ */
 apiRouter.delete('/store/profile/:id', (req, res) => {
-  // TODO
-  res.send({})
+  const { id } = req.params
+  let message
+
+  if (profilesSel().current === id) {
+    message = `deleting current profile ${id}`
+    store.dispatch(
+      setCurrentProfileId(null),
+      deleteProfile(id),
+      breakRouterCache()
+    )
+  } else {
+    message = `deleting profile ${id}`
+    store.dispatch(
+      deleteProfile(id)
+    )
+  }
+
+  serverLog(message)
+  res.send({ status: 'success', message })
 })
 
-// /veggie/api/v1/store/profile GET
+/**
+ * getAllProfiles
+ *
+ * @method GET
+ * @path /veggie/api/v1/store/profile
+ */
 apiRouter.get('/store/profile', (req, res) => {
   const data = profilesSel()
   res.send({ status: 'success', data })
 })
 
 /**
- * Save
- * Save the current overrides to disk as a profile
- * /veggie/api/v1/store/profile POST - save
+ * saveProfile
+ *
+ * Save the current overrides to disk as a new profile
+ *
+ * @method POST
+ * @path /veggie/api/v1/store/profile
+ * @body {string} name
  */
 apiRouter.post('/store/profile', (req, res) => {
   const { name } = req.body
-  const profileDir = profileDirSel()
-  const profileData = profileDataSel()
 
   if (name) {
-    let profilePath = name
-    try {
-      // Add json extension
-      if (!profilePath.includes('.json')) {
-        profilePath = `${profilePath}.json`
-      }
+    store.dispatch(
+      setStateAsProfile(name)
+    )
 
-      // Make path absolute
-      if (!path.isAbsolute(profilePath)) {
-        profilePath = path.join(profileDir, profilePath)
-      }
+    const message = `saving ${name} profile`
+    serverLog(message)
 
-      fs.writeFileSync(profilePath, JSON.stringify(profileData, null, 2))
-
-      const message = `saving ${name} profile`
-      serverLog(message)
-
-      res.send({ status: 'success', message })
-    } catch (e) {
-      const error = `saving ${profileName} profile failed at ${profilePath}`
-      serverError(error)
-
-      res.status(500).send({ status: 'failed', error })
-    }
+    res.send({ status: 'success', message })
   } else {
     const error = 'save requires a name'
     serverError(error)
@@ -97,65 +152,27 @@ apiRouter.post('/store/profile', (req, res) => {
 })
 
 /**
- * Load
+ * loadProfile
+ *
  * Load a previously saved profile from disk
- * /veggie/api/v1/store/profile PUT - load
+ *
+ * @method PUT
+ * @path /veggie/api/v1/store/profile
  */
 apiRouter.put('/store/profile', (req, res) => {
   const { id } = req.body
-  const profile = profileById(id)
+  const profile = profileByIdSel(id)
 
-  if (profile) {
-    let profileData = profile.data
+  if (id) {
+    store.dispatch(
+      setCurrentProfileId(id),
+      breakRouterCache()
+    )
 
-    if (!profileData) {
-      const profileDir = profileDirSel()
-      let profilePath = profile.name
+    const message = `loading ${profile.name} profile`
+    serverLog(message)
 
-      try {
-        // Add json extension
-        if (!profilePath.includes('.json')) {
-          profilePath = `${profilePath}.json`
-        }
-
-        // Make path absolute
-        if (!path.isAbsolute(profilePath)) {
-          profilePath = path.join(profileDir, profilePath)
-        }
-
-        const fileData = fs.readFileSync(profilePath)
-        profileData = JSON.parse(fileData)
-      } catch (e) {
-        const error = `loading ${profile.name} profile failed at ${profilePath}`
-        serverError(error)
-
-        return res.status(500).send({ status: 'failed', error })
-      }
-
-      const profileUrls = Object.keys(profileData)
-      store.dispatch(state => {
-        state.id = uuid.v4()
-        state.profiles.current = id
-        state.profiles.byId[id].data = profileData
-
-        state.services.ids.forEach(id => {
-          const { url } = state.services.byId[id]
-
-          if (profileUrls.includes(url)) {
-            state.services.byId[id].override = profileData[url]
-          } else {
-            state.services.byId[id].override = null
-          }
-        })
-
-        return state
-      })
-
-      const message = `loading ${profile.name} profile`
-      serverLog(message)
-
-      res.send({ status: 'success', message })
-    }
+    res.send({ status: 'success', message })
   } else {
     const error = `could not find profile with id ${id}`
     serverError(error)
@@ -165,30 +182,32 @@ apiRouter.put('/store/profile', (req, res) => {
 })
 
 /**
- * Reset all
- * /veggie/api/v1/store/profile DELETE - resetAll
+ * resetProfile
+ *
+ * Reset all services to their initial configuration
+ *
+ * @method DELETE
+ * @path /veggie/api/v1/store/profile
  */
 apiRouter.delete('/store/profile', (req, res) => {
   const message = 'reseting on to all service defaults'
   serverLog(message)
 
-  store.dispatch(state => {
-    state.id = uuid.v4()
-    state.profiles.current = null
-    state.services.ids.forEach(id => {
-      state.services.byId[id].override = null
-    })
-
-    return state
-  })
+  store.dispatch(
+    setCurrentProfileId(null),
+    breakRouterCache()
+  )
 
   res.send({ status: 'success', message })
 })
 
 /**
- * Show all
+ * getAllServices
+ *
  * Show all service overrides and their override payload
- * /veggie/api/v1/store GET - internals
+ *
+ * @method GET
+ * @path /veggie/api/v1/store
  */
 apiRouter.get('/store', (req, res) => {
   const data = servicesSel()
@@ -196,18 +215,30 @@ apiRouter.get('/store', (req, res) => {
 })
 
 /**
- * New
- * /veggie/api/v1/store POST
+ * newService
+ *
+ * @method POST
+ * @path /veggie/api/v1/store
  */
 apiRouter.post('/store', (req, res) => {
-  // TODO: create new service with only an override
-  res.send({})
+  store.dispatch(
+    newServiceWithOverride(req.body),
+    breakRouterCache()
+  )
+
+  const message = `creating new service ${req.body.url}`
+  serverLog(message)
+  res.send({ status: 'success', message })
 })
 
 /**
- * Show
- * Show the path of all overriden services
- * /veggie/api/v1/store/:id GET
+ * getService
+ *
+ * Get the configuration for an individual service
+ *
+ * @method GET
+ * @path /veggie/api/v1/store/:id
+ * @params id
  */
 apiRouter.get('/store/:id', (req, res) => {
   const { id } = req.params
@@ -216,42 +247,45 @@ apiRouter.get('/store/:id', (req, res) => {
 })
 
 /**
- * Set
+ * setService
+ *
  * Set the status code and response for a given service
- * /veggie/api/v1/store/:id POST - set, block, reset, hang
+ *
+ * @method POST
+ * @path /veggie/api/v1/store/:id
+ * @params id
+ * @body {number} status
+ * @body {object} response
+ * @body {boolean} hang
  */
 apiRouter.post('/store/:id', (req, res) => {
   const { id } = req.params
-  const { status, response, hang } = req.body
+  const { status } = req.body
   const service = serviceByIdSel(id)
 
   if (service) {
     let override
-    if (!status && !response) {
+    const hasOverrides = Object.keys(req.body).length > 0
+    if (!hasOverrides) {
       override = null
     } else {
-      override = {
-        status: status || 404,
-        response: response || {},
-        hang: hang || false
-      }
+      override = Object.assign(
+        { status: 404, response: {}, hang: false },
+        req.body
+      )
     }
 
-    store.dispatch(state => {
-      state.id = uuid.v4()
-      state.services.byId[id].override = override
+    store.dispatch(
+      setOverride(service.id, override),
+      breakRouterCache()
+    )
 
-      return state
-    })
-
-    const message = `setting override on ${service.url} service with ${override} status`
+    const message = `setting override on ${service.url.full} service with ${override && override.status} status`
     serverLog(message)
-
     res.send({ status: 'success', message })
   } else {
     const error = `could not find ${service.url} service to override`
     serverError(error)
-
     res.status(400).send({ status: 'failed', error })
   }
 })
