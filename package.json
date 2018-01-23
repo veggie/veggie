@@ -1,6 +1,6 @@
 {
   "name": "veggie",
-  "version": "3.0.0-beta.1",
+  "version": "3.0.0-beta.2",
   "description": "Interactive mock server for profiling user scenarios",
   "main": "dist/veggie.js",
   "module": "dist/veggie.es.js",
