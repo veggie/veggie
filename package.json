@@ -21,7 +21,7 @@
     "serve:watch": "nodemon -w src -x 'npm run serve'",
     "pretest": "npm run build:test",
     "test": "nyc --reporter=html --reporter=text mocha dist/veggie.test.js",
-    "test:watch": "nodemon -w src -w test -x 'npm test'"
+    "test:watch": "nodemon -w src --ignore test/profiles -w test -x 'npm test'"
   },
   "repository": {
     "type": "git",
