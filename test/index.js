@@ -1,5 +1,4 @@
 import { getNewPort, fetchJSON, includesArray } from './utils'
-import { getProfileId, getServiceId, hang, set } from './veggie-wrapper'
 import * as veggie from '../src'
 
 const assert = require('assert')
@@ -7,7 +6,6 @@ const express = require('express')
 const fs = require('fs')
 const path = require('path')
 
-// API
 const veggieApi = veggie.api
 
 // Server settings
@@ -80,7 +78,7 @@ describe('a server', () => {
       })
 
       beforeEach(() => {
-        return veggieApi.resetProfile()
+        return veggieApi._resetProfile()
       })
 
       after(() => {
@@ -202,13 +200,13 @@ describe('a server', () => {
 
       describe('api', () => {
         it('will pong a ping', () => {
-          return veggieApi.ping()
+          return veggieApi._ping()
             .then(res => assert(res.message === 'pong'))
             .catch(() => assert(false)) // Fail
         })
 
         it('can get all loaded service configs', () => {
-          return veggieApi.getAllServices()
+          return veggieApi._getAllServices()
             .then(res => {
               const firstKeys = ['status', 'data']
               const hasFirstKeys = includesArray(Object.keys(res), firstKeys)
@@ -221,9 +219,9 @@ describe('a server', () => {
         })
 
         it('can get the config for a single service', () => {
-          return getServiceId('/obj')
+          return veggieApi._getServiceId('/obj')
             .then(id => {
-              return veggieApi.getService({ id })
+              return veggieApi._getService({ id })
             })
             .then(res => {
               const firstKeys = ['status', 'data']
@@ -237,7 +235,7 @@ describe('a server', () => {
         })
 
         it('can get all available profiles', () => {
-          return veggieApi.getAllProfiles()
+          return veggieApi._getAllProfiles()
             .then(res => {
               const firstKeys = ['status', 'data']
               const hasFirstKeys = includesArray(Object.keys(res), firstKeys)
@@ -250,9 +248,9 @@ describe('a server', () => {
         })
 
         it('can get the config for a single profile', () => {
-          return getProfileId('test')
+          return veggieApi._getProfileId('test')
             .then(id => {
-              return veggieApi.getProfile({ id })
+              return veggieApi._getProfile({ id })
             })
             .then(res => {
               const firstKeys = ['status', 'data']
@@ -266,7 +264,7 @@ describe('a server', () => {
         })
 
         it('can set a service response', () => {
-          return set('/obj', 200, { msg: 'set' })
+          return veggieApi.set('/obj', 200, { msg: 'set' })
             .then(() => fetchJSON('/obj'))
             .then(({ msg }) => {
               assert(msg === 'set')
@@ -275,7 +273,7 @@ describe('a server', () => {
         })
 
         it('can set a service status code', () => {
-          return set('/obj', 400, {})
+          return veggieApi.set('/obj', 400, {})
             .then(() => fetchJSON('/obj'))
             .then(() => assert(false)) // Fail
             .catch(e => {
@@ -284,14 +282,14 @@ describe('a server', () => {
         })
 
         it('can create a service that isn\'t specified by service configs', () => {
-          return veggieApi.newService({ payload: { url: '/set', status: 200, response: { msg: 'set' } } })
+          return veggieApi._newService({ payload: { url: '/set', status: 200, response: { msg: 'set' } } })
             .then(() => fetchJSON('/set'))
             .then(({ msg }) => assert(msg === 'set'))
             .catch(e => assert(false)) // Fail
         })
 
         it('can hang a service', () => {
-          return hang('/obj')
+          return veggieApi.hang('/obj')
             .then(() => {
               return new Promise((resolve, reject) => {
                 setTimeout(resolve, 1000)
@@ -303,12 +301,12 @@ describe('a server', () => {
         })
 
         it('can reset a service override', () => {
-          return set('/obj', 404, {})
+          return veggieApi.set('/obj', 404, {})
             .then(() => fetchJSON('/obj'))
             .catch(err => {
               // Catch 404 error
               assert(true)
-              return set('/obj')
+              return veggieApi.set('/obj')
             })
             .then(() => fetchJSON('/obj'))
             .then(({ msg }) => assert(msg === 'obj'))
@@ -316,15 +314,15 @@ describe('a server', () => {
         })
 
         it('can load a profile', () => {
-          return getProfileId('test')
-            .then(id => veggieApi.loadProfile({ payload: { id } }))
+          return veggieApi._getProfileId('test')
+            .then(id => veggieApi._loadProfile({ payload: { id } }))
             .then(() => fetchJSON('/obj'))
             .then(d => assert(false)) // Fail
             .catch(e => assert(/409/.test(e)))
         })
 
         it('can save an empty profile to disk', () => {
-          return veggieApi.saveProfile({ payload: { name: 'newTest' } })
+          return veggieApi._saveProfile({ payload: { name: 'newTest' } })
             .then(() => {
               assert(fs.existsSync(path.join(__dirname, '../test/profiles/newTest.json')))
 
@@ -338,11 +336,11 @@ describe('a server', () => {
         })
 
         it('can update a loaded profile', () => {
-          return veggieApi.newService({ payload: { url: '/new-service', status: 301, response: { msg: 'new-service' } } })
-            .then(() => veggieApi.saveProfile({ payload: { name: 'newProfile' } }))
-            .then(() => veggieApi.newService({ payload: { url: '/other-new-service', status: 302, response: { msg: 'other-new-service' } } }))
-            .then(() => getProfileId('newProfile'))
-            .then(id => veggieApi.updateProfile({ id }))
+          return veggieApi._newService({ payload: { url: '/new-service', status: 301, response: { msg: 'new-service' } } })
+            .then(() => veggieApi._saveProfile({ payload: { name: 'newProfile' } }))
+            .then(() => veggieApi._newService({ payload: { url: '/other-new-service', status: 302, response: { msg: 'other-new-service' } } }))
+            .then(() => veggieApi._getProfileId('newProfile'))
+            .then(id => veggieApi._updateProfile({ id }))
             .then(() => {
               assert(fs.existsSync(path.join(__dirname, '../test/profiles/newProfile.json')))
 
@@ -357,11 +355,11 @@ describe('a server', () => {
         })
 
         it('can delete a profile', () => {
-          return veggieApi.newService({ payload: { url: '/temp-service', status: 303, response: { msg: 'temp-service' } } })
-            .then(() => veggieApi.saveProfile({ payload: { name: 'tempProfile' } }))
-            .then(() => veggieApi.resetProfile())
-            .then(() => getProfileId('tempProfile'))
-            .then(id => veggieApi.deleteProfile({ id }))
+          return veggieApi._newService({ payload: { url: '/temp-service', status: 303, response: { msg: 'temp-service' } } })
+            .then(() => veggieApi._saveProfile({ payload: { name: 'tempProfile' } }))
+            .then(() => veggieApi._resetProfile())
+            .then(() => veggieApi._getProfileId('tempProfile'))
+            .then(id => veggieApi._deleteProfile({ id }))
             .then(() => {
               const profileExists = fs.existsSync(path.join(__dirname, '../test/profiles/tempProfile.json'))
               assert(!profileExists)
@@ -369,10 +367,10 @@ describe('a server', () => {
         })
 
         it('can delete the current profile', () => {
-          return veggieApi.newService({ payload: { url: '/temp2-service', status: 303, response: { msg: 'temp2-service' } } })
-            .then(() => veggieApi.saveProfile({ payload: { name: 'temp2Profile' } }))
-            .then(() => getProfileId('temp2Profile'))
-            .then(id => veggieApi.deleteProfile({ id }))
+          return veggieApi._newService({ payload: { url: '/temp2-service', status: 303, response: { msg: 'temp2-service' } } })
+            .then(() => veggieApi._saveProfile({ payload: { name: 'temp2Profile' } }))
+            .then(() => veggieApi._getProfileId('temp2Profile'))
+            .then(id => veggieApi._deleteProfile({ id }))
             .then(() => {
               const profileExists = fs.existsSync(path.join(__dirname, '../test/profiles/temp2Profile.json'))
               assert(!profileExists)

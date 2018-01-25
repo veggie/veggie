@@ -73,22 +73,78 @@ function apiCall ({ url, params, method }, hardcodedPayload) {
   }
 }
 
-export const ping = apiCall(apiConfig.ping)
+/* Internal api */
+export const _ping = apiCall(apiConfig.ping)
 
-export const getAllServices = apiCall(apiConfig.getAllServices)
-export const newService = apiCall(apiConfig.newService)
+export const _getAllServices = apiCall(apiConfig.getAllServices)
+export const _newService = apiCall(apiConfig.newService)
 
-export const getService = apiCall(apiConfig.getService)
-export const setService = apiCall(apiConfig.setService)
+export const _getService = apiCall(apiConfig.getService)
+export const _setService = apiCall(apiConfig.setService)
 
-export const getAllProfiles = apiCall(apiConfig.getAllProfiles)
-export const saveProfile = apiCall(apiConfig.saveProfile)
-export const loadProfile = apiCall(apiConfig.loadProfile)
-export const resetProfile = apiCall(apiConfig.resetProfile)
+export const _getAllProfiles = apiCall(apiConfig.getAllProfiles)
+export const _saveProfile = apiCall(apiConfig.saveProfile)
+export const _loadProfile = apiCall(apiConfig.loadProfile)
+export const _resetProfile = apiCall(apiConfig.resetProfile)
 
-export const getProfile = apiCall(apiConfig.getProfile)
-export const updateProfile = apiCall(apiConfig.updateProfile)
-export const deleteProfile = apiCall(apiConfig.deleteProfile)
+export const _getProfile = apiCall(apiConfig.getProfile)
+export const _updateProfile = apiCall(apiConfig.updateProfile)
+export const _deleteProfile = apiCall(apiConfig.deleteProfile)
+
+/* Helper functions */
+
+export async function _getServiceId (url) {
+  const { data } = await _getAllServices()
+  const id = data.ids
+    .find(id => url === data.byId[id].url.full)
+
+  return id
+}
+
+export async function _getProfileId (name) {
+  const { data } = await _getAllProfiles()
+  const id = data.ids
+    .find(id => `${name}.json` === data.byId[id].name)
+
+  return id
+}
+
+/* User-friendly api */
+
+export async function set (url, status, response) {
+  const id = await _getServiceId(url)
+  const payload = { status, response }
+  const res = await _setService({ id, payload })
+
+  return res
+}
+
+export function block (url) {
+  return set(url, 404, {})
+}
+
+export function reset (url) {
+  return set(url)
+}
+
+export function resetAll () {
+  return _resetProfile()
+}
+
+export async function hang (url) {
+    const id = await _getServiceId(url)
+    const payload = { hang: true }
+    const res = await _setService({ id, payload })
+
+    return res
+}
+
+export async function load (name) {
+  const id = await _getProfileId(name)
+  const res = await _loadProfile({ id })
+
+  return res
+}
 
 export function setApiOrigin (origin = 'http://localhost:1337') {
   const hasProtocol = /\w+\:\/\//.test(origin)
