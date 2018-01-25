@@ -266,13 +266,13 @@ apiRouter.post('/store/:id', (req, res) => {
   if (service) {
     let override
     const hasOverrides = Object.keys(req.body).length > 0
-    if (!hasOverrides) {
-      override = null
-    } else {
+    if (hasOverrides) {
       override = Object.assign(
         { status: 404, response: {}, hang: false },
         req.body
       )
+    } else {
+      override = null
     }
 
     store.dispatch(
