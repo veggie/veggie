@@ -35,7 +35,7 @@ export function currentOverridesSel () {
   const map = ids
     .reduce((acc, id) => {
       const service = byId[id]
-      const { method, status, url } = service
+      const { url } = service
 
       if (service.override) {
         acc[url.full] = service.override
@@ -44,7 +44,7 @@ export function currentOverridesSel () {
       return acc
     }, {})
 
-    return map
+  return map
 }
 
 const routerCache = {}

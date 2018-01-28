@@ -41,8 +41,7 @@ export function getRouteHandler (id) {
       }
       if (data) {
         res.status(status || 200).json(data)
-      }
-      else {
+      } else {
         res.status(status || 404).json({})
       }
     }
@@ -51,8 +50,7 @@ export function getRouteHandler (id) {
     return (req, res) => {
       if (response) {
         res.status(status || 200).json(response)
-      }
-      else {
+      } else {
         res.status(status || 404).json({})
       }
     }
@@ -164,7 +162,7 @@ export function formatService (url, config) {
  * @param {glob} dir
  * @returns void
  */
-export function *servicesFromDir (dir) {
+export function * servicesFromDir (dir) {
   // Find files matching glob
   let files
   try {

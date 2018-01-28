@@ -1,3 +1,4 @@
+/* globals fetch */
 import { apiPathPrefix, apiVersion } from './common'
 
 // /veggie/api/v1/ping - GET - ping
@@ -47,7 +48,7 @@ const apiConfig = {
 }
 
 let fetchOrigin = ''
-function fetchWrapper(path, options) {
+function fetchWrapper (path, options) {
   return fetch(`${fetchOrigin}${path}`, options)
 }
 
@@ -132,11 +133,11 @@ export function resetAll () {
 }
 
 export async function hang (url) {
-    const id = await _getServiceId(url)
-    const payload = { hang: true }
-    const res = await _setService({ id, payload })
+  const id = await _getServiceId(url)
+  const payload = { hang: true }
+  const res = await _setService({ id, payload })
 
-    return res
+  return res
 }
 
 export async function load (name) {
@@ -147,6 +148,6 @@ export async function load (name) {
 }
 
 export function setApiOrigin (origin = 'http://localhost:1337') {
-  const hasProtocol = /\w+\:\/\//.test(origin)
+  const hasProtocol = /\w+:\/\//.test(origin)
   fetchOrigin = hasProtocol ? origin : `http://${origin}`
 }

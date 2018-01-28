@@ -2,10 +2,10 @@ import chalk from 'chalk'
 import { randomExclusive } from './utils'
 import { logSel } from './state/selectors'
 
-const { blue, green, red, underline } = chalk
+const { underline } = chalk
 
 // Random colors
-const colors = ['yellow','magenta','cyan','white']
+const colors = ['yellow', 'magenta', 'cyan', 'white']
 const randomColor = message => chalk[colors[randomExclusive(colors.length)]](message)
 const random = message => message.split(' ').map(word => randomColor(word)).join(' ')
 

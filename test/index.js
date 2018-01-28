@@ -1,3 +1,4 @@
+/* globals describe it before beforeEach after */
 import { getNewPort, fetchJSON, includesArray } from './utils'
 import * as veggie from '../src'
 
@@ -303,7 +304,7 @@ describe('a server', () => {
         it('can reset a service override', () => {
           return veggieApi.set('/obj', 404, {})
             .then(() => fetchJSON('/obj'))
-            .catch(err => {
+            .catch(() => {
               // Catch 404 error
               assert(true)
               return veggieApi.set('/obj')
