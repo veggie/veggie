@@ -16,10 +16,7 @@ const external = [
   'glob',
   'http',
   'meow',
-  'net',
   'path',
-  'path-to-regexp',
-  'repl',
   'url',
   'uuid'
 ]
