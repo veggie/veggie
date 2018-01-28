@@ -19,7 +19,7 @@
     "preserve": "npm run build",
     "serve": "bin/veg --dir test/services/*.js --profileDir test/profiles",
     "serve:watch": "nodemon -w src -x 'npm run serve'",
-    "pretest": "npm run build:test",
+    "pretest": "standard && npm run build:test",
     "test": "nyc --reporter=html --reporter=text mocha dist/veggie.test.js",
     "test:watch": "nodemon -w src --ignore test/profiles -w test -x 'npm test'"
   },
@@ -69,7 +69,8 @@
     "rollup-plugin-babel": "^3.0.3",
     "rollup-plugin-istanbul": "^2.0.0",
     "rollup-plugin-json": "^2.3.0",
-    "rollup-plugin-node-resolve": "^3.0.2"
+    "rollup-plugin-node-resolve": "^3.0.2",
+    "standard": "^10.0.3"
   },
   "files": [
     "bin",
