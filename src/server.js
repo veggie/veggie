@@ -1,6 +1,3 @@
-import fs from 'fs'
-import path from 'path'
-import uuid from 'uuid'
 import express from 'express'
 import store from './state/store'
 import { serverError, serverLog } from './log'
@@ -8,7 +5,6 @@ import { apiPathPrefix, apiVersion } from './common'
 import {
   profileByIdSel,
   profilesSel,
-  profileDirSel,
   serviceByIdSel,
   servicesSel
 } from './state/selectors'
@@ -260,7 +256,6 @@ apiRouter.get('/store/:id', (req, res) => {
  */
 apiRouter.post('/store/:id', (req, res) => {
   const { id } = req.params
-  const { status } = req.body
   const service = serviceByIdSel(id)
 
   if (service) {

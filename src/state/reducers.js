@@ -1,8 +1,9 @@
 import fs from 'fs'
 import uuid from 'uuid'
 import path from 'path'
+import { profileError } from '../log'
 import { formatService, servicesFromDir } from '../utils'
-import { currentOverridesSel, profileDirSel, profileByIdSel, profilesSel } from './selectors'
+import { currentOverridesSel, profileDirSel, profileByIdSel } from './selectors'
 
 /**
  * Marks a service as okay to delete
@@ -28,7 +29,6 @@ function loadProfileFromFs (profile) {
 export function deleteProfile (id) {
   return state => {
     const profile = profileByIdSel(id)
-    const { current } = profilesSel()
 
     fs.unlinkSync(profile.requirePath)
 
@@ -43,7 +43,7 @@ export function getAvailableProfiles () {
 
     if (!dir) {
       return
-    } 
+    }
 
     try {
       fs.readdirSync(dir)

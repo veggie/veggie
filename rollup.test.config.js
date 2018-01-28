@@ -30,10 +30,10 @@ export default [
     plugins: [
       json(),
       istanbul({
-        include: 'src/**/*.js',
+        include: 'src/**/*.js'
       }),
       babel(),
-      nodeResolve(),
+      nodeResolve()
     ]
   }
 ]

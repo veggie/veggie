@@ -1,3 +1,4 @@
+/* globals fetch */
 import 'isomorphic-fetch'
 
 let port = 1337
