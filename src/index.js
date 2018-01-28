@@ -1,4 +1,3 @@
-import 'babel-polyfill'
 import url from 'url'
 import http from 'http'
 import express from 'express'
