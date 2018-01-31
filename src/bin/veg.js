@@ -13,7 +13,7 @@ const cli = meow(`
         -v, --version   Output veg version and exit
 
       Examples
-        $ veg -g services/**/index.js -p 9999 -d 1000
+        $ veg -d services/**/index.js -p 9999 -t 1000
         Serving mock data from localhost:9999
   `, {
     string: 'dir',
