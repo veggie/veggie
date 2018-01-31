@@ -1,13 +1,12 @@
 /* globals describe it before beforeEach after */
 import { getNewPort, fetchJSON, includesArray } from './utils'
-import * as veggie from '../src'
+import { api, middleware, server } from '../src'
 
 const assert = require('assert')
 const express = require('express')
 const fs = require('fs')
 const path = require('path')
-
-const veggieApi = veggie.api
+const veggieApi = api
 
 // Server settings
 const serverSettings = {
@@ -22,14 +21,14 @@ const tests = [{
   type: 'middleware',
   init () {
     let app = express()
-    app.use(veggie.middleware(serverSettings))
+    app.use(middleware(serverSettings))
 
     return app
   }
 }, {
   type: 'router',
   init () {
-    let app = veggie.server(serverSettings)
+    let app = server(serverSettings)
 
     return app
   }
@@ -39,7 +38,7 @@ describe('a server', () => {
   describe('started with a profile', () => {
     let app
     before(() => {
-      app = veggie.server({
+      app = server({
         dir: 'test/services/**/*.js',
         time: 0,
         log: false,

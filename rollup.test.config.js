@@ -1,22 +1,10 @@
-import nodeResolve from 'rollup-plugin-node-resolve'
-import babel from 'rollup-plugin-babel'
 import json from 'rollup-plugin-json'
+import babel from 'rollup-plugin-babel'
+import commonjs from 'rollup-plugin-commonjs'
 import istanbul from 'rollup-plugin-istanbul'
+import nodeResolve from 'rollup-plugin-node-resolve'
 
-const external = [
-  'body-parser',
-  'chalk',
-  'crypto',
-  'express',
-  'fs',
-  'get-port',
-  'glob',
-  'http',
-  'meow',
-  'path',
-  'url',
-  'uuid'
-]
+const external = require('repl')._builtinLibs
 
 export default [
   // Test server
@@ -30,6 +18,7 @@ export default [
         include: 'src/**/*.js'
       }),
       babel(),
+      commonjs(),
       nodeResolve()
     ]
   }
