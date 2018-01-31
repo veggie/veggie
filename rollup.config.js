@@ -1,54 +1,37 @@
 import nodeResolve from 'rollup-plugin-node-resolve'
 import babel from 'rollup-plugin-babel'
 import json from 'rollup-plugin-json'
+import commonjs from 'rollup-plugin-commonjs'
 
 const pkg = require('./package.json')
 const packageBanner = `/*! ${pkg.name} v${pkg.version} */`
 const binBanner = '#!/usr/bin/env node'
-
-const external = [
-  'body-parser',
-  'chalk',
-  'crypto',
-  'express',
-  'fs',
-  'get-port',
-  'glob',
-  'http',
-  'meow',
-  'path',
-  'url',
-  'uuid'
-]
+const external = require('repl')._builtinLibs.concat('depd')
 
 export default [
   // Server
   {
-    banner: packageBanner,
-    external,
     input: './src/index.js',
     output: [
-      { file: pkg.main, format: 'cjs' },
-      { file: pkg.module, format: 'es' }
+      { banner: packageBanner, file: pkg.main, format: 'cjs' },
+      { banner: packageBanner, file: pkg.module, format: 'es' }
     ],
-    plugins: [ json(), babel(), nodeResolve() ]
+    plugins: [ json(), babel(), commonjs(), nodeResolve() ],
+    external
   },
 
   // API
   {
-    banner: packageBanner,
     input: './src/clientEntry.js',
-    name: 'veggie',
-    output: { file: pkg.browser, format: 'umd' },
+    output: { banner: packageBanner, file: pkg.browser, format: 'umd', name: 'veggie' },
     plugins: [ babel(), nodeResolve() ]
   },
 
   // `veg` bin
   {
-    banner: binBanner,
     external,
     input: './src/bin/veg.js',
-    output: { file: pkg.bin.veg, format: 'cjs' },
-    plugins: [ json(), babel(), nodeResolve() ]
+    output: { banner: binBanner, file: pkg.bin.veg, format: 'cjs' },
+    plugins: [ json(), babel(), commonjs(), nodeResolve() ]
   }
 ]
