@@ -48,10 +48,6 @@ const apiConfig = {
 }
 
 let fetchOrigin = ''
-function fetchWrapper (path, options) {
-  return fetch(`${fetchOrigin}${path}`, options)
-}
-
 function apiCall ({ url, params, method }, hardcodedPayload) {
   return async (args = {}) => {
     const { id, payload } = args
@@ -69,7 +65,7 @@ function apiCall ({ url, params, method }, hardcodedPayload) {
       options.body = JSON.stringify(hardcodedPayload || payload)
     }
 
-    return fetchWrapper(apiPath, options)
+    return fetch(`${fetchOrigin}${apiPath}`, options)
       .then(res => res.json())
   }
 }
