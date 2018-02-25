@@ -32,6 +32,6 @@ export default [
     external,
     input: './src/bin/veg.js',
     output: { banner: binBanner, file: pkg.bin.veg, format: 'cjs' },
-    plugins: [ json(), babel(), commonjs(), nodeResolve() ]
+    plugins: [ json(), babel() ]
   }
 ]
