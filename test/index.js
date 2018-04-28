@@ -178,9 +178,34 @@ describe('a server', () => {
           describe('with question mark and query param', () => {
             it('by returning correct data', () => {
               return fetchJSON('/fn/question?search=true')
-                .then(({ msg, type }) => {
+                .then(({ msg, type, val }) => {
                   assert(msg === 'fn')
                   assert(type === 'question-with-query')
+                  assert(val === true)
+                })
+                .catch(() => assert(false)) // Fail
+            })
+          })
+
+          describe('with question mark and identical query param', () => {
+            it('by returning correct data', () => {
+              return fetchJSON('/fn/question?search=false')
+                .then(({ msg, type, val }) => {
+                  assert(msg === 'fn')
+                  assert(type === 'question-with-query')
+                  assert(val === false)
+                })
+                .catch(() => assert(false)) // Fail
+            })
+          })
+
+          describe('with question mark and identical query param and more matches', () => {
+            it('by returning correct data', () => {
+              return fetchJSON('/fn/question?search=false&format=json')
+                .then(({ msg, type, val }) => {
+                  assert(msg === 'fn')
+                  assert(type === 'question-with-query')
+                  assert(val === 'json')
                 })
                 .catch(() => assert(false)) // Fail
             })
