@@ -8,5 +8,7 @@ module.exports = {
   '/fn/query': (req, res) => res.send({ msg: 'fn', query: req.query }),
   '/fn/body': (req, res) => res.send({ msg: 'fn', body: req.body }),
   '/fn/question?': (req, res) => res.send({ msg: 'fn', type: 'question' }),
-  '/fn/question?search=true': (req, res) => res.send({ msg: 'fn', type: 'question-with-query' })
+  '/fn/question?search=true': (req, res) => res.send({ msg: 'fn', type: 'question-with-query', val: true }),
+  '/fn/question?search=false': (req, res) => res.send({ msg: 'fn', type: 'question-with-query', val: false }),
+  '/fn/question?search=false&format=json': (req, res) => res.send({ msg: 'fn', type: 'question-with-query', val: 'json' })
 }
