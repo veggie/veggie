@@ -1,5 +1,6 @@
 import express from 'express'
 import store from './state/store'
+import { sendJSON } from './utils'
 import { serverError, serverLog } from './log'
 import { apiPathPrefix, apiVersion } from './common'
 import {
@@ -22,8 +23,8 @@ export const apiRouter = express.Router()
 export const apiPath = `${apiPathPrefix}/${apiVersion}`
 
 apiRouter.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   next()
 })
 
@@ -34,7 +35,7 @@ apiRouter.use((req, res, next) => {
  * @path /ping
  */
 apiRouter.get('/ping', (req, res) => {
-  res.send({ status: 'success', message: 'pong' })
+  sendJSON(res, { status: 'success', message: 'pong' })
 })
 
 /**
@@ -50,9 +51,9 @@ apiRouter.get('/store/profile/:id', (req, res) => {
   const data = profileByIdSel(id)
 
   if (data) {
-    res.send({ status: 'success', data })
+    sendJSON(res, { status: 'success', data })
   } else {
-    res.status(404).send({ status: 'failed' })
+    sendJSON(res, { status: 'failed' }, 404)
   }
 })
 
@@ -75,12 +76,11 @@ apiRouter.post('/store/profile/:id', (req, res) => {
     )
 
     serverLog(message)
-    res.send({ status: 'success', message })
+    sendJSON(res, { status: 'success', message })
   } else {
     const error = 'profile not found'
     serverError(error)
-
-    res.status(400).send({ status: 'failed', error })
+    sendJSON(res, { status: 'failed', error }, 400)
   }
 })
 
@@ -110,7 +110,7 @@ apiRouter.delete('/store/profile/:id', (req, res) => {
   }
 
   serverLog(message)
-  res.send({ status: 'success', message })
+  sendJSON(res, { status: 'success', message })
 })
 
 /**
@@ -121,7 +121,7 @@ apiRouter.delete('/store/profile/:id', (req, res) => {
  */
 apiRouter.get('/store/profile', (req, res) => {
   const data = profilesSel()
-  res.send({ status: 'success', data })
+  sendJSON(res, { status: 'success', data })
 })
 
 /**
@@ -144,12 +144,12 @@ apiRouter.post('/store/profile', (req, res) => {
     const message = `saving ${name} profile`
     serverLog(message)
 
-    res.send({ status: 'success', message })
+    sendJSON(res, { status: 'success', message })
   } else {
     const error = 'save requires a name'
     serverError(error)
 
-    res.status(400).send({ status: 'failed', error })
+    sendJSON(res, { status: 'failed', error }, 400)
   }
 })
 
@@ -174,12 +174,12 @@ apiRouter.put('/store/profile', (req, res) => {
     const message = `loading ${profile.name} profile`
     serverLog(message)
 
-    res.send({ status: 'success', message })
+    sendJSON(res, { status: 'success', message })
   } else {
     const error = `could not find profile with id ${id}`
     serverError(error)
 
-    res.status(400).send({ status: 'failed', error })
+    sendJSON(res, { status: 'failed', error }, 400)
   }
 })
 
@@ -200,7 +200,7 @@ apiRouter.delete('/store/profile', (req, res) => {
     breakRouterCache()
   )
 
-  res.send({ status: 'success', message })
+  sendJSON(res, { status: 'success', message })
 })
 
 /**
@@ -213,7 +213,7 @@ apiRouter.delete('/store/profile', (req, res) => {
  */
 apiRouter.get('/store', (req, res) => {
   const data = servicesSel()
-  res.send({ status: 'success', data })
+  sendJSON(res, { status: 'success', data })
 })
 
 /**
@@ -230,7 +230,7 @@ apiRouter.post('/store', (req, res) => {
 
   const message = `creating new service ${req.body.url}`
   serverLog(message)
-  res.send({ status: 'success', message })
+  sendJSON(res, { status: 'success', message })
 })
 
 /**
@@ -245,7 +245,7 @@ apiRouter.post('/store', (req, res) => {
 apiRouter.get('/store/:id', (req, res) => {
   const { id } = req.params
   const data = serviceByIdSel(id)
-  res.send({ status: 'success', data })
+  sendJSON(res, { status: 'success', data })
 })
 
 /**
@@ -283,10 +283,10 @@ apiRouter.post('/store/:id', (req, res) => {
 
     const message = `setting override on ${service.url.full} service with ${override && override.status} status`
     serverLog(message)
-    res.send({ status: 'success', message })
+    sendJSON(res, { status: 'success', message })
   } else {
     const error = `could not find ${service.url} service to override`
     serverError(error)
-    res.status(400).send({ status: 'failed', error })
+    sendJSON(res, { status: 'failed', error }, 400)
   }
 })

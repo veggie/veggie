@@ -1,6 +1,7 @@
 import path from 'path'
 import glob from 'glob'
 import uuid from 'uuid'
+import { parse as urlParse } from 'url'
 import store from './state/store'
 import { profileError, serverError } from './log'
 import { delaySel, serviceByIdSel } from './state/selectors'
@@ -13,6 +14,14 @@ const alphabetize = (a, b) => a.localeCompare(b)
  * @returns {number}
  */
 export const randomExclusive = max => Math.floor(Math.random() * max)
+
+export function sendJSON (res, obj, status = 200) {
+  res.writeHead(status, {
+    'Content-Type': 'application/json'
+  })
+
+  return res.end(JSON.stringify(obj))
+}
 
 /**
  * Returns an express route handler for the given user-defined response
@@ -40,18 +49,18 @@ export function getRouteHandler (id) {
         serverError(e)
       }
       if (data) {
-        res.status(status || 200).json(data)
+        sendJSON(res, data, status || 200)
       } else {
-        res.status(status || 404).json({})
+        sendJSON(res, {}, status || 404)
       }
     }
   } else {
     // JSON object
     return (req, res) => {
       if (response) {
-        res.status(status || 200).json(response)
+        sendJSON(res, response, status || 200)
       } else {
-        res.status(status || 404).json({})
+        sendJSON(res, {}, status || 404)
       }
     }
   }
@@ -115,8 +124,10 @@ export function getQueryHandler (ids) {
         // This is the fallback handler
         return true
       } else {
+        const { query } = urlParse(req.url, true)
+
         return Object.keys(url.query)
-          .every(key => req.query[key] === url.query[key])
+          .every(key => query[key] === url.query[key])
       }
     })
 
@@ -126,7 +137,7 @@ export function getQueryHandler (ids) {
         callback(req, res)
       }, randomExclusive(delaySel()))
     } else {
-      res.sendStatus(404, { status: 'failed', error: 'callback not found' })
+      sendJSON(res, { status: 'failed', error: 'callback not found' }, 404)
     }
   }
 }
