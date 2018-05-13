@@ -1,6 +1,7 @@
 /* globals describe it before beforeEach after */
+import http from 'http'
 import { getNewPort, fetchJSON, includesArray } from './utils'
-import { api, middleware, server } from '../src'
+import { api, middleware, router, server } from '../src'
 
 const assert = require('assert')
 const express = require('express')
@@ -18,6 +19,13 @@ const serverSettings = {
 
 // Tests to run
 const tests = [{
+  type: 'http server',
+  init () {
+    let app = http.createServer(router(serverSettings))
+
+    return app
+  }
+}, {
   type: 'middleware',
   init () {
     let app = express()

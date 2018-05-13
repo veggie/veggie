@@ -58,8 +58,7 @@ function proxyMiddleware (config) {
       proxyRes.on('end', () => {
         try {
           res.writeHead(proxyRes.statusCode, proxyRes.headers)
-          res.write(data)
-          res.end()
+          res.end(data)
         } catch (e) {
           profileError(`error parsing json from ${req.path}`)
           next()
@@ -121,6 +120,10 @@ function router ({
   router.use((req, res, next) => {
     const serviceRouter = routerSel()
     serviceRouter(req, res, next)
+  })
+  router.use('*', (req, res) => {
+    res.statusCode = 404
+    res.end()
   })
 
   return router
