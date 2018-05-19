@@ -22,6 +22,7 @@ Veggie was created to do 3 things:
 - serve mock data in a dev server
 - serve the same data in tests
 - allow testing/demoing specific user scenarios
+- accomplish this all without conflating application code with development code
 
 A user scenario (or profile) is defined here as a set of services and their
 responses. This may include varying errors from different services due to bad
