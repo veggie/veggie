@@ -17,7 +17,7 @@ you to manage user scenarios.
 
 ### Motivation
 
-Veggie was created to do 3 things:
+Veggie was created to do the following:
 
 - serve mock data in a dev server
 - serve the same data in tests
