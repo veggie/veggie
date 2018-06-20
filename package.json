@@ -25,7 +25,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/micburks/veggie.git"
+    "url": "git+https://github.com/veggie/veggie.git"
   },
   "keywords": [
     "mock",
@@ -38,9 +38,9 @@
   "author": "Mickey Burks",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/micburks/veggie/issues"
+    "url": "https://github.com/veggie/veggie/issues"
   },
-  "homepage": "https://github.com/micburks/veggie#readme",
+  "homepage": "https://github.com/veggie/veggie#readme",
   "dependencies": {
     "babel-runtime": "^6.26.0",
     "body-parser": "^1.18.2",
