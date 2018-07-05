@@ -6,6 +6,8 @@
 [![NPM Version](https://img.shields.io/npm/v/veggie.svg)](https://www.npmjs.com/package/veggie)
 [![License](https://img.shields.io/npm/l/rollup.svg)](https://github.com/veggie/veggie/blob/master/LICENSE)
 
+![veggie](https://media.giphy.com/media/5noqLunPMAD258M2JX/giphy.gif)
+
 > *Eat your damn vegetables*
 
 Interactive mock server for profiling user scenarios
