@@ -163,7 +163,7 @@ apiRouter.post('/store/profile', (req, res) => {
  * @path /veggie/api/v1/store/profile
  */
 apiRouter.put('/store/profile', (req, res) => {
-  const { id } = req.body
+  const { id, name } = req.body
   const profile = profileByIdSel(id)
 
   if (id) {
@@ -177,7 +177,7 @@ apiRouter.put('/store/profile', (req, res) => {
 
     sendJSON(res, { status: 'success', message })
   } else {
-    const error = `could not find profile with id ${id}`
+    const error = `could not find profile: ${name}`
     serverError(error)
 
     sendJSON(res, { status: 'failed', error }, 400)

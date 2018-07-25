@@ -138,7 +138,7 @@ export async function hang (url) {
 
 export async function load (name) {
   const id = await _getProfileId(name)
-  const res = await _loadProfile({ id })
+  const res = await _loadProfile({payload: {id, name}})
 
   return res
 }

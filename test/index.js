@@ -347,11 +347,16 @@ describe('a server', () => {
         })
 
         it('can load a profile', () => {
-          return veggieApi._getProfileId('test')
-            .then(id => veggieApi._loadProfile({ payload: { id } }))
+          return veggieApi.load('test')
             .then(() => fetchJSON('/obj'))
             .then(d => assert(false)) // Fail
             .catch(e => assert(/409/.test(e)))
+        })
+
+        it('will return correct status for a profile not found', () => {
+          return veggieApi.load('non-existant-profile')
+          .then(d => assert(d.status === 'failed'))
+          .catch(e => assert(false))
         })
 
         it('can save an empty profile to disk', () => {
