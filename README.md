@@ -220,7 +220,7 @@ veggie.resetAll()
 
 #### show
 ```javascript
-// Show the currently overriden services
+// Show the currently overridden services
 veggie.show()
 ```
 
